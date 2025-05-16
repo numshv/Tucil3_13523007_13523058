@@ -76,6 +76,30 @@ public class Board {
         return true;
     }
 
+    public int getStartRowPiece(Piece p){
+        char type = p.getPieceType();
+        for(int i=1; i<=boardRow; i++){
+            for(int j=1; j<=boardCol; j++){
+                if(boardState[i][j] == type){
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public int getStartColPiece(Piece p){
+        char type = p.getPieceType();
+        for(int i=1; i<=boardRow; i++){
+            for(int j=1; j<=boardCol; j++){
+                if(boardState[i][j] == type){
+                    return j;
+                }
+            }
+        }
+        return -1;
+    }
+
     public void addPiece(Piece p, int row, int col){
         if(p.checkHorizontal()){ // Horizontal
             if(colSpaceEmpty(row, col, p.getLen())){
@@ -118,7 +142,7 @@ public class Board {
             int newRow = row-dist;
             // Kalo pergeseran melebihi lebar board
             if(newRow <= 0) newRow = 1;
-            if(rowSpaceEmpty(newRow, col, p.getLen())){
+            if(rowSpaceEmpty(newRow, col, dist)){
                 removePiece(p, row, col);
                 addPiece(p, newRow, col);
             }
@@ -137,7 +161,7 @@ public class Board {
             int newRow = row+dist;
             // Kalo pergeseran melebihi lebar board
             if(newRow+p.getLen()-1 > boardRow) newRow = boardRow-p.getLen()+1;
-            if(rowSpaceEmpty(newRow, col, p.getLen())){
+            if(rowSpaceEmpty(newRow, col, dist)){
                 removePiece(p, row, col);
                 addPiece(p, newRow, col);
             }
@@ -156,8 +180,7 @@ public class Board {
             int newCol = col-dist;
             // Kalo pergeseran melebihi lebar board
             if(newCol <= 0) newCol = 1;
-            if(colSpaceEmpty(row, newCol, p.getLen())){
-                removePiece(p, row, col);
+            if(colSpaceEmpty(row, newCol, dist)){
                 removePiece(p, row, col);
                 addPiece(p, row, newCol);
             }
@@ -176,7 +199,7 @@ public class Board {
             int newCol = col+dist;
             // Kalo pergeseran melebihi lebar board
             if(newCol+p.getLen()-1 > boardCol) newCol = boardCol-p.getLen()+1;
-            if(colSpaceEmpty(row, newCol, p.getLen())){
+            if(colSpaceEmpty(row, newCol, dist)){
                 removePiece(p, row, col);
                 addPiece(p, row, newCol);
             }
