@@ -129,7 +129,9 @@ public class Board {
         }
     }
 
-    public void moveUpPiece(Piece p, int dist, int row, int col){
+    public void moveUpPiece(Piece p, int dist){
+        int row = getStartRowPiece(p);
+        int col = getStartColPiece(p);
         if(!p.checkHorizontal()){
             if(p.checkPrimary()){
                 if(row-dist <= exitRow && col == exitCol){
@@ -149,7 +151,9 @@ public class Board {
         }
     }
 
-    public void moveDownPiece(Piece p, int dist, int row, int col){
+    public void moveDownPiece(Piece p, int dist){
+        int row = getStartRowPiece(p);
+        int col = getStartColPiece(p);
         if(!p.checkHorizontal()){
             if(p.checkPrimary()){
                 if(row+p.getLen()+dist-1 >= exitRow && col == exitCol){
@@ -168,7 +172,9 @@ public class Board {
         }
     }
 
-    public void moveLeftPiece(Piece p, int dist, int row, int col){
+    public void moveLeftPiece(Piece p, int dist){
+        int row = getStartRowPiece(p);
+        int col = getStartColPiece(p);
         if(p.checkHorizontal()){
             if(p.checkPrimary()){
                 if(col-dist <= exitCol && row == exitRow){
@@ -187,7 +193,9 @@ public class Board {
         }
     }
 
-    public void moveRightPiece(Piece p, int dist, int row, int col){
+    public void moveRightPiece(Piece p, int dist){
+        int row = getStartRowPiece(p);
+        int col = getStartColPiece(p);
         if(p.checkHorizontal()){
             if(p.checkPrimary()){
                 if(col+p.getLen()+dist-1 >= exitCol && row == exitRow){
