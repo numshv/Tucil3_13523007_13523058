@@ -109,6 +109,7 @@ public class Board {
         if(!p.checkHorizontal()){
             if(p.checkPrimary()){
                 if(row-dist <= exitRow && col == exitCol){
+                    removePiece(p, row, col);
                     boardFinished = true;
                     return;
                 } 
@@ -128,6 +129,7 @@ public class Board {
         if(!p.checkHorizontal()){
             if(p.checkPrimary()){
                 if(row+p.getLen()+dist-1 >= exitRow && col == exitCol){
+                    removePiece(p, row, col);
                     boardFinished = true;
                     return;
                 } 
@@ -146,6 +148,7 @@ public class Board {
         if(p.checkHorizontal()){
             if(p.checkPrimary()){
                 if(col-dist <= exitCol && row == exitRow){
+                    removePiece(p, row, col);
                     boardFinished = true;
                     return;
                 } 
@@ -154,6 +157,7 @@ public class Board {
             // Kalo pergeseran melebihi lebar board
             if(newCol <= 0) newCol = 1;
             if(colSpaceEmpty(row, newCol, p.getLen())){
+                removePiece(p, row, col);
                 removePiece(p, row, col);
                 addPiece(p, row, newCol);
             }
@@ -164,6 +168,7 @@ public class Board {
         if(p.checkHorizontal()){
             if(p.checkPrimary()){
                 if(col+p.getLen()+dist-1 >= exitCol && row == exitRow){
+                    removePiece(p, row, col);
                     boardFinished = true;
                     return;
                 } 
