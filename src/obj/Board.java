@@ -167,7 +167,7 @@ public class Board {
                     System.out.print('K');
                 }
                 else{
-                    System.out.print('.');
+                    System.out.print(' ');
                 }
             }
             System.err.println();
@@ -194,7 +194,7 @@ public class Board {
                     System.out.print('K');
                 }
                 else{
-                    System.out.print('.');
+                    System.out.print(' ');
                 }
             }
             System.err.println();
