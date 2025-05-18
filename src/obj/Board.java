@@ -157,6 +157,10 @@ public class Board {
         return exitCol;
     }
 
+    public char[][] getBoardState(){
+        return boardState;
+    }
+
     public void printBoardState(){
         System.out.println("============= Susunan papan saat ini =============\n");
         if(exitRow == 0){
