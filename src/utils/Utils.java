@@ -16,19 +16,22 @@ public class Utils {
 
         while (true) {
             Scanner fileScanner = null;
-            char[][] boardData_0idx = null; // Array 0-indexed untuk data papan aktual
+            char[][] boardData_0idx = null;
             int declaredRows = 0;
             int declaredCols = 0;
-            int declaredPieceCount = 0;
+            int declaredPieceCount = 0; 
             
-            int exitRow_1idx = -1;      // Final 1-indexed exit row
-            int exitCol_1idx = -1;      // Final 1-indexed exit col
-            boolean kSymbolFound = false; // Penanda apakah 'K' sudah ditemukan
+            int exitRow_1idx = -1;    
+            int exitCol_1idx = -1;    
+            boolean kSymbolFound = false;
+            int kLineIndexInList = -1;  
+            int kCharPosOnItsLine = -1; // Posisi char 'K' (0-idx) pada barisnya SETELAH TRIM AKHIR (whitespace awal masih ada)
+            boolean kLineIsSoloType = false; 
 
             try {
                 System.out.print("Masukkan nama file input (dalam folder test, ex: tes1.txt): ");
                 String filename = userInputScanner.nextLine();
-                String filePath = "test/" + filename;
+                String filePath = "test/" + filename; 
                 File file = new File(filePath);
 
                 if (!file.exists()) {
@@ -42,12 +45,12 @@ public class Utils {
                 else throw new NoSuchElementException("Format file salah: nilai baris (row) tidak ditemukan.");
                 if (fileScanner.hasNextInt()) declaredCols = fileScanner.nextInt();
                 else throw new NoSuchElementException("Format file salah: nilai kolom (col) tidak ditemukan.");
-                if (declaredRows < 1 || declaredCols < 1) {
+                if (declaredRows < 1 || declaredCols < 1) { // Papan data harus punya dimensi minimal 1x1
                     throw new IllegalArgumentException("Dimensi papan (row/col) harus bernilai >= 1.");
                 }
                 if (fileScanner.hasNextInt()) declaredPieceCount = fileScanner.nextInt();
                 else throw new NoSuchElementException("Format file salah: deklarasi jumlah piece tidak ditemukan.");
-                if (fileScanner.hasNextLine()) fileScanner.nextLine(); // Konsumsi sisa baris header
+                if (fileScanner.hasNextLine()) fileScanner.nextLine(); 
 
                 // 2. Baca semua baris sisa ke List
                 List<String> allLines = new ArrayList<>();
@@ -55,30 +58,26 @@ public class Utils {
                     allLines.add(fileScanner.nextLine());
                 }
 
-                // 3. Cari 'K', tentukan jenis baris 'K' (solo atau dengan data)
-                int kLineIndexInList = -1;    // Index baris 'K' di allLines
-                int kCharPosOnItsLine = -1;   // Posisi karakter 'K' (0-idx) pada barisnya (setelah trim akhir)
-                boolean kLineIsSoloType = false; // True jika baris K hanya berisi K dan whitespace
-
+                // 3. Cari 'K', tentukan jenis baris 'K'
                 for (int i = 0; i < allLines.size(); i++) {
                     String originalLine = allLines.get(i);
-                    String lineTrailingTrimmed = originalLine.replaceAll("\\s+$", ""); // Trim akhir, pertahankan awal
+                    // Trim whitespace AKHIR saja untuk pencarian K dan penentuan kCharPosOnItsLine
+                    String lineForKSearch = originalLine.replaceAll("\\s+$", ""); 
 
-                    int kIdx = lineTrailingTrimmed.indexOf('K');
-                    if (kIdx == -1) kIdx = lineTrailingTrimmed.indexOf('k');
+                    int kIdx = lineForKSearch.indexOf('K');
+                    if (kIdx == -1) kIdx = lineForKSearch.indexOf('k');
 
                     if (kIdx != -1) {
                         if (kSymbolFound) throw new Exception("Simbol 'K' ditemukan lebih dari satu kali.");
                         kSymbolFound = true;
                         kLineIndexInList = i;
-                        kCharPosOnItsLine = kIdx;
+                        kCharPosOnItsLine = kIdx; // Posisi K pada string yang sudah di-trim akhirnya
 
-                        // Cek apakah baris K adalah "solo" (hanya K dan whitespace)
                         kLineIsSoloType = true;
-                        for (int charPos = 0; charPos < lineTrailingTrimmed.length(); charPos++) {
-                            if (charPos == kIdx) continue; // Lewati karakter K itu sendiri
-                            if (!Character.isWhitespace(lineTrailingTrimmed.charAt(charPos))) {
-                                kLineIsSoloType = false; // Ada karakter non-whitespace lain selain K
+                        for (int charPos = 0; charPos < lineForKSearch.length(); charPos++) {
+                            if (charPos == kIdx) continue; 
+                            if (!Character.isWhitespace(lineForKSearch.charAt(charPos))) {
+                                kLineIsSoloType = false; 
                                 break;
                             }
                         }
@@ -90,68 +89,73 @@ public class Utils {
                 // 4. Ekstrak data papan dan finalisasi posisi exit
                 boardData_0idx = new char[declaredRows][declaredCols];
                 int actualDataRowsProcessed = 0;
-                int firstBoardDataLineInList = -1; // Untuk referensi K atas/bawah
+                int firstBoardDataLineInAllLines = -1; 
 
                 for (int i = 0; i < allLines.size(); i++) {
-                    if (i == kLineIndexInList && kLineIsSoloType) {
-                        // Jika ini baris K solo, catat posisinya relatif jika belum ada data papan
-                        if (firstBoardDataLineInList == -1) firstBoardDataLineInList = i + 1; // Data papan akan mulai setelah ini
-                        continue; // Lewati baris K solo dari pemrosesan data papan
-                    }
-
                     String originalLine = allLines.get(i);
-                    String lineTrailingTrimmed = originalLine.replaceAll("\\s+$", "");
+                    
+                    if (i == kLineIndexInList && kLineIsSoloType) {
+                        if (firstBoardDataLineInAllLines == -1) firstBoardDataLineInAllLines = i + 1; 
+                        continue; 
+                    }
 
-                    if (lineTrailingTrimmed.isEmpty()) {
-                        // Jika baris K solo belum ditemukan dan baris data pertama belum ditemukan,
-                        // baris kosong ini bisa jadi pemisah antara K atas dan data
-                        if (!kLineIsSoloType && kLineIndexInList > i && firstBoardDataLineInList == -1) {
-                             firstBoardDataLineInList = i + 1;
+                    // Untuk baris yang bukan K-solo, trim whitespace AKHIR untuk diproses lebih lanjut
+                    String lineToProcess = originalLine.replaceAll("\\s+$", "");
+
+                    // Abaikan baris yang menjadi kosong SETELAH trim akhir (dan bukan K-solo)
+                    if (lineToProcess.trim().isEmpty()) { // .trim() di sini untuk mengecek apakah baris itu substansial kosong
+                        if (firstBoardDataLineInAllLines == -1 && kLineIndexInList != -1 && kLineIndexInList < i && kLineIsSoloType) {
+                             firstBoardDataLineInAllLines = i + 1;
                         }
-                        continue; // Abaikan baris yang sepenuhnya kosong
+                        continue; 
                     }
                     
-                    // Jika sudah cukup baris data diproses, baris non-kosong berikutnya harusnya baris K solo (jika K di bawah)
                     if (actualDataRowsProcessed >= declaredRows) {
-                        if (!(i == kLineIndexInList && kLineIsSoloType)) { // Jika bukan baris K solo yang memang diharapkan di bawah
-                             throw new Exception("Ditemukan lebih dari " + declaredRows + " baris data papan yang tidak kosong.");
+                        if (!(i == kLineIndexInList && kLineIsSoloType)) { 
+                             throw new Exception("Ditemukan lebih dari " + declaredRows + " baris data papan yang tidak kosong. Baris bermasalah: '" + lineToProcess + "'");
                         }
-                        continue; // Sudah selesai ambil data, ini mungkin K bawah atau sisa file
+                        continue;
                     }
 
-                    // Catat indeks baris data pertama
-                    if (firstBoardDataLineInList == -1) firstBoardDataLineInList = i;
+                    if (firstBoardDataLineInAllLines == -1) firstBoardDataLineInAllLines = i;
                     
-                    String boardRowString;
+                    String boardRowContentCandidate; // Ini akan berisi string yang AKAN menjadi data papan
 
-                    if (i == kLineIndexInList) { // K ada di baris ini, dan baris ini juga mengandung data papan
-                        if (kLineIsSoloType) throw new Exception("Logika error: Baris K solo tidak seharusnya diproses sebagai data."); // Pengaman
-
-                        if (kCharPosOnItsLine == 0 && lineTrailingTrimmed.length() == declaredCols + 1) { // K di kiri
-                            boardRowString = lineTrailingTrimmed.substring(1);
+                    if (i == kLineIndexInList) { // K ada di baris ini, dan BUKAN K solo
+                        // lineToProcess sudah di-trim akhirnya, masih mengandung K dan whitespace awal
+                        if (kCharPosOnItsLine == 0 && lineToProcess.length() >= declaredCols + 1) { // K di kiri
+                            // Ambil bagian data, lalu trim whitespace awal & akhir dari bagian data ini
+                            boardRowContentCandidate = lineToProcess.substring(1).trim();
                             exitRow_1idx = actualDataRowsProcessed + 1;
-                            exitCol_1idx = 0; // Konvensi untuk keluar kiri
-                        } else if (kCharPosOnItsLine == declaredCols && lineTrailingTrimmed.length() == declaredCols + 1) { // K di kanan
-                            boardRowString = lineTrailingTrimmed.substring(0, declaredCols);
+                            exitCol_1idx = 0; 
+                        } else if (kCharPosOnItsLine >= declaredCols && lineToProcess.length() >= declaredCols + 1 && kCharPosOnItsLine == lineToProcess.trim().indexOf('K', declaredCols-1)) { 
+                            // K di kanan. Ambil bagian data, lalu trim whitespace awal & akhir
+                            // kCharPosOnItsLine harus == declaredCols jika data nya pas declaredCols.
+                            // Atau K bisa setelah beberapa spasi setelah data.
+                            // Yang penting, substring(0, kCharPosOnItsLine) adalah kandidat data.
+                            boardRowContentCandidate = lineToProcess.substring(0, kCharPosOnItsLine).trim();
                             exitRow_1idx = actualDataRowsProcessed + 1;
                             exitCol_1idx = declaredCols + 1;
                         } else {
-                            throw new Exception("Posisi 'K' di baris data ke-" + (actualDataRowsProcessed + 1) +
-                                                " (isi: '" + lineTrailingTrimmed + "') tidak valid. 'K' harus di awal atau akhir, " +
-                                                "dan sisa baris harus " + declaredCols + " karakter.");
+                            throw new Exception("Posisi 'K' pada baris data ke-" + (actualDataRowsProcessed + 1) +
+                                                " (isi: '" + lineToProcess + "') tidak valid. Untuk pintu samping, 'K' harus di awal atau akhir, " +
+                                                "dan bagian data (setelah trim total) harus sepanjang " + declaredCols + " karakter.");
                         }
                     } else { // Baris data murni tanpa 'K'
-                        boardRowString = lineTrailingTrimmed;
+                        // Trim whitespace awal DAN akhir untuk mendapatkan konten data murni
+                        boardRowContentCandidate = lineToProcess.trim();
                     }
 
-                    if (boardRowString.length() != declaredCols) {
+                    // Validasi panjang string data papan (setelah semua trim yang relevan untuk data)
+                    if (boardRowContentCandidate.length() != declaredCols) {
                         throw new Exception("Baris data ke-" + (actualDataRowsProcessed + 1) +
-                                            " (isi: '" + boardRowString + "') memiliki panjang " + boardRowString.length() +
+                                            " (setelah diproses menjadi: '" + boardRowContentCandidate + "') memiliki panjang " + boardRowContentCandidate.length() +
                                             ". Diharapkan " + declaredCols + " karakter.");
                     }
 
+                    // Isi boardData_0idx
                     for (int j = 0; j < declaredCols; j++) {
-                        boardData_0idx[actualDataRowsProcessed][j] = boardRowString.charAt(j);
+                        boardData_0idx[actualDataRowsProcessed][j] = boardRowContentCandidate.charAt(j);
                     }
                     actualDataRowsProcessed++;
                 }
@@ -163,24 +167,22 @@ public class Utils {
 
                 // Jika exit belum ditentukan (berarti K ada di baris solo atas/bawah)
                 if (exitRow_1idx == -1) {
-                    if (kLineIndexInList < firstBoardDataLineInList || firstBoardDataLineInList == -1) { // K di atas, atau tidak ada data board sama sekali (kasus K solo dan declaredRows = 0, sudah dicegah)
-                        exitRow_1idx = 0; // Konvensi keluar atas
-                    } else { // K di bawah (kLineIndexInList harusnya > index baris data terakhir)
-                        exitRow_1idx = declaredRows + 1; // Konvensi keluar bawah
+                    if (firstBoardDataLineInAllLines == -1 || kLineIndexInList < firstBoardDataLineInAllLines) { 
+                        exitRow_1idx = 0; 
+                    } else { 
+                        exitRow_1idx = declaredRows + 1; 
                     }
-                    exitCol_1idx = kCharPosOnItsLine + 1; // Kolom K (1-indexed) pada barisnya (termasuk leading whitespace)
+                    // kCharPosOnItsLine adalah posisi 0-indexed 'K' pada barisnya (termasuk leading whitespace, setelah trim akhir)
+                    exitCol_1idx = kCharPosOnItsLine + 1; 
                     
-                    // Validasi kolom K untuk exit atas/bawah agar sejajar dengan papan
                     if (exitCol_1idx < 1 || exitCol_1idx > declaredCols) {
                         throw new Exception("Posisi 'K' (kolom " + exitCol_1idx +
-                                            ") untuk pintu keluar atas/bawah di luar rentang kolom papan [1-" + declaredCols + "].");
+                                            ") untuk pintu keluar atas/bawah di luar rentang kolom papan [1-" + declaredCols + "]. Isi baris K: '" + allLines.get(kLineIndexInList).replaceAll("\\s+$", "") + "'");
                     }
                 }
                 
-                // 5. Buat objek Board
                 Board board = new Board(boardData_0idx, exitRow_1idx, exitCol_1idx);
                 
-                // 6. Validasi pieceCounter
                 if (declaredPieceCount != board.getPieceCounter()) {
                     throw new Exception("Jumlah piece tidak sesuai deklarasi. Dideklarasikan: " +
                                         declaredPieceCount + ", Dihitung dari papan (unik, tanpa P): " + board.getPieceCounter());
@@ -199,11 +201,8 @@ public class Utils {
                 System.out.println("Terjadi kesalahan saat memproses file: " + e.getMessage() + "\nSilakan coba lagi.");
                 // e.printStackTrace(); 
             } finally {
-                if (fileScanner != null) {
-                    fileScanner.close();
-                }
+                if (fileScanner != null) fileScanner.close();
             }
         }
-        // return null; 
     }
 }
