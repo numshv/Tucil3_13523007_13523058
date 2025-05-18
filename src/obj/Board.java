@@ -158,8 +158,6 @@ public class Board {
     }
 
     public void printBoardState(){
-        System.out.println(exitRow);
-        System.out.println(exitCol);
         System.out.println("============= Susunan papan saat ini =============\n");
         if(exitRow == 0){
             for(int i = 0 ; i < boardCol+1;i++){
