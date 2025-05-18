@@ -1,3 +1,5 @@
+package obj;
+
 public class Piece {
     private char piece;
     private int len; // piece length
