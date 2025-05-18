@@ -207,7 +207,7 @@ public class Board {
     // Cek secara vertikal apakah kosong
     public boolean rowSpaceEmpty(int row, int col, int len){
         for(int i=row; i<row+len; i++){
-            if(boardState[i][col] != '.') return false;
+            if(i < 1 || i > boardRow || boardState[i][col] != '.') return false;
         }
         return true;
     }
@@ -215,7 +215,41 @@ public class Board {
     // Cek secara horizontal apakah kosong
     public boolean colSpaceEmpty(int row, int col, int len){
         for(int j=col; j<col+len; j++){
-            if(boardState[row][j] != '.') return false;
+            if(j < 1 || j > boardCol || boardState[row][j] != '.') return false;
+        }
+        return true;
+    }
+
+    // Cek secara vertikal dari start ke end apakah kosong (inclusive)
+    public boolean verticalRangeEmpty(int startRow, int endRow, int col) {
+        // Make sure start <= end
+        if (startRow > endRow) {
+            int temp = startRow;
+            startRow = endRow;
+            endRow = temp;
+        }
+        
+        for (int i = startRow; i <= endRow; i++) {
+            if (i < 1 || i > boardRow || (boardState[i][col] != '.' && boardState[i][col] != boardState[startRow][col])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Cek secara horizontal dari start ke end apakah kosong (inclusive)
+    public boolean horizontalRangeEmpty(int row, int startCol, int endCol) {
+        // Make sure start <= end
+        if (startCol > endCol) {
+            int temp = startCol;
+            startCol = endCol;
+            endCol = temp;
+        }
+        
+        for (int j = startCol; j <= endCol; j++) {
+            if (j < 1 || j > boardCol || (boardState[row][j] != '.' && boardState[row][j] != boardState[row][startCol])) {
+                return false;
+            }
         }
         return true;
     }
@@ -276,6 +310,7 @@ public class Board {
                 for(int j=col; j<col+p.getLen(); j++){
                     boardState[row][j] = p.getPieceType();
                 }
+                pieces.put(p.getPieceType(), p);
                 this.pieceCounter++;
             }
         }else{ // Vertikal
@@ -283,6 +318,7 @@ public class Board {
                 for(int i=row; i<row+p.getLen(); i++){
                     boardState[i][col] = p.getPieceType();
                 }
+                pieces.put(p.getPieceType(), p);
                 this.pieceCounter++;
             }
         }
@@ -294,11 +330,13 @@ public class Board {
             for(int j=col; j<col+p.getLen(); j++){
                 boardState[row][j] = '.';
             }
+            pieces.remove(p.getPieceType(), p);
             this.pieceCounter--;
         }else{ // Vertikal
             for(int i=row; i<row+p.getLen(); i++){
                 boardState[i][col] = '.';
             }
+            pieces.remove(p.getPieceType(), p);
             this.pieceCounter--;
         }
     }
@@ -332,9 +370,9 @@ public class Board {
             }
             
             int newRow = row-dist;
-            // Kalo pergeseran melebihi lebar board
-            if(newRow <= 0) newRow = 1;
-            if(rowSpaceEmpty(newRow, col, dist)){
+            if(newRow < 1) newRow = 1;
+            
+            if(verticalRangeEmpty(newRow, row-1, col)){
                 removePiece(p, row, col);
                 addPiece(p, newRow, col);
             }
@@ -343,42 +381,29 @@ public class Board {
 
     public void moveUpPiece(char type, int dist){
         Piece p = pieces.get(type);
-        int row = getStartRowPiece(p);
-        int col = getStartColPiece(p);
-        if(!p.checkHorizontal()){
-            if(p.checkPrimary()){
-                if(row-dist <= exitRow && col == exitCol){
-                    removePiece(p, row, col);
-                    boardFinished = true;
-                    return;
-                } 
-            }
-            
-            int newRow = row-dist;
-            // Kalo pergeseran melebihi lebar board
-            if(newRow <= 0) newRow = 1;
-            if(rowSpaceEmpty(newRow, col, dist)){
-                removePiece(p, row, col);
-                addPiece(p, newRow, col);
-            }
-        }
+        moveUpPiece(p, dist);
     }
 
     public void moveDownPiece(Piece p, int dist){
         int row = getStartRowPiece(p);
         int col = getStartColPiece(p);
         if(!p.checkHorizontal()){
+            int pieceEndRow = row + p.getLen() - 1;
+            
             if(p.checkPrimary()){
-                if(row+p.getLen()+dist-1 >= exitRow && col == exitCol){
+                if(pieceEndRow+dist >= exitRow && col == exitCol){
                     removePiece(p, row, col);
                     boardFinished = true;
                     return;
                 } 
             }
+            
             int newRow = row+dist;
-            // Kalo pergeseran melebihi lebar board
-            if(newRow+p.getLen()-1 > boardRow) newRow = boardRow-p.getLen()+1;
-            if(rowSpaceEmpty(newRow, col, dist)){
+            int newEndRow = newRow + p.getLen() - 1;
+            if(newEndRow > boardRow) newRow = boardRow - p.getLen() + 1;
+            
+            newEndRow = newRow + p.getLen() - 1;
+            if(verticalRangeEmpty(pieceEndRow+1, newEndRow, col)){
                 removePiece(p, row, col);
                 addPiece(p, newRow, col);
             }
@@ -387,24 +412,7 @@ public class Board {
 
     public void moveDownPiece(char type, int dist){
         Piece p = pieces.get(type);
-        int row = getStartRowPiece(p);
-        int col = getStartColPiece(p);
-        if(!p.checkHorizontal()){
-            if(p.checkPrimary()){
-                if(row+p.getLen()+dist-1 >= exitRow && col == exitCol){
-                    removePiece(p, row, col);
-                    boardFinished = true;
-                    return;
-                } 
-            }
-            int newRow = row+dist;
-            // Kalo pergeseran melebihi lebar board
-            if(newRow+p.getLen()-1 > boardRow) newRow = boardRow-p.getLen()+1;
-            if(rowSpaceEmpty(newRow, col, dist)){
-                removePiece(p, row, col);
-                addPiece(p, newRow, col);
-            }
-        }
+        moveDownPiece(p, dist);
     }
 
     public void moveLeftPiece(Piece p, int dist){
@@ -418,10 +426,11 @@ public class Board {
                     return;
                 } 
             }
+            
             int newCol = col-dist;
-            // Kalo pergeseran melebihi lebar board
-            if(newCol <= 0) newCol = 1;
-            if(colSpaceEmpty(row, newCol, dist)){
+            if(newCol < 1) newCol = 1;
+            
+            if(horizontalRangeEmpty(row, newCol, col-1)){
                 removePiece(p, row, col);
                 addPiece(p, row, newCol);
             }
@@ -430,41 +439,29 @@ public class Board {
 
     public void moveLeftPiece(char type, int dist){
         Piece p = pieces.get(type);
-        int row = getStartRowPiece(p);
-        int col = getStartColPiece(p);
-        if(p.checkHorizontal()){
-            if(p.checkPrimary()){
-                if(col-dist <= exitCol && row == exitRow){
-                    removePiece(p, row, col);
-                    boardFinished = true;
-                    return;
-                } 
-            }
-            int newCol = col-dist;
-            // Kalo pergeseran melebihi lebar board
-            if(newCol <= 0) newCol = 1;
-            if(colSpaceEmpty(row, newCol, dist)){
-                removePiece(p, row, col);
-                addPiece(p, row, newCol);
-            }
-        }
+        moveLeftPiece(p, dist);
     }
 
     public void moveRightPiece(Piece p, int dist){
         int row = getStartRowPiece(p);
         int col = getStartColPiece(p);
         if(p.checkHorizontal()){
+            int pieceEndCol = col + p.getLen() - 1;
+            
             if(p.checkPrimary()){
-                if(col+p.getLen()+dist-1 >= exitCol && row == exitRow){
+                if(pieceEndCol+dist >= exitCol && row == exitRow){
                     removePiece(p, row, col);
                     boardFinished = true;
                     return;
                 } 
             }
+            
             int newCol = col+dist;
-            // Kalo pergeseran melebihi lebar board
-            if(newCol+p.getLen()-1 > boardCol) newCol = boardCol-p.getLen()+1;
-            if(colSpaceEmpty(row, newCol, dist)){
+            int newEndCol = newCol + p.getLen() - 1;
+            if(newEndCol > boardCol) newCol = boardCol - p.getLen() + 1;
+            
+            newEndCol = newCol + p.getLen() - 1;
+            if(horizontalRangeEmpty(row, pieceEndCol+1, newEndCol)){
                 removePiece(p, row, col);
                 addPiece(p, row, newCol);
             }
@@ -473,24 +470,7 @@ public class Board {
 
     public void moveRightPiece(char type, int dist){
         Piece p = pieces.get(type);
-        int row = getStartRowPiece(p);
-        int col = getStartColPiece(p);
-        if(p.checkHorizontal()){
-            if(p.checkPrimary()){
-                if(col+p.getLen()+dist-1 >= exitCol && row == exitRow){
-                    removePiece(p, row, col);
-                    boardFinished = true;
-                    return;
-                } 
-            }
-            int newCol = col+dist;
-            // Kalo pergeseran melebihi lebar board
-            if(newCol+p.getLen()-1 > boardCol) newCol = boardCol-p.getLen()+1;
-            if(colSpaceEmpty(row, newCol, dist)){
-                removePiece(p, row, col);
-                addPiece(p, row, newCol);
-            }
-        }
+        moveRightPiece(p, dist);
     }
 
     public boolean isFinished(){
@@ -498,7 +478,13 @@ public class Board {
     }
 
     public boolean isExitValid(){
-        if(pieces.get('P').checkHorizontal() == true) return getStartRowPiece(pieces.get('P')) == exitRow;
-        return getStartColPiece(pieces.get('P')) == exitCol;
+        Piece p = pieces.get('P');
+        if(p == null) return false;
+        
+        if(p.checkHorizontal()) {
+            return getStartRowPiece(p) == exitRow;
+        } else {
+            return getStartColPiece(p) == exitCol;
+        }
     }
 }

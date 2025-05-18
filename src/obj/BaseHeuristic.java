@@ -3,7 +3,9 @@ package obj;
 import java.util.HashMap;
 
 // Heuristic: Jumlah piece yang menghalangi primary piece ke exit
-public class BaseHeuristic extends Heuristic {    
+public class BaseHeuristic extends Heuristic {   
+    
+    @Override
     public int evaluate(Board b){
         HashMap<Character, Boolean> evaluatedPiece = new HashMap<>();
         

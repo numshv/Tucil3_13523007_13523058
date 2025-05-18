@@ -2,6 +2,8 @@ package obj;
 
 // Heuristic: Jarak primary piece ke exit
 public class DistHeuristic extends Heuristic {
+
+    @Override
     public int evaluate(Board b){
         Piece primaryPiece = b.getPiece('P');
 
