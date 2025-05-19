@@ -9,7 +9,7 @@ public class DistHeuristic extends Heuristic {
     @Override
     public int evaluate(Board b){
         Piece primaryPiece = b.getPiece('P');
-
+        if(primaryPiece == null) return Integer.MAX_VALUE;
         if(primaryPiece.isHorizontal()){
             if(b.getExitCol() < b.getStartColPiece(primaryPiece)){ // exit is left
                 return b.getStartColPiece(primaryPiece)-1;
