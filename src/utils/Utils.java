@@ -11,6 +11,8 @@ import java.util.Scanner;
 import obj.Board;
 import obj.Piece;
 
+import obj.Piece;
+
 
 public class Utils {
 
