@@ -418,17 +418,11 @@ public class Board {
     public void moveUpPiece(Piece p, int dist){
         int row = getStartRowPiece(p);
         int col = getStartColPiece(p);
-        if(!p.isHorizontal() && row != -1 && col != -1){
+        if(!p.isHorizontal()){
             int newRow = row-dist;
             if(newRow < 1) newRow = 1;
+            
             if(verticalRangeEmpty(newRow, row-1, col)){
-                if(p.isPrimary()){
-                    if(row-dist <= exitRow && col == exitCol){
-                        removePiece(p, row, col);
-                        boardFinished = true;
-                        return;
-                    } 
-                }  
                 removePiece(p, row, col);
                 addPiece(p, newRow, col);
             }
@@ -443,21 +437,16 @@ public class Board {
     public void moveDownPiece(Piece p, int dist){
         int row = getStartRowPiece(p);
         int col = getStartColPiece(p);
-        if(!p.isHorizontal() && row != -1 && col != -1){
+        if(!p.isHorizontal()){
             int pieceEndRow = row + p.getLen() - 1;
+            
             int newRow = row+dist;
             int newEndRow = newRow + p.getLen() - 1;
             if(newEndRow > boardRow) newRow = boardRow - p.getLen() + 1;
+            
             newEndRow = newRow + p.getLen() - 1;
-
+            
             if(verticalRangeEmpty(pieceEndRow+1, newEndRow, col)){
-                if(p.isPrimary()){
-                    if(pieceEndRow+dist >= exitRow && col == exitCol){
-                        removePiece(p, row, col);
-                        boardFinished = true;
-                        return;
-                    } 
-                }
                 removePiece(p, row, col);
                 addPiece(p, newRow, col);
             }
@@ -472,18 +461,11 @@ public class Board {
     public void moveLeftPiece(Piece p, int dist){
         int row = getStartRowPiece(p);
         int col = getStartColPiece(p);
-        if(p.isHorizontal() && row != -1 && col != -1){
+        if(p.isHorizontal()){
             int newCol = col-dist;
             if(newCol < 1) newCol = 1;
-
+            
             if(horizontalRangeEmpty(row, newCol, col-1)){
-                if(p.isPrimary()){
-                    if(col-dist <= exitCol && row == exitRow){
-                        removePiece(p, row, col);
-                        boardFinished = true;
-                        return;
-                    } 
-                }
                 removePiece(p, row, col);
                 addPiece(p, row, newCol);
             }
@@ -498,21 +480,16 @@ public class Board {
     public void moveRightPiece(Piece p, int dist){
         int row = getStartRowPiece(p);
         int col = getStartColPiece(p);
-        if(p.isHorizontal() && row != -1 && col != -1){
+        if(p.isHorizontal()){
             int pieceEndCol = col + p.getLen() - 1;
+            
             int newCol = col+dist;
             int newEndCol = newCol + p.getLen() - 1;
             if(newEndCol > boardCol) newCol = boardCol - p.getLen() + 1;
+            
             newEndCol = newCol + p.getLen() - 1;
-
+            
             if(horizontalRangeEmpty(row, pieceEndCol+1, newEndCol)){
-                if(p.isPrimary()){
-                    if(pieceEndCol+dist >= exitCol && row == exitRow){
-                        removePiece(p, row, col);
-                        boardFinished = true;
-                        return;
-                    } 
-                }
                 removePiece(p, row, col);
                 addPiece(p, row, newCol);
             }
