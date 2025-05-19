@@ -38,8 +38,11 @@ public class Main {
         // }
 
 
-        IDS idsResult = new IDS(board);
-        idsResult.printSolutionPath();
+        // IDS idsResult = new IDS(board);
+        // idsResult.printSolutionPath();
+        GBFS gbfsResult = new GBFS();
+        gbfsResult.solve(board, true);
+        gbfsResult.printSolutionPath();
         
     }
 }
