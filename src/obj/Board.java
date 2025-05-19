@@ -135,6 +135,7 @@ public class Board {
     public Piece getPiece(char pieceChar) {
         return pieces.get(pieceChar);
     }
+
     
     // Tambahkan getter untuk mendapatkan semua pieces
     public Map<Character, Piece> getAllPieces() {
@@ -305,7 +306,7 @@ public class Board {
     }
 
     public void addPiece(Piece p, int row, int col){
-        if(p.checkHorizontal()){ // Horizontal
+        if(p.isHorizontal()){ // Horizontal
             if(colSpaceEmpty(row, col, p.getLen())){
                 for(int j=col; j<col+p.getLen(); j++){
                     boardState[row][j] = p.getPieceType();
@@ -326,7 +327,7 @@ public class Board {
 
     // Row itu topmost piece position dan col itu leftmost piece position
     public void removePiece(Piece p, int row, int col){
-        if(p.checkHorizontal()){ // Horizontal
+        if(p.isHorizontal()){ // Horizontal
             for(int j=col; j<col+p.getLen(); j++){
                 boardState[row][j] = '.';
             }
@@ -344,7 +345,7 @@ public class Board {
     // Row itu topmost piece position dan col itu leftmost piece position
     public void removePiece(char type, int row, int col){
         Piece p = pieces.get(type);
-        if(p.checkHorizontal()){ // Horizontal
+        if(p.isHorizontal()){ // Horizontal
             for(int j=col; j<col+p.getLen(); j++){
                 boardState[row][j] = '.';
             }
@@ -360,8 +361,8 @@ public class Board {
     public void moveUpPiece(Piece p, int dist){
         int row = getStartRowPiece(p);
         int col = getStartColPiece(p);
-        if(!p.checkHorizontal()){
-            if(p.checkPrimary()){
+        if(!p.isHorizontal()){
+            if(p.isPrimary()){
                 if(row-dist <= exitRow && col == exitCol){
                     removePiece(p, row, col);
                     boardFinished = true;
@@ -387,10 +388,10 @@ public class Board {
     public void moveDownPiece(Piece p, int dist){
         int row = getStartRowPiece(p);
         int col = getStartColPiece(p);
-        if(!p.checkHorizontal()){
+        if(!p.isHorizontal()){
             int pieceEndRow = row + p.getLen() - 1;
             
-            if(p.checkPrimary()){
+            if(p.isPrimary()){
                 if(pieceEndRow+dist >= exitRow && col == exitCol){
                     removePiece(p, row, col);
                     boardFinished = true;
@@ -418,8 +419,8 @@ public class Board {
     public void moveLeftPiece(Piece p, int dist){
         int row = getStartRowPiece(p);
         int col = getStartColPiece(p);
-        if(p.checkHorizontal()){
-            if(p.checkPrimary()){
+        if(p.isHorizontal()){
+            if(p.isPrimary()){
                 if(col-dist <= exitCol && row == exitRow){
                     removePiece(p, row, col);
                     boardFinished = true;
@@ -445,10 +446,10 @@ public class Board {
     public void moveRightPiece(Piece p, int dist){
         int row = getStartRowPiece(p);
         int col = getStartColPiece(p);
-        if(p.checkHorizontal()){
+        if(p.isHorizontal()){
             int pieceEndCol = col + p.getLen() - 1;
             
-            if(p.checkPrimary()){
+            if(p.isPrimary()){
                 if(pieceEndCol+dist >= exitCol && row == exitRow){
                     removePiece(p, row, col);
                     boardFinished = true;
@@ -499,7 +500,7 @@ public class Board {
         Piece p = pieces.get('P');
         if(p == null) return false;
         
-        if(p.checkHorizontal()) {
+        if(p.isHorizontal()) {
             return getStartRowPiece(p) == exitRow;
         } else {
             return getStartColPiece(p) == exitCol;

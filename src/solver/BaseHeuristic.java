@@ -14,7 +14,7 @@ public class BaseHeuristic extends Heuristic {
         
         int count = 0;
         Piece primaryPiece = b.getPiece('P');
-        if(primaryPiece.checkHorizontal()){
+        if(primaryPiece.isHorizontal()){
             if(b.getExitCol() < b.getStartColPiece(primaryPiece)){ // exit is left
                 for(int j=1; j<b.getStartColPiece(primaryPiece); j++){
                     if(!evaluatedPiece.get(b.getBoardState()[b.getExitRow()][j])){

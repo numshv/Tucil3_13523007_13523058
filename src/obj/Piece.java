@@ -19,11 +19,11 @@ public class Piece {
         return len;
     }
 
-    public boolean checkHorizontal(){
+    public boolean isHorizontal(){
         return isHorizontal;
     }
 
-    public boolean checkPrimary(){
+    public boolean isPrimary(){
         return isPrimary;
     }
 

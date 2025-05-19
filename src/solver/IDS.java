@@ -12,64 +12,69 @@ public class IDS {
     private IDSNode solution;      
     private int exploredNodes;    
 
-    public IDS(Board initBoard) {
-        this.solution = null;
-        this.exploredNodes = 0;
-        this.curMaxDepth = 0; 
+    public IDS(Board initBoard){
+        this.solution = null;         // Menyimpan node solusi jika ditemukan
+        this.exploredNodes = 0;       // Menghitung node yang dieksplorasi/digenerate
+        this.curMaxDepth = 0;         // Batas kedalaman dimulai dari 0 untuk Iterative Deepening
 
-        Helper moveGenerator = new Helper(); 
-        IDSNode rootNode = new IDSNode(initBoard);
-        this.exploredNodes++; 
+        Helper moveGenerator = new Helper(); // Objek untuk membantu generate langkah
+        IDSNode rootNode = new IDSNode(initBoard); // Membuat node awal (kedalaman 0)
+        this.exploredNodes++;                // Menghitung node root
 
-        while (this.solution == null) {
-            this.treeStack = new Stack<IDSNode>(); // Stack BARU untuk setiap iterasi DLS
+        // Loop utama Iterative Deepening Search
+        while (this.solution == null) { // Berlanjut sampai solusi ditemukan (atau kondisi berhenti lain)
+            this.treeStack = new Stack<IDSNode>(); // Membuat STACK BARU untuk setiap iterasi Depth-Limited Search (DLS)
 
-            // Hanya masukkan root ke stack jika kedalamannya (0) <= batas kedalaman saat ini
+            // Hanya masukkan rootNode ke stack jika kedalamannya (0) tidak melebihi batas saat ini
             if (rootNode.getDepth() <= this.curMaxDepth) {
                 this.treeStack.push(rootNode);
             } 
+            // Jika curMaxDepth < rootNode.getDepth() (misal curMaxDepth negatif, tidak mungkin di sini),
+            // maka stack akan kosong dan DLS untuk kedalaman itu tidak akan berjalan, lalu curMaxDepth akan naik.
 
             System.out.println("IDS: Melakukan Depth-Limited Search dengan batas kedalaman = " + this.curMaxDepth);
 
-            // Loop DLS (Depth-Limited Search)
+            // Loop DLS (Depth-Limited Search) untuk batas kedalaman saat ini
             while (!this.treeStack.isEmpty()) {
-                IDSNode currentNode = this.treeStack.pop();
+                IDSNode currentNode = this.treeStack.pop(); // Ambil node dari stack
                 Board currentBoardState = currentNode.getCurrentBoard();
 
-                // Debugging: (opsional, bisa di-uncomment jika perlu)
+                // (Opsional) Debugging untuk melihat node yang sedang diproses
                 // System.out.println("  Mengunjungi Node (Depth: " + currentNode.getDepth() + ")");
                 // currentBoardState.printBoardState();
 
-                // 1. Cek apakah state saat ini adalah solusi (goal test)
+                // 1. Cek apakah state saat ini adalah SOLUSI
                 if (currentBoardState.isFinished()) {
-                    this.solution = currentNode;
+                    this.solution = currentNode; // Simpan node solusi
                     System.out.println("SOLUSI DITEMUKAN pada kedalaman: " + currentNode.getDepth() +
-                                       " (batas pencarian saat ini: " + this.curMaxDepth + ")");
-                    break; // Keluar dari loop DLS karena solusi sudah ditemukan
+                                    " (batas pencarian saat ini: " + this.curMaxDepth + ")");
+                    break; // Keluar dari loop DLS (inner while)
                 }
 
-                // 2. Ekspansi node jika kedalamannya masih DI BAWAH batas kedalaman saat ini
+                // 2. Ekspansi node jika kedalamannya MASIH DI BAWAH batas kedalaman saat ini
                 if (currentNode.getDepth() < this.curMaxDepth) {
-                    Map<Character, Piece> piecesOnBoard = currentBoardState.getAllPieces();
+                    // Dapatkan semua piece dari papan saat ini
+                    Map<Character, Piece> piecesOnBoard = currentBoardState.getAllPieces(); // Asumsi Board punya metode ini
                     if (piecesOnBoard != null) {
-                        // Iterasi melalui semua piece di papan untuk digerakkan
+                        // Untuk setiap piece, generate semua kemungkinan langkahnya
                         for (Piece pieceToMove : piecesOnBoard.values()) {
-                            // Generate semua kemungkinan langkah untuk piece ini
-                            // Menggunakan null untuk lastMove untuk kesederhanaan IDS dasar
-                            moveGenerator.generateAllMoves(currentBoardState, pieceToMove, null);
+                            // Helper akan menghasilkan semua kemungkinan Board baru untuk pieceToMove ini
+                            moveGenerator.generateAllMoves(currentBoardState, pieceToMove, null); // lastMove = null untuk kesederhanaan
                             List<Board> nextPossibleBoards = moveGenerator.getBoardMoves();
 
-                            // DEBUG
-                            System.out.println("ALL POSSIBLE MOVE RN");
-                            for(Board board : nextPossibleBoards){
-                                board.printBoardState();
-                            }
+                            // // DEBUG print block (yang Anda tambahkan)
+                            // System.out.println("ALL POSSIBLE MOVE RN (untuk piece '" + pieceToMove.getPieceType() + "'):");
+                            // for(Board board : nextPossibleBoards){
+                            //     board.printBoardState();
+                            //     System.out.println("---");
+                            // }
 
                             // Masukkan semua state anak yang valid ke stack
-                            // Dimasukkan terbalik agar eksplorasi konsisten (jika urutan generateNextMoves penting)
+                            // Dimasukkan terbalik agar eksplorasi konsisten (misal, jika generateNextMoves punya urutan)
                             for (int i = nextPossibleBoards.size() - 1; i >= 0; i--) {
                                 Board nextBoard = nextPossibleBoards.get(i);
-                                IDSNode childNode = new IDSNode(nextBoard, currentNode); // Buat node anak
+                                // Buat objek IDSNode baru untuk anak ini
+                                IDSNode childNode = new IDSNode(nextBoard, currentNode); 
                                 this.treeStack.push(childNode);
                                 this.exploredNodes++; // Hitung setiap anak yang digenerate dan dimasukkan stack
                             }
@@ -86,25 +91,19 @@ public class IDS {
             // Naikkan batas kedalaman untuk iterasi IDS berikutnya
             this.curMaxDepth++;
 
-            // Tambahkan kondisi berhenti praktis jika tidak ada solusi atau terlalu dalam
-            if (this.curMaxDepth > 30) { // Batas kedalaman praktis, bisa disesuaikan
+            // Tambahkan kondisi berhenti praktis jika tidak ada solusi atau pencarian terlalu dalam
+            if (this.curMaxDepth > 30) { // Batas kedalaman ini bisa Anda sesuaikan
                 System.out.println("IDS mencapai batas kedalaman praktis (" + this.curMaxDepth + ") tanpa menemukan solusi.");
                 break;
             }
-            // Catatan: IDS akan berhenti secara alami jika tidak ada lagi node yang bisa dieksplorasi
-            // (misalnya, semua cabang sudah mencapai cutoff dan tidak ada solusi).
-            // Namun, jika tidak ada node yang dieksplorasi pada DLS tertentu (stack kosong dari awal
-            // padahal curMaxDepth > rootNode.getDepth()), itu bisa jadi indikasi tidak ada solusi yang lebih dalam.
-            // Untuk saat ini, batas kedalaman eksplisit sudah cukup.
-
+            // Jika stack DLS kosong dan tidak ada solusi ditemukan pada kedalaman tertentu,
+            // IDS akan secara otomatis melanjutkan ke kedalaman berikutnya.
+            // Kondisi berhenti tambahan yang lebih canggih (misalnya, jika tidak ada node baru yang dieksplorasi) bisa ditambahkan
+            // jika grafnya diketahui terbatas dan tidak ada solusi.
         } // Akhir dari loop IDS utama (while this.solution == null)
 
-        // Setelah loop selesai, this.solution akan berisi node solusi atau null
-        // this.curMaxDepth akan berisi kedalaman di mana solusi ditemukan atau batas akhir pencarian
-        // this.exploredNodes akan berisi jumlah perkiraan node yang digenerate
         System.out.println("Pencarian IDS selesai. Total node (perkiraan) digenerate/dimasukkan stack: " + this.exploredNodes);
-
-    } // Akhir dari konstruktor IDS
+    }
 
     // Getter untuk mengambil hasil (jika diperlukan dari luar setelah objek IDS dibuat)
     public IDSNode getSolution() {
