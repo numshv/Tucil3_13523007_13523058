@@ -37,7 +37,7 @@ public class Utils {
             try {
                 System.out.print("Masukkan nama file input (dalam folder test, ex: tes1.txt): ");
                 String filename = userInput.nextLine();
-                String filePath = filename; 
+                String filePath = "test/" + filename; 
                 File file = new File(filePath);
 
                 if (!file.exists()) {
