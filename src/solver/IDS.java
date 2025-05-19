@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map; // Diperlukan untuk Map<Character, Piece>
 import java.util.Stack;
 import obj.Board;
-import obj.Helper; // Impor kelas Helper
 import obj.Piece;  // Impor kelas Piece
 
 public class IDS {

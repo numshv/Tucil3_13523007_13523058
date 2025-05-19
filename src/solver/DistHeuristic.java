@@ -1,4 +1,7 @@
-package obj;
+package solver;
+
+import obj.Board;
+import obj.Piece;
 
 // Heuristic: Jarak primary piece ke exit
 public class DistHeuristic extends Heuristic {

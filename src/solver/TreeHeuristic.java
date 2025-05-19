@@ -1,7 +1,10 @@
-package obj;
+package solver;
 
 import java.util.ArrayList;
 import java.util.Map;
+
+import obj.Board;
+import obj.Piece;
 
 // Heuristic: Jumlah piece yang menghalangi primary piece ke exit selama 3 move
 public class TreeHeuristic extends Heuristic {

@@ -1,6 +1,9 @@
-package obj;
+package solver;
 
 import java.util.HashMap;
+
+import obj.Board;
+import obj.Piece;
 
 // Heuristic: Jumlah piece yang menghalangi primary piece ke exit
 public class BaseHeuristic extends Heuristic {   

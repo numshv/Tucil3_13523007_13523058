@@ -1,6 +1,9 @@
-package obj;
+package solver;
 
 import java.util.ArrayList;
+
+import obj.Board;
+import obj.Piece;
 
 public class Helper {
     private ArrayList<Board> boardMoves;
