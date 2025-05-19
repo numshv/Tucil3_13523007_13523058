@@ -1,0 +1,127 @@
+package solver;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import utils.Utils;
+import java.util.Scanner;
+import obj.*;
+
+public class GBFS {
+    private List<Board> solutionPath;
+    private Board currentBoard;
+    private int nodeCount; // untuk menghitung jumlah node yang diperiksa
+    private Set<Board> visitedBoards; // untuk menghindari siklus - langsung menyimpan objek Board
+    private Scanner scanner;
+    
+    public GBFS(Board initBoard){
+        solutionPath = new ArrayList<Board>();
+        nodeCount = 0;
+        visitedBoards = new HashSet<Board>();
+        Utils utils = new Utils();
+        TreeHeuristic th = new TreeHeuristic();
+        scanner = new Scanner(System.in);
+
+        // Tambahkan board awal ke path solusi
+        solutionPath.add(initBoard);
+        currentBoard = new Board(initBoard);
+        visitedBoards.add(currentBoard); // Langsung menambahkan objek Board
+
+        // Loop sampai menemukan solusi atau tidak ada langkah valid yang tersisa
+        System.out.println("STARTS OF GBFS");
+        while (!currentBoard.isFinished()) {
+            // Generate semua kemungkinan move dari node saat ini
+            currentBoard.printBoardState();
+            scanner.nextLine();
+            List<Board> currentPossibleBoards = new ArrayList<Board>(utils.generateAllPossibleMoves(currentBoard));
+            
+            // Cari board dengan nilai heuristik terendah
+            Board bestBoard = null;
+            int minHeuristicValue = Integer.MAX_VALUE;
+            
+            for (Board nextBoard : currentPossibleBoards) {
+                nodeCount++;
+                
+                // Jika menemukan solusi, langsung pilih board ini
+                if (nextBoard.isFinished()) {
+                    bestBoard = nextBoard;
+                    break;
+                }
+                
+                // Periksa apakah board sudah pernah dikunjungi untuk menghindari siklus
+                if (isContain(nextBoard)) {
+                    System.out.println("CONTAINED");
+                    scanner.nextLine();
+                    continue; // Lewati board yang sudah pernah dikunjungi
+                }
+                
+                // Evaluasi board menggunakan heuristik
+                int heuristicValue = th.evaluate(nextBoard);
+                
+                // Update board terbaik jika nilai heuristik lebih kecil
+                if (heuristicValue < minHeuristicValue) {
+                    minHeuristicValue = heuristicValue;
+                    bestBoard = nextBoard;
+                }
+            }
+            
+            // Jika tidak ada board yang valid untuk dipilih
+            if (bestBoard == null) {
+                // Tidak ada solusi yang dapat ditemukan
+                break;
+            }
+            
+            // Pindah ke board terbaik berdasarkan heuristik
+            currentBoard = bestBoard;
+            visitedBoards.add(currentBoard);
+            solutionPath.add(currentBoard);
+            
+            // Jika solusi ditemukan, keluar dari loop
+            if (currentBoard.isFinished()) {
+                break;
+            }
+        }
+    }
+    
+    // Method untuk mendapatkan path solusi
+    public List<Board> getSolutionPath() {
+        return solutionPath;
+    }
+    
+    // Method untuk mengecek apakah solusi ditemukan
+    public boolean isSolutionFound() {
+        return currentBoard.isFinished();
+    }
+    
+    // Method untuk mendapatkan jumlah langkah dalam solusi
+    public int getSolutionSteps() {
+        return solutionPath.size() - 1; // Kurangi 1 karena board awal tidak dihitung sebagai langkah
+    }
+    
+    // Method untuk mendapatkan jumlah node yang diperiksa
+    public int getNodeCount() {
+        return nodeCount;
+    }
+
+    public boolean isContain(Board inpBoard){
+        for(Board b : visitedBoards){
+            if(inpBoard.isEqual(b)) return true;
+        }  
+        return false;
+    }
+
+    public void printSolutionPath(){
+        if (this.solutionPath != null) {
+            for (int i = 0; i < solutionPath.size(); i++) {
+                System.out.println("\nLangkah Ke-" + i + " (Papan ke-" + (i+1) + "):");
+                solutionPath.get(i).printBoardState();
+                System.out.print("Enter anything to continue ...");
+                scanner.nextLine();
+            }
+            System.out.println("--------------------------------");
+            System.out.println("--- Jumlah Node: " + nodeCount + ") ---");
+        } else {
+            System.out.println("Tidak ada solusi yang ditemukan " );
+        }
+    }
+}
