@@ -15,6 +15,14 @@ public class Piece {
         else isPrimary = false;
     }
 
+    public Piece(Piece other) {
+        this.piece = other.piece;
+        this.len = other.len;
+        this.isHorizontal = other.isHorizontal;
+        this.isPrimary = other.isPrimary;
+    }
+
+
     public int getLen(){
         return len;
     }

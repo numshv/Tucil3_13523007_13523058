@@ -25,7 +25,7 @@ public class Helper {
         boardMoves = new ArrayList<>();
         char pieceType = p.getPieceType();
         
-        if(p.checkHorizontal()){
+        if(p.isHorizontal()){
             // Move left and right
             generateHorizontalMoves(board, p, pieceType, lastMove);
         }else{
@@ -166,7 +166,7 @@ public class Helper {
         int currRow = currentBoard.getStartRowPiece(p);
         int currCol = currentBoard.getStartColPiece(p);
         
-        if(p.checkHorizontal()){
+        if(p.isHorizontal()){
             if(prevCol < currCol){
                 return MOVE_RIGHT;
             }else if(prevCol > currCol){

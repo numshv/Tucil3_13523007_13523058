@@ -9,9 +9,10 @@ public class Main {
     public static void main(String[] args) {
         Utils utils = new Utils();
         Board board = utils.inputFileHandler();
+        System.out.println(board.getPiece('I').getLen());
         // Scanner scanner = new Scanner(System.in);
         // System.out.print("Algoritma pathfinding (UCS / GBFS / A*): ");
-        // String algoritma = scanner.nextLine();
+        // String algoritma = scanner.nextLin``e();
 
         IDS idsResult = new IDS(board);
         idsResult.printSolutionPath();

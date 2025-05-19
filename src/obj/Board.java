@@ -32,6 +32,30 @@ public class Board {
         this.pieces = new HashMap<Character, Piece>();
     }
 
+    public Board(Board other) {
+        this.boardRow = other.boardRow;
+        this.boardCol = other.boardCol;
+        this.exitRow = other.exitRow;
+        this.exitCol = other.exitCol;
+        this.boardFinished = other.boardFinished;
+        this.pieceCounter = other.pieceCounter;
+
+        // Deep copy of boardState
+        this.boardState = new char[boardRow + 1][boardCol + 1];
+        for (int i = 1; i <= boardRow; i++) {
+            for (int j = 1; j <= boardCol; j++) {
+                this.boardState[i][j] = other.getCharAt(i, j);
+            }
+        }
+
+        // Deep copy of pieces map
+        this.pieces = new HashMap<>();
+        for (Map.Entry<Character, Piece> entry : other.pieces.entrySet()) {
+            this.pieces.put(entry.getKey(), new Piece(entry.getValue()));
+        }
+    }
+
+
     public Board(char[][] boardState, int exitRow, int exitCol) throws Exception{
         this.boardRow = boardState.length;
         this.boardCol = boardState[0].length;
@@ -255,6 +279,10 @@ public class Board {
         return true;
     }
 
+    public Character getCharAt(int row, int col){
+        return boardState[row][col];
+    }
+
     public int getStartRowPiece(Piece p){
         char type = p.getPieceType();
         for(int i=1; i<=boardRow; i++){
@@ -266,6 +294,7 @@ public class Board {
         }
         return -1;
     }
+
 
     public int getStartRowPiece(char type){
         for(int i=1; i<=boardRow; i++){
@@ -300,6 +329,17 @@ public class Board {
         }
         return -1;
     }
+
+    public int getEndColPiece(Piece p){
+        if(p.isHorizontal()) return (getStartColPiece(p) + p.getLen() - 1);
+        return getStartColPiece(p);
+    }
+
+    public int getEndRowPiece(Piece p){
+        if(!p.isHorizontal()) return (getStartRowPiece(p) + p.getLen() - 1);
+        return getStartRowPiece(p);
+    }
+
 
     public int getPieceCounter(){
         return this.pieceCounter;

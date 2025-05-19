@@ -3,10 +3,13 @@ package utils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import obj.Board; 
+import obj.Board;
+import obj.Piece; 
 
 public class Utils {
 
@@ -191,5 +194,76 @@ public class Utils {
                 if (fileReader != null) fileReader.close();
             }
         }
+    }
+
+    public List<Board> generateAllPossibleMoves(Board inpBoard){
+        Board initBoard = new Board(inpBoard);
+        initBoard.printBoardState();
+        List<Board> results = new ArrayList<Board>();
+        Map<Character, Piece> pieces = new HashMap<>();
+        for (Map.Entry<Character, Piece> entry : initBoard.getAllPieces().entrySet()) {
+            pieces.put(entry.getKey(), new Piece(entry.getValue())); 
+        }
+
+        for (Piece curPiece : pieces.values()){
+            System.out.println(curPiece.getPieceType());
+            if(curPiece.isHorizontal()){
+                // cek kiri kosong
+                int emptyLeft = 0;
+                for(int i = initBoard.getStartColPiece(curPiece)-1; i >= 1;i-- ) {
+                    if(initBoard.getCharAt(initBoard.getStartRowPiece(curPiece), i) == '.'){
+                        initBoard.moveLeftPiece(curPiece.getPieceType(), 1);
+                        results.add(new Board(initBoard));
+                        emptyLeft++;
+                    }
+                    else break;
+                }
+
+
+                if(emptyLeft != 0) initBoard.moveRightPiece(curPiece.getPieceType(), emptyLeft);
+
+                // cek kanan kosong
+                int emptyRight = 0;
+                for(int i = initBoard.getEndColPiece(curPiece)+1; i <= initBoard.getBoardCol();i++ ) {
+                    if(initBoard.getCharAt(initBoard.getEndRowPiece(curPiece), i) == '.'){
+                        initBoard.moveRightPiece(curPiece.getPieceType(), 1);
+                        results.add(new Board(initBoard));
+                        emptyRight++;
+                    }
+                    else break;
+                }
+
+                if(emptyRight != 0) initBoard.moveLeftPiece(curPiece.getPieceType(), emptyRight);
+
+            }else{
+                // cek atas kosong
+                int emptyTop = 0;
+                for(int i = initBoard.getStartRowPiece(curPiece)-1; i >= 1;i-- ) {
+                    if(initBoard.getCharAt(i, initBoard.getStartColPiece(curPiece)) == '.'){
+                        initBoard.moveUpPiece(curPiece.getPieceType(), 1);
+                        results.add(new Board(initBoard));
+                        emptyTop++;
+                    }
+                    else break;
+                }
+
+                if(emptyTop != 0) initBoard.moveDownPiece(curPiece.getPieceType(), emptyTop);
+
+                // cek kanan kosong
+                int emptyBottom = 0;
+                for(int i = initBoard.getEndRowPiece(curPiece)+1; i <= initBoard.getBoardRow();i++ ) {
+                    if(initBoard.getCharAt(i, initBoard.getEndColPiece(curPiece)) == '.'){
+                        initBoard.moveDownPiece(curPiece.getPieceType(), 1);
+                        results.add(new Board(initBoard));
+                        emptyBottom++;
+                    }
+                    else break;
+                }
+
+                if(emptyBottom != 0) initBoard.moveUpPiece(curPiece.getPieceType(), emptyBottom);
+            }
+        }
+
+        return results;   
     }
 }
