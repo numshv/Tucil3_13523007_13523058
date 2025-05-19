@@ -371,12 +371,12 @@ public class Utils {
         
         Board initBoard = new Board(inpBoard);
         
-        try {
-            initBoard.printBoardState();
-        } catch (Exception e) {
-            // Handle potential exceptions during board printing
-            System.err.println("Error printing board state: " + e.getMessage());
-        }
+        // try {
+        //     initBoard.printBoardState();
+        // } catch (Exception e) {
+        //     // Handle potential exceptions during board printing
+        //     System.err.println("Error printing board state: " + e.getMessage());
+        // }
         
         List<Board> results = new ArrayList<Board>();
         Map<Character, Piece> pieces = new HashMap<>();
@@ -399,9 +399,9 @@ public class Utils {
             if (curPiece == null) continue;
             
             try {
-                System.out.println(curPiece.getPieceType());
+                //System.out.println(curPiece.getPieceType());
             } catch (Exception e) {
-                System.err.println("Error getting piece type: " + e.getMessage());
+                //System.err.println("Error getting piece type: " + e.getMessage());
                 continue; // Skip this piece if there's an exception
             }
             
@@ -472,8 +472,9 @@ public class Utils {
                     if (emptyBottom != 0) initBoard.moveUpPiece(curPiece.getPieceType(), emptyBottom);
                 }
             } catch (Exception e) {
-                System.err.println("Error processing piece: " + e.getMessage());
+                //System.err.println("Error processing piece: " + e.getMessage());
                 // Continue with next piece if there's an exception
+                continue;
             }
         }
         return results;
