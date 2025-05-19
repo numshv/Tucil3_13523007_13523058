@@ -24,7 +24,8 @@ public class Main {
         // System.out.println("I.row: " + board.getStartRowPiece(p) + " - " + board.getEndRowPiece(p) + "I.col: " + board.getStartColPiece(p) + " - " + board.getEndColPiece(p));
 
         List<Board> boards = new ArrayList<Board>();
-        boards = utils.generateAllPossibleMoves(board);
+        Board emptyBoard = new Board(board.getBoardRow(),board.getBoardCol(), board.getExitRow(), board.getExitCol());
+        boards = utils.generateAllPossibleMoves(board, emptyBoard);
 
         System.out.println("starts\n\n");
         for(Board b : boards){
