@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import obj.Board;
-import obj.Piece; 
+import obj.Piece;
+
 
 public class Utils {
 
@@ -196,7 +197,60 @@ public class Utils {
         }
     }
 
-    public List<Board> generateAllPossibleMoves(Board inpBoard){
+    public void runMainApp(){
+        Scanner userInput = new Scanner(System.in);
+        String pickedAlgo, pickedHeuristic;
+        while(true){
+            try{
+                System.out.print("Pilih algoritma (Masukkan angka pilihanmu): ");
+                System.out.println("1. GBFS");
+                System.out.println("2. A*");
+                System.out.println("3. IDS");
+                pickedAlgo = userInput.nextLine();
+                pickedAlgo.toLowerCase();
+                if(!(pickedAlgo.equals("1") || pickedAlgo.equals("2") ||pickedAlgo.equals("3"))) throw new Exception("Pilihan algoritma tidak valid, ulangi\n");
+                break;
+            }
+            catch(Exception e){
+                System.out.println(e.getMessage());
+            }
+        }
+        while(true){
+            try{
+                System.out.print("Pilih heuristic (Masukkan angka pilihanmu): ");
+                System.out.print("1. Jumlah blok menghalangi");
+                System.out.print("2. Jarak blok primer ke pintu keluar");
+                pickedHeuristic = userInput.nextLine();
+                pickedHeuristic.toLowerCase();
+                if(!(pickedHeuristic.equals("1") || pickedHeuristic.equals("2") )) throw new Exception("Pilihan heuristik tidak valid, ulangi\n");
+                break;
+            }
+            catch(Exception e){
+                System.out.println(e.getMessage());
+            }
+        }
+        long startTime = System.nanoTime();
+        if(pickedAlgo.equals("1")){
+            if(pickedHeuristic.equals("1")){}//TODO: TAMBAHIN RUN ALGONYA
+            else{}//TODO: TAMBAHIN RUN ALGONYA
+        }
+        else if(pickedAlgo.equals("2")){
+            if(pickedHeuristic.equals("1")){}//TODO: TAMBAHIN RUN ALGONYA
+            else{}//TODO: TAMBAHIN RUN ALGONYA
+        }
+        else{
+            if(pickedHeuristic.equals("1")){}//TODO: TAMBAHIN RUN ALGONYA
+            else{}//TODO: TAMBAHIN RUN ALGONYA
+        }
+
+        long endTime = System.nanoTime();
+        long durationInMillis = (endTime - startTime) / 1_000_000;
+
+        System.out.println("Time taken: " + durationInMillis + " ms");
+        // TODO tambahin print jumlah node dikunjungi
+    }
+
+    public List<Board> generateAllPossibleMoves(Board inpBoard, Board prevTwoBoardState){
         Board initBoard = new Board(inpBoard);
         initBoard.printBoardState();
         List<Board> results = new ArrayList<Board>();
@@ -213,7 +267,7 @@ public class Utils {
                 for(int i = initBoard.getStartColPiece(curPiece)-1; i >= 1;i-- ) {
                     if(initBoard.getCharAt(initBoard.getStartRowPiece(curPiece), i) == '.'){
                         initBoard.moveLeftPiece(curPiece.getPieceType(), 1);
-                        results.add(new Board(initBoard));
+                        if(!initBoard.isEqual(prevTwoBoardState)) results.add(new Board(initBoard));
                         emptyLeft++;
                     }
                     else break;
