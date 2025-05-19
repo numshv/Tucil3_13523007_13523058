@@ -458,6 +458,19 @@ public class Board {
                         return;
                     } 
                 }
+            int newRow = row+dist;
+            int newEndRow = newRow + p.getLen() - 1;
+            if(newEndRow > boardRow) newRow = boardRow - p.getLen() + 1;
+            newEndRow = newRow + p.getLen() - 1;
+
+            if(verticalRangeEmpty(pieceEndRow+1, newEndRow, col)){
+                if(p.isPrimary()){
+                    if(pieceEndRow+dist >= exitRow && col == exitCol){
+                        removePiece(p, row, col);
+                        boardFinished = true;
+                        return;
+                    } 
+                }
                 removePiece(p, row, col);
                 addPiece(p, newRow, col);
             }
@@ -500,6 +513,19 @@ public class Board {
         int col = getStartColPiece(p);
         if(p.isHorizontal() && row != -1 && col != -1){
             int pieceEndCol = col + p.getLen() - 1;
+            int newCol = col+dist;
+            int newEndCol = newCol + p.getLen() - 1;
+            if(newEndCol > boardCol) newCol = boardCol - p.getLen() + 1;
+            newEndCol = newCol + p.getLen() - 1;
+
+            if(horizontalRangeEmpty(row, pieceEndCol+1, newEndCol)){
+                if(p.isPrimary()){
+                    if(pieceEndCol+dist >= exitCol && row == exitRow){
+                        removePiece(p, row, col);
+                        boardFinished = true;
+                        return;
+                    } 
+                }
             int newCol = col+dist;
             int newEndCol = newCol + p.getLen() - 1;
             if(newEndCol > boardCol) newCol = boardCol - p.getLen() + 1;

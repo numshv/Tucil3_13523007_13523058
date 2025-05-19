@@ -25,57 +25,55 @@ public class IDS {
 
         Utils utils = new Utils();
 
-        IDSNode rootNode = new IDSNode(initBoard); // Membuat node awal (kedalaman 0         
+        IDSNode rootNode = new IDSNode(initBoard); // Membuat node awal (kedalaman 0  
+        
+        // scanner.nextLine();
 
         // Loop utama Iterative Deepening Search
         while (this.solution == null) { // Berlanjut sampai solusi ditemukan (atau kondisi berhenti lain)
             this.treeStack = new Stack<IDSNode>(); // Membuat STACK BARU untuk setiap iterasi Depth-Limited Search (DLS)
             this.treeStack.push(rootNode); // Selalu push root node di awal setiap iterasi
             
-            System.out.println("IDS: Melakukan Depth-Limited Search dengan batas kedalaman = " + this.curMaxDepth);
+            // System.out.println("IDS: Melakukan Depth-Limited Search dengan batas kedalaman = " + this.curMaxDepth);
 
             // Loop DLS (Depth-Limited Search) untuk batas kedalaman saat ini
             while (!this.treeStack.isEmpty()) {
                 IDSNode currentNode = this.treeStack.pop(); // Ambil node dari stack
                 Board currentBoardState = currentNode.getCurrentBoard();
-                System.out.println("current node board:");
-                currentBoardState.printBoardState();
-                scanner.nextLine();
+                // System.out.println("current node board:");
+                // currentBoardState.printBoardState();
+                // scanner.nextLine();
 
                 // 1. Cek apakah state saat ini adalah SOLUSI
                 if (currentBoardState.isFinished()) {
                     this.solution = currentNode; 
-                    System.out.println("SOLUSI DITEMUKAN pada kedalaman: " + currentNode.getDepth() +
-                                    " (batas pencarian saat ini: " + this.curMaxDepth + ")");
+                    // System.out.println("SOLUSI DITEMUKAN pada kedalaman: " + currentNode.getDepth() +
+                                    // " (batas pencarian saat ini: " + this.curMaxDepth + ")");
                     break; 
                 }
 
                 // 2. Ekspansi node jika kedalamannya MASIH DI BAWAH batas kedalaman saat ini
                 if (currentNode.getDepth() < this.curMaxDepth) {
                     // Dapatkan parent board untuk mencegah gerakan mundur
-                    Board parentBoard = null;
+                    // Board parentBoard = null;
                     if (currentNode.getDepth() > 0) {
                         List<Board> path = currentNode.getPathOfBoards();
                         // Pastikan kita mengambil parent board yang benar
-                        if (path.size() >= 2) {
-                            parentBoard = path.get(path.size() - 2);
-                        }
+                        // if (path.size() >= 2) {
+                        //     parentBoard = path.get(path.size() - 2);
+                        // }
                     }
                     
                     // Generate semua langkah yang mungkin
                     List<Board> nextPossibleBoards;
-                    if (parentBoard != null) {
-                        nextPossibleBoards = utils.generateAllPossibleMoves(currentBoardState, parentBoard);
-                    } else {
-                        // Jika tidak ada parent board (root node), gunakan board saat ini sebagai "previous" untuk mencegah error
-                        nextPossibleBoards = utils.generateAllPossibleMoves(currentBoardState, currentBoardState);
-                    }
+                    nextPossibleBoards = utils.generateAllPossibleMoves(currentBoardState);
 
-                    System.out.println("ALL POSSIBLE MOVE untuk kedalaman " + currentNode.getDepth() + " (" + nextPossibleBoards.size() + " langkah):");
-                    for(Board board : nextPossibleBoards){
-                        board.printBoardState();
-                        System.out.println("---");
-                    }
+                    // System.out.println("START OF PRINT ALL POSSIBLE BOARDS");
+                    // for(Board b : nextPossibleBoards){
+                    //     b.printBoardState();
+                    //     scanner.nextLine();
+                    // }
+                    // System.out.println("END OF PRINT ALL POSSIBLE BOARDS");
 
                     // Push anak-anak node ke stack dalam urutan terbalik agar pencarian DFS berjalan dengan benar
                     for (int i = nextPossibleBoards.size() - 1; i >= 0; i--) {
@@ -101,7 +99,7 @@ public class IDS {
             }
         }
 
-        System.out.println("Pencarian IDS selesai. Total node (perkiraan) digenerate/dimasukkan stack: " + this.exploredNodes);
+        // System.out.println("Pencarian IDS selesai. Total node (perkiraan) digenerate/dimasukkan stack: " + this.exploredNodes);
     }
 
     // Getter untuk mengambil hasil (jika diperlukan dari luar setelah objek IDS dibuat)
@@ -123,6 +121,8 @@ public class IDS {
             for (int i = 0; i < path.size(); i++) {
                 System.out.println("\nLangkah Ke-" + i + " (Papan ke-" + (i+1) + "):");
                 path.get(i).printBoardState();
+                System.out.print("Enter anything to continue ...");
+                scanner.nextLine();
             }
             System.out.println("--------------------------------");
             System.out.println("--- Kedalaman: " + this.solution.getDepth() + " ---");

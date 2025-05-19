@@ -28,17 +28,18 @@ public class Main {
         // board.printBoardState();
         // System.out.println("I.row: " + board.getStartRowPiece(p) + " - " + board.getEndRowPiece(p) + "I.col: " + board.getStartColPiece(p) + " - " + board.getEndColPiece(p));
 
-        List<Board> boards = new ArrayList<Board>();
-        Board emptyBoard = new Board(board.getBoardRow(),board.getBoardCol(), board.getExitRow(), board.getExitCol());
-        boards = utils.generateAllPossibleMoves(board, emptyBoard);
+        // List<Board> boards = new ArrayList<Board>();
+        // Board emptyBoard = new Board(board.getBoardRow(),board.getBoardCol(), board.getExitRow(), board.getExitCol());
+        // boards = utils.generateAllPossibleMoves(board);
 
-        System.out.println("starts\n\n");
-        for(Board b : boards){
-            b.printBoardState();
-        }
+        // System.out.println("starts\n\n");
+        // for(Board b : boards){
+        //     b.printBoardState();
+        // }
 
-        // IDS idsResult = new IDS(board);
-        // idsResult.printSolutionPath();
+
+        IDS idsResult = new IDS(board);
+        idsResult.printSolutionPath();
         
     }
 }
