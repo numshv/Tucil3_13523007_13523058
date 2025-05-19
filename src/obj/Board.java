@@ -155,6 +155,23 @@ public class Board {
         this.pieceCounter--;
     }
 
+    public boolean isEqual(Board other){
+        if(
+            boardRow != other.boardRow ||
+            boardCol != other.boardCol ||
+            exitRow != other.exitRow ||
+            exitCol != other.exitCol ||
+            pieceCounter != other.pieceCounter
+        ) return false;
+        for(int i=1;i<=boardRow;i++){
+            for(int j = 1;j<=boardCol;j++){
+                if(boardState[i][j] != other.boardState[i][j]) return false;
+            }
+        }
+        if(other.exitCol != exitCol || other.exitRow != exitRow) return false;
+        return true;
+    }
+
     // Tambahkan getter untuk mendapatkan piece berdasarkan karakter
     public Piece getPiece(char pieceChar) {
         return pieces.get(pieceChar);

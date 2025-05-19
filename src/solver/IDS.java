@@ -53,7 +53,8 @@ public class IDS {
                     // Dapatkan semua piece dari papan saat ini
                     Map<Character, Piece> piecesOnBoard = currentBoardState.getAllPieces(); // Asumsi Board punya metode ini
                     if (piecesOnBoard != null) {
-                        List<Board> nextPossibleBoards = utils.generateAllPossibleMoves(currentBoardState);
+                        int pathLen = currentNode.getPathOfBoards().size();
+                        List<Board> nextPossibleBoards = utils.generateAllPossibleMoves(currentBoardState, currentNode.getPathOfBoards().get(pathLen-2));
 
                         System.out.println("ALL POSSIBLE MOVE RN :");
                         for(Board board : nextPossibleBoards){
