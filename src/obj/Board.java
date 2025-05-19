@@ -92,12 +92,8 @@ public class Board {
                 char currentPiece = boardState[i][j];
                 
                 // Skip empty cells and already processed pieces
-                if(currentPiece == '.' ){
+                if(currentPiece == '.' || uniquePieces.contains(currentPiece)){
                     continue;
-                }
-
-                if(uniquePieces.contains(currentPiece)){
-                    throw new Exception("Tidak boleh ada dua block dengan huruf yang sama");
                 }
                 
                 // Check horizontal piece
