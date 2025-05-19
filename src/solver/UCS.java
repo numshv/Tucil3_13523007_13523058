@@ -2,7 +2,7 @@ package solver;
 
 import java.util.*;
 import obj.Board;
-import obj.Piece;  // Added import for Piece
+// import obj.Piece;
 import utils.Utils;
 
 public class UCS {
@@ -20,23 +20,22 @@ public class UCS {
     }
     
     private String generateBoardKey(Board board) {
+        char[][] boardState = board.getBoardState();
+        int rows = board.getBoardRow();
+        int cols = board.getBoardCol();
+        
         StringBuilder key = new StringBuilder();
-        Map<Character, Piece> pieces = board.getAllPieces();
-        
-        List<Character> pieceKeys = new ArrayList<>(pieces.keySet());
-        Collections.sort(pieceKeys);
-        
-        // Format key -> Piece:row,col untuk identify state node yang berbeda
-        for(Character c : pieceKeys){
-            Piece piece = pieces.get(c);
-            key.append(c)
-               .append(":")
-               .append(board.getStartRowPiece(piece))
-               .append(",")
-               .append(board.getStartColPiece(piece));
+        for (int i = 1; i <= rows; i++) {
+            for (int j = 1; j <= cols; j++) {
+                key.append(boardState[i][j]);
+            }
         }
         return key.toString();
     }
+    
+    // private boolean isVisited(Board board, Set<String> visited) {
+    //     return visited.contains(generateBoardKey(board));
+    // }
     
     public class Node implements Comparable<Node> {
         private Board state;
@@ -86,7 +85,6 @@ public class UCS {
         pq.add(new Node(initialBoard, 0, null));
        
         while(!pq.isEmpty()){
-            // Ambil dari depan tapi bisa null
             Node current = pq.poll();
             Board currentBoard = current.getState();
             String boardKey = generateBoardKey(currentBoard);
@@ -96,7 +94,7 @@ public class UCS {
             }
             
             exploredNodes++;
-            visited.add(boardKey);
+            //visited.add(boardKey);
            
             if(currentBoard.isFinished()){
                 solution = current;
