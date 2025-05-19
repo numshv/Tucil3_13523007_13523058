@@ -474,7 +474,25 @@ public class Board {
     }
 
     public boolean isFinished(){
-        return boardFinished;
+        // return boardFinished;
+
+        if(exitCol == 0){
+            if(boardState[exitRow][1] == 'P') return true;
+            else return false;
+        }
+        else if(exitCol == boardCol+1){
+            if(boardState[exitRow][boardCol] == 'P') return true;
+            else return false;
+        }
+        else if(exitRow == 0){
+            if(boardState[1][exitCol] == 'P') return true;
+            else return false;
+        }
+        else if(exitRow == boardRow+1){
+            if(boardState[boardRow][exitCol] == 'P') return true;
+            else return false;
+        }
+        else return false;
     }
 
     public boolean isExitValid(){

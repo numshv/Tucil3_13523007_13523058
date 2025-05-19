@@ -29,7 +29,7 @@ public class IDSNode {
     }
 
     IDSNode (Board appendBoard, IDSNode prevNode){
-        this.pathOfBoards = new ArrayList<Board>(prevNode.getpathOfBoards());
+        this.pathOfBoards = new ArrayList<Board>(prevNode.getPathOfBoards());
         this.pathOfBoards.add(appendBoard);
         this.currentBoard = appendBoard;
         this.depth = prevNode.getDepth()+1; 
@@ -39,7 +39,7 @@ public class IDSNode {
         return currentBoard;
     }
 
-    public List<Board> getpathOfBoards(){
+    public List<Board> getPathOfBoards(){
         return pathOfBoards;
     }
 
