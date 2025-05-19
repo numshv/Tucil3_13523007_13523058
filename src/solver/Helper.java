@@ -46,6 +46,7 @@ public class Helper {
                 newBoard.moveLeftPiece(pieceType, dist);
                 
                 if(!isBoardSame(board, newBoard)){
+                    System.out.println("Piece " + pieceType + " berhasil gerak ke kiri sejauh " + dist);
                     boardMoves.add(newBoard);
                     if(newBoard.isFinished()){
                         break;
@@ -65,6 +66,7 @@ public class Helper {
                 newBoard.moveRightPiece(pieceType, dist);
                 
                 if(!isBoardSame(board, newBoard)){
+                    System.out.println("Piece " + pieceType + " berhasil gerak ke kanan sejauh " + dist);
                     boardMoves.add(newBoard);
                     if(newBoard.isFinished()){
                         break;
@@ -88,6 +90,7 @@ public class Helper {
                 newBoard.moveUpPiece(pieceType, dist);
                 
                 if(!isBoardSame(board, newBoard)){
+                    System.out.println("Piece " + pieceType + " berhasil gerak ke atas sejauh " + dist);
                     boardMoves.add(newBoard);
                     if (newBoard.isFinished()) {
                         break;
@@ -107,6 +110,7 @@ public class Helper {
                 newBoard.moveDownPiece(pieceType, dist);
                 
                 if(!isBoardSame(board, newBoard)){
+                    System.out.println("Piece " + pieceType + " berhasil gerak ke bawah sejauh " + dist);
                     boardMoves.add(newBoard);
                     if (newBoard.isFinished()) {
                         break;

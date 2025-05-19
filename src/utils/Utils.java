@@ -34,7 +34,7 @@ public class Utils {
             try {
                 System.out.print("Masukkan nama file input (dalam folder test, ex: tes1.txt): ");
                 String filename = userInput.nextLine();
-                String filePath = "test/" + filename; 
+                String filePath = filename; 
                 File file = new File(filePath);
 
                 if (!file.exists()) {
@@ -196,74 +196,119 @@ public class Utils {
         }
     }
 
-    public List<Board> generateAllPossibleMoves(Board inpBoard){
+    public List<Board> generateAllPossibleMoves(Board inpBoard) {
+        // Null check for input board
+        if (inpBoard == null) {
+            return new ArrayList<>(); // Return empty list if board is null
+        }
+        
         Board initBoard = new Board(inpBoard);
-        initBoard.printBoardState();
+        
+        try {
+            initBoard.printBoardState();
+        } catch (Exception e) {
+            // Handle potential exceptions during board printing
+            System.err.println("Error printing board state: " + e.getMessage());
+        }
+        
         List<Board> results = new ArrayList<Board>();
         Map<Character, Piece> pieces = new HashMap<>();
-        for (Map.Entry<Character, Piece> entry : initBoard.getAllPieces().entrySet()) {
-            pieces.put(entry.getKey(), new Piece(entry.getValue())); 
+        
+        // Null check for getAllPieces result
+        Map<Character, Piece> allPieces = initBoard.getAllPieces();
+        if (allPieces == null) {
+            return results; // Return empty list if no pieces
         }
-
-        for (Piece curPiece : pieces.values()){
-            System.out.println(curPiece.getPieceType());
-            if(curPiece.isHorizontal()){
-                // cek kiri kosong
-                int emptyLeft = 0;
-                for(int i = initBoard.getStartColPiece(curPiece)-1; i >= 1;i-- ) {
-                    if(initBoard.getCharAt(initBoard.getStartRowPiece(curPiece), i) == '.'){
-                        initBoard.moveLeftPiece(curPiece.getPieceType(), 1);
-                        results.add(new Board(initBoard));
-                        emptyLeft++;
-                    }
-                    else break;
-                }
-
-
-                if(emptyLeft != 0) initBoard.moveRightPiece(curPiece.getPieceType(), emptyLeft);
-
-                // cek kanan kosong
-                int emptyRight = 0;
-                for(int i = initBoard.getEndColPiece(curPiece)+1; i <= initBoard.getBoardCol();i++ ) {
-                    if(initBoard.getCharAt(initBoard.getEndRowPiece(curPiece), i) == '.'){
-                        initBoard.moveRightPiece(curPiece.getPieceType(), 1);
-                        results.add(new Board(initBoard));
-                        emptyRight++;
-                    }
-                    else break;
-                }
-
-                if(emptyRight != 0) initBoard.moveLeftPiece(curPiece.getPieceType(), emptyRight);
-
-            }else{
-                // cek atas kosong
-                int emptyTop = 0;
-                for(int i = initBoard.getStartRowPiece(curPiece)-1; i >= 1;i-- ) {
-                    if(initBoard.getCharAt(i, initBoard.getStartColPiece(curPiece)) == '.'){
-                        initBoard.moveUpPiece(curPiece.getPieceType(), 1);
-                        results.add(new Board(initBoard));
-                        emptyTop++;
-                    }
-                    else break;
-                }
-
-                if(emptyTop != 0) initBoard.moveDownPiece(curPiece.getPieceType(), emptyTop);
-
-                // cek kanan kosong
-                int emptyBottom = 0;
-                for(int i = initBoard.getEndRowPiece(curPiece)+1; i <= initBoard.getBoardRow();i++ ) {
-                    if(initBoard.getCharAt(i, initBoard.getEndColPiece(curPiece)) == '.'){
-                        initBoard.moveDownPiece(curPiece.getPieceType(), 1);
-                        results.add(new Board(initBoard));
-                        emptyBottom++;
-                    }
-                    else break;
-                }
-
-                if(emptyBottom != 0) initBoard.moveUpPiece(curPiece.getPieceType(), emptyBottom);
+        
+        for (Map.Entry<Character, Piece> entry : allPieces.entrySet()) {
+            // Null checks for key and value
+            if (entry.getKey() != null && entry.getValue() != null) {
+                pieces.put(entry.getKey(), new Piece(entry.getValue()));
             }
         }
-
-        return results;   
+        
+        for (Piece curPiece : pieces.values()) {
+            // Skip null pieces
+            if (curPiece == null) continue;
+            
+            try {
+                System.out.println(curPiece.getPieceType());
+            } catch (Exception e) {
+                System.err.println("Error getting piece type: " + e.getMessage());
+                continue; // Skip this piece if there's an exception
+            }
+            
+            try {
+                if (curPiece.isHorizontal()) {
+                    // Check left empty spaces
+                    int emptyLeft = 0;
+                    int startRow = initBoard.getStartRowPiece(curPiece);
+                    int startCol = initBoard.getStartColPiece(curPiece);
+                    
+                    if (startRow <= 0 || startCol <= 0) continue; // Skip invalid positions
+                    
+                    for (int i = startCol - 1; i >= 1; i--) {
+                        if (initBoard.getCharAt(startRow, i) == '.') {
+                            initBoard.moveLeftPiece(curPiece.getPieceType(), 1);
+                            results.add(new Board(initBoard));
+                            emptyLeft++;
+                        } else break;
+                    }
+                    if (emptyLeft != 0) initBoard.moveRightPiece(curPiece.getPieceType(), emptyLeft);
+                    
+                    // Check right empty spaces
+                    int emptyRight = 0;
+                    int endCol = initBoard.getEndColPiece(curPiece);
+                    int endRow = initBoard.getEndRowPiece(curPiece);
+                    
+                    if (endRow <= 0 || endCol <= 0 || endCol >= initBoard.getBoardCol()) continue; // Skip invalid positions
+                    
+                    for (int i = endCol + 1; i <= initBoard.getBoardCol(); i++) {
+                        if (initBoard.getCharAt(endRow, i) == '.') {
+                            initBoard.moveRightPiece(curPiece.getPieceType(), 1);
+                            results.add(new Board(initBoard));
+                            emptyRight++;
+                        } else break;
+                    }
+                    if (emptyRight != 0) initBoard.moveLeftPiece(curPiece.getPieceType(), emptyRight);
+                } else {
+                    // Check top empty spaces
+                    int emptyTop = 0;
+                    int startRow = initBoard.getStartRowPiece(curPiece);
+                    int startCol = initBoard.getStartColPiece(curPiece);
+                    
+                    if (startRow <= 0 || startCol <= 0) continue; // Skip invalid positions
+                    
+                    for (int i = startRow - 1; i >= 1; i--) {
+                        if (initBoard.getCharAt(i, startCol) == '.') {
+                            initBoard.moveUpPiece(curPiece.getPieceType(), 1);
+                            results.add(new Board(initBoard));
+                            emptyTop++;
+                        } else break;
+                    }
+                    if (emptyTop != 0) initBoard.moveDownPiece(curPiece.getPieceType(), emptyTop);
+                    
+                    // Check bottom empty spaces
+                    int emptyBottom = 0;
+                    int endRow = initBoard.getEndRowPiece(curPiece);
+                    int endCol = initBoard.getEndColPiece(curPiece);
+                    
+                    if (endRow <= 0 || endCol <= 0 || endRow >= initBoard.getBoardRow()) continue; // Skip invalid positions
+                    
+                    for (int i = endRow + 1; i <= initBoard.getBoardRow(); i++) {
+                        if (initBoard.getCharAt(i, endCol) == '.') {
+                            initBoard.moveDownPiece(curPiece.getPieceType(), 1);
+                            results.add(new Board(initBoard));
+                            emptyBottom++;
+                        } else break;
+                    }
+                    if (emptyBottom != 0) initBoard.moveUpPiece(curPiece.getPieceType(), emptyBottom);
+                }
+            } catch (Exception e) {
+                System.err.println("Error processing piece: " + e.getMessage());
+                // Continue with next piece if there's an exception
+            }
+        }
+        return results;
     }
 }

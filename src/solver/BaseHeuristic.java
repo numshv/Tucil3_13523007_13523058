@@ -14,17 +14,18 @@ public class BaseHeuristic extends Heuristic {
         
         int count = 0;
         Piece primaryPiece = b.getPiece('P');
+        if(primaryPiece == null) return Integer.MAX_VALUE;
         if(primaryPiece.isHorizontal()){
             if(b.getExitCol() < b.getStartColPiece(primaryPiece)){ // exit is left
                 for(int j=1; j<b.getStartColPiece(primaryPiece); j++){
-                    if(!evaluatedPiece.get(b.getBoardState()[b.getExitRow()][j])){
+                    if(evaluatedPiece.get(b.getBoardState()[b.getExitRow()][j]) == null){
                         count++;
                         evaluatedPiece.put(b.getBoardState()[b.getExitRow()][j], true);
                     }
                 }
             }else{ // exit is right
                 for(int j=b.getStartColPiece(primaryPiece)+primaryPiece.getLen(); j<b.getExitCol(); j++){
-                    if(!evaluatedPiece.get(b.getBoardState()[b.getExitRow()][j])){
+                    if(evaluatedPiece.get(b.getBoardState()[b.getExitRow()][j]) == null){
                         count++;
                         evaluatedPiece.put(b.getBoardState()[b.getExitRow()][j], true);
                     }
@@ -33,14 +34,14 @@ public class BaseHeuristic extends Heuristic {
         }else{
             if(b.getExitRow() < b.getStartRowPiece(primaryPiece)){ // exit is up
                 for(int i=1; i<b.getStartRowPiece(primaryPiece); i++){
-                    if(!evaluatedPiece.get(b.getBoardState()[i][b.getExitCol()])){
+                    if(evaluatedPiece.get(b.getBoardState()[i][b.getExitCol()]) == null){
                         count++;
                         evaluatedPiece.put(b.getBoardState()[i][b.getExitCol()], true);
                     }
                 }
             }else{ // exit is down
                 for(int i=b.getStartRowPiece(primaryPiece)+primaryPiece.getLen(); i<b.getExitRow(); i++){
-                    if(!evaluatedPiece.get(b.getBoardState()[i][b.getExitCol()])){
+                    if(evaluatedPiece.get(b.getBoardState()[i][b.getExitCol()]) == null){
                         count++;
                         evaluatedPiece.put(b.getBoardState()[i][b.getExitCol()], true);
                     }

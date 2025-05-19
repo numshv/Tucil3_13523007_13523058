@@ -1,54 +1,45 @@
 package solver;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
+// import java.util.Map;
 
 import obj.Board;
-import obj.Piece;
+// import obj.Piece;
+import utils.Utils;
 
 // Heuristic: Jumlah piece yang menghalangi primary piece ke exit selama 3 move
 public class TreeHeuristic extends Heuristic {
     private final int MAX_DEPTH = 3;
     private final BaseHeuristic baseHeuristic = new BaseHeuristic();
-    private final Helper helper = new Helper();
+    //private final Helper helper = new Helper();
+    private int bestScore = Integer.MAX_VALUE;
     
     @Override
     public int evaluate(Board b) {
-        return evaluateMinimum(b, 0, null);
+        return evaluateMinimum(b, 0);
     }
     
-    private int evaluateMinimum(Board board, int depth, String lastMove) {
+    private int evaluateMinimum(Board board, int depth) {
         if(depth >= MAX_DEPTH || board.isFinished()){
             return baseHeuristic.evaluate(board);
         }
         
-        int bestScore = Integer.MAX_VALUE;
-        Map<Character, Piece> pieces = board.getAllPieces();
+        Utils utils = new Utils();
+        List<Board> boards = new ArrayList<Board>();
+        boards = utils.generateAllPossibleMoves(board);
         
-        for(char pieceType : pieces.keySet()){
-            Piece piece = pieces.get(pieceType);
-            
-            helper.generateAllMoves(board, piece, lastMove);
-            ArrayList<Board> possibleBoards = helper.getBoardMoves();
-            
-            if(possibleBoards.isEmpty()){
-                continue;
+        int score;
+        for(Board b: boards){
+            if(b.isFinished()){
+                return 0;
             }
-            
-            for(Board nextBoard : possibleBoards){
-                String currentMove = helper.getLastMove(board, nextBoard, piece);
-                int score = evaluateMinimum(nextBoard, depth+1, currentMove);
-                
-                if(score < bestScore){
-                    bestScore = score;
-                }
-                
-                if(nextBoard.isFinished()){
-                    return 0;
-                }
+            score = evaluateMinimum(b, depth+1);
+            if(score < bestScore){
+                bestScore = score;
             }
         }
-        
+
         if(bestScore == Integer.MAX_VALUE){
             return baseHeuristic.evaluate(board);
         }
