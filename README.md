@@ -82,7 +82,7 @@ LLJMM.
 ```
 
 ### 3. Output dan Penyimpanan Hasil
-- Jika program menemukan solusi, solusi akan ditampilkan dalam format piece berwarna dan disimpan ke dalam file .txt
+- Jika program menemukan solusi, solusi akan ditampilkan dalam format piece berwarna dan disimpan ke dalam file .txt secara otomatis di folder test
 
 ## Author
 | NIM      | Nama  | Kelas |
