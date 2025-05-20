@@ -1,0 +1,730 @@
+=====================================================
+         SOLUSI RUSH HOUR MENGGUNAKAN GBFS           
+=====================================================
+
+Total langkah: 89
+Total node dieksplorasi: 574
+
+Langkah Ke-0
+ AAB..F 
+ ..BCDF 
+KGPPCDF 
+ GH.III 
+ GHJ... 
+ LLJMM. 
+
+Langkah Ke-1
+ AABC.F 
+ ..BCDF 
+KGPP.DF 
+ GH.III 
+ GHJ... 
+ LLJMM. 
+
+Langkah Ke-2
+ AABCDF 
+ ..BCDF 
+KGPP..F 
+ GH.III 
+ GHJ... 
+ LLJMM. 
+
+Langkah Ke-3
+ AAB.DF 
+ ..BCDF 
+KGPPC.F 
+ GH.III 
+ GHJ... 
+ LLJMM. 
+
+Langkah Ke-4
+ AAB.DF 
+ G.BCDF 
+KGPPC.F 
+ GH.III 
+ .HJ... 
+ LLJMM. 
+
+Langkah Ke-5
+ AABCDF 
+ G.BCDF 
+KGPP..F 
+ GH.III 
+ .HJ... 
+ LLJMM. 
+
+Langkah Ke-6
+ AABC.F 
+ G.BCDF 
+KGPP.DF 
+ GH.III 
+ .HJ... 
+ LLJMM. 
+
+Langkah Ke-7
+ AAB..F 
+ G.BCDF 
+KGPPCDF 
+ GH.III 
+ .HJ... 
+ LLJMM. 
+
+Langkah Ke-8
+ AAB..F 
+ G.BCDF 
+KGPPCDF 
+ GHIII. 
+ .HJ... 
+ LLJMM. 
+
+Langkah Ke-9
+ AABC.F 
+ G.BCDF 
+KGPP.DF 
+ GHIII. 
+ .HJ... 
+ LLJMM. 
+
+Langkah Ke-10
+ AABCDF 
+ G.BCDF 
+KGPP..F 
+ GHIII. 
+ .HJ... 
+ LLJMM. 
+
+Langkah Ke-11
+ AAB.DF 
+ G.BCDF 
+KGPPC.F 
+ GHIII. 
+ .HJ... 
+ LLJMM. 
+
+Langkah Ke-12
+ AAB.D. 
+ G.BCDF 
+KGPPC.F 
+ GHIIIF 
+ .HJ... 
+ LLJMM. 
+
+Langkah Ke-13
+ AABCD. 
+ G.BCDF 
+KGPP..F 
+ GHIIIF 
+ .HJ... 
+ LLJMM. 
+
+Langkah Ke-14
+ AABC.. 
+ G.BCDF 
+KGPP.DF 
+ GHIIIF 
+ .HJ... 
+ LLJMM. 
+
+Langkah Ke-15
+ AAB... 
+ G.BCDF 
+KGPPCDF 
+ GHIIIF 
+ .HJ... 
+ LLJMM. 
+
+Langkah Ke-16
+ AAB... 
+ G.BCD. 
+KGPPCDF 
+ GHIIIF 
+ .HJ..F 
+ LLJMM. 
+
+Langkah Ke-17
+ AABC.. 
+ G.BCD. 
+KGPP.DF 
+ GHIIIF 
+ .HJ..F 
+ LLJMM. 
+
+Langkah Ke-18
+ AABCD. 
+ G.BCD. 
+KGPP..F 
+ GHIIIF 
+ .HJ..F 
+ LLJMM. 
+
+Langkah Ke-19
+ AAB.D. 
+ G.BCD. 
+KGPPC.F 
+ GHIIIF 
+ .HJ..F 
+ LLJMM. 
+
+Langkah Ke-20
+ AAB.D. 
+ G.BCD. 
+KGPPC.. 
+ GHIIIF 
+ .HJ..F 
+ LLJMMF 
+
+Langkah Ke-21
+ AABCD. 
+ G.BCD. 
+KGPP... 
+ GHIIIF 
+ .HJ..F 
+ LLJMMF 
+
+Langkah Ke-22
+ AABC.. 
+ G.BCD. 
+KGPP.D. 
+ GHIIIF 
+ .HJ..F 
+ LLJMMF 
+
+Langkah Ke-23
+ AAB... 
+ G.BCD. 
+KGPPCD. 
+ GHIIIF 
+ .HJ..F 
+ LLJMMF 
+
+Langkah Ke-24
+ AAB... 
+ ..BCD. 
+KGPPCD. 
+ GHIIIF 
+ GHJ..F 
+ LLJMMF 
+
+Langkah Ke-25
+ AABC.. 
+ ..BCD. 
+KGPP.D. 
+ GHIIIF 
+ GHJ..F 
+ LLJMMF 
+
+Langkah Ke-26
+ AABCD. 
+ ..BCD. 
+KGPP... 
+ GHIIIF 
+ GHJ..F 
+ LLJMMF 
+
+Langkah Ke-27
+ AAB.D. 
+ ..BCD. 
+KGPPC.. 
+ GHIIIF 
+ GHJ..F 
+ LLJMMF 
+
+Langkah Ke-28
+ AAB.D. 
+ ..BCD. 
+KGPPC.F 
+ GHIIIF 
+ GHJ..F 
+ LLJMM. 
+
+Langkah Ke-29
+ AABCD. 
+ ..BCD. 
+KGPP..F 
+ GHIIIF 
+ GHJ..F 
+ LLJMM. 
+
+Langkah Ke-30
+ AABC.. 
+ ..BCD. 
+KGPP.DF 
+ GHIIIF 
+ GHJ..F 
+ LLJMM. 
+
+Langkah Ke-31
+ AAB... 
+ ..BCD. 
+KGPPCDF 
+ GHIIIF 
+ GHJ..F 
+ LLJMM. 
+
+Langkah Ke-32
+ AAB... 
+ ..BCDF 
+KGPPCDF 
+ GHIIIF 
+ GHJ... 
+ LLJMM. 
+
+Langkah Ke-33
+ AABC.. 
+ ..BCDF 
+KGPP.DF 
+ GHIIIF 
+ GHJ... 
+ LLJMM. 
+
+Langkah Ke-34
+ AABCD. 
+ ..BCDF 
+KGPP..F 
+ GHIIIF 
+ GHJ... 
+ LLJMM. 
+
+Langkah Ke-35
+ AAB.D. 
+ ..BCDF 
+KGPPC.F 
+ GHIIIF 
+ GHJ... 
+ LLJMM. 
+
+Langkah Ke-36
+ AAB.DF 
+ ..BCDF 
+KGPPC.F 
+ GHIII. 
+ GHJ... 
+ LLJMM. 
+
+Langkah Ke-37
+ AABCDF 
+ ..BCDF 
+KGPP..F 
+ GHIII. 
+ GHJ... 
+ LLJMM. 
+
+Langkah Ke-38
+ AABC.F 
+ ..BCDF 
+KGPP.DF 
+ GHIII. 
+ GHJ... 
+ LLJMM. 
+
+Langkah Ke-39
+ AAB..F 
+ ..BCDF 
+KGPPCDF 
+ GHIII. 
+ GHJ... 
+ LLJMM. 
+
+Langkah Ke-40
+ AAB..F 
+ ..BCDF 
+KGPPCDF 
+ GHIII. 
+ GHJ... 
+ LLJ.MM 
+
+Langkah Ke-41
+ AABC.F 
+ ..BCDF 
+KGPP.DF 
+ GHIII. 
+ GHJ... 
+ LLJ.MM 
+
+Langkah Ke-42
+ AABCDF 
+ ..BCDF 
+KGPP..F 
+ GHIII. 
+ GHJ... 
+ LLJ.MM 
+
+Langkah Ke-43
+ AAB.DF 
+ ..BCDF 
+KGPPC.F 
+ GHIII. 
+ GHJ... 
+ LLJ.MM 
+
+Langkah Ke-44
+ AAB.D. 
+ ..BCDF 
+KGPPC.F 
+ GHIIIF 
+ GHJ... 
+ LLJ.MM 
+
+Langkah Ke-45
+ AABCD. 
+ ..BCDF 
+KGPP..F 
+ GHIIIF 
+ GHJ... 
+ LLJ.MM 
+
+Langkah Ke-46
+ AABC.. 
+ ..BCDF 
+KGPP.DF 
+ GHIIIF 
+ GHJ... 
+ LLJ.MM 
+
+Langkah Ke-47
+ AAB... 
+ ..BCDF 
+KGPPCDF 
+ GHIIIF 
+ GHJ... 
+ LLJ.MM 
+
+Langkah Ke-48
+ AAB... 
+ ..BCD. 
+KGPPCDF 
+ GHIIIF 
+ GHJ..F 
+ LLJ.MM 
+
+Langkah Ke-49
+ AABC.. 
+ ..BCD. 
+KGPP.DF 
+ GHIIIF 
+ GHJ..F 
+ LLJ.MM 
+
+Langkah Ke-50
+ AABCD. 
+ ..BCD. 
+KGPP..F 
+ GHIIIF 
+ GHJ..F 
+ LLJ.MM 
+
+Langkah Ke-51
+ AAB.D. 
+ ..BCD. 
+KGPPC.F 
+ GHIIIF 
+ GHJ..F 
+ LLJ.MM 
+
+Langkah Ke-52
+ AAB.D. 
+ G.BCD. 
+KGPPC.F 
+ GHIIIF 
+ .HJ..F 
+ LLJ.MM 
+
+Langkah Ke-53
+ AABCD. 
+ G.BCD. 
+KGPP..F 
+ GHIIIF 
+ .HJ..F 
+ LLJ.MM 
+
+Langkah Ke-54
+ AABC.. 
+ G.BCD. 
+KGPP.DF 
+ GHIIIF 
+ .HJ..F 
+ LLJ.MM 
+
+Langkah Ke-55
+ AAB... 
+ G.BCD. 
+KGPPCDF 
+ GHIIIF 
+ .HJ..F 
+ LLJ.MM 
+
+Langkah Ke-56
+ AAB... 
+ G.BCDF 
+KGPPCDF 
+ GHIIIF 
+ .HJ... 
+ LLJ.MM 
+
+Langkah Ke-57
+ AABC.. 
+ G.BCDF 
+KGPP.DF 
+ GHIIIF 
+ .HJ... 
+ LLJ.MM 
+
+Langkah Ke-58
+ AABCD. 
+ G.BCDF 
+KGPP..F 
+ GHIIIF 
+ .HJ... 
+ LLJ.MM 
+
+Langkah Ke-59
+ AAB.D. 
+ G.BCDF 
+KGPPC.F 
+ GHIIIF 
+ .HJ... 
+ LLJ.MM 
+
+Langkah Ke-60
+ AAB.DF 
+ G.BCDF 
+KGPPC.F 
+ GHIII. 
+ .HJ... 
+ LLJ.MM 
+
+Langkah Ke-61
+ AABCDF 
+ G.BCDF 
+KGPP..F 
+ GHIII. 
+ .HJ... 
+ LLJ.MM 
+
+Langkah Ke-62
+ AABC.F 
+ G.BCDF 
+KGPP.DF 
+ GHIII. 
+ .HJ... 
+ LLJ.MM 
+
+Langkah Ke-63
+ AAB..F 
+ G.BCDF 
+KGPPCDF 
+ GHIII. 
+ .HJ... 
+ LLJ.MM 
+
+Langkah Ke-64
+ AAB..F 
+ G.BCDF 
+KGPPCDF 
+ GH.III 
+ .HJ... 
+ LLJ.MM 
+
+Langkah Ke-65
+ AABC.F 
+ G.BCDF 
+KGPP.DF 
+ GH.III 
+ .HJ... 
+ LLJ.MM 
+
+Langkah Ke-66
+ AABCDF 
+ G.BCDF 
+KGPP..F 
+ GH.III 
+ .HJ... 
+ LLJ.MM 
+
+Langkah Ke-67
+ AAB.DF 
+ G.BCDF 
+KGPPC.F 
+ GH.III 
+ .HJ... 
+ LLJ.MM 
+
+Langkah Ke-68
+ AAB.DF 
+ ..BCDF 
+KGPPC.F 
+ GH.III 
+ GHJ... 
+ LLJ.MM 
+
+Langkah Ke-69
+ AABCDF 
+ ..BCDF 
+KGPP..F 
+ GH.III 
+ GHJ... 
+ LLJ.MM 
+
+Langkah Ke-70
+ AABC.F 
+ ..BCDF 
+KGPP.DF 
+ GH.III 
+ GHJ... 
+ LLJ.MM 
+
+Langkah Ke-71
+ AAB..F 
+ ..BCDF 
+KGPPCDF 
+ GH.III 
+ GHJ... 
+ LLJ.MM 
+
+Langkah Ke-72
+ AAB..F 
+ ..BCDF 
+KGPPCDF 
+ GHJIII 
+ GHJ... 
+ LL..MM 
+
+Langkah Ke-73
+ AABC.F 
+ ..BCDF 
+KGPP.DF 
+ GHJIII 
+ GHJ... 
+ LL..MM 
+
+Langkah Ke-74
+ AABCDF 
+ ..BCDF 
+KGPP..F 
+ GHJIII 
+ GHJ... 
+ LL..MM 
+
+Langkah Ke-75
+ AAB.DF 
+ ..BCDF 
+KGPPC.F 
+ GHJIII 
+ GHJ... 
+ LL..MM 
+
+Langkah Ke-76
+ AAB.DF 
+ G.BCDF 
+KGPPC.F 
+ GHJIII 
+ .HJ... 
+ LL..MM 
+
+Langkah Ke-77
+ AABCDF 
+ G.BCDF 
+KGPP..F 
+ GHJIII 
+ .HJ... 
+ LL..MM 
+
+Langkah Ke-78
+ AABC.F 
+ G.BCDF 
+KGPP.DF 
+ GHJIII 
+ .HJ... 
+ LL..MM 
+
+Langkah Ke-79
+ AAB..F 
+ G.BCDF 
+KGPPCDF 
+ GHJIII 
+ .HJ... 
+ LL..MM 
+
+Langkah Ke-80
+ AAB..F 
+ G.BCDF 
+KGPPCDF 
+ GHJIII 
+ .HJ... 
+ .LL.MM 
+
+Langkah Ke-81
+ AABC.F 
+ G.BCDF 
+KGPP.DF 
+ GHJIII 
+ .HJ... 
+ .LL.MM 
+
+Langkah Ke-82
+ AABCDF 
+ G.BCDF 
+KGPP..F 
+ GHJIII 
+ .HJ... 
+ .LL.MM 
+
+Langkah Ke-83
+ AAB.DF 
+ G.BCDF 
+KGPPC.F 
+ GHJIII 
+ .HJ... 
+ .LL.MM 
+
+Langkah Ke-84
+ AAB.DF 
+ ..BCDF 
+KGPPC.F 
+ GHJIII 
+ GHJ... 
+ .LL.MM 
+
+Langkah Ke-85
+ AABCDF 
+ ..BCDF 
+KGPP..F 
+ GHJIII 
+ GHJ... 
+ .LL.MM 
+
+Langkah Ke-86
+ AABC.F 
+ ..BCDF 
+KGPP.DF 
+ GHJIII 
+ GHJ... 
+ .LL.MM 
+
+Langkah Ke-87
+ AAB..F 
+ ..BCDF 
+KGPPCDF 
+ GHJIII 
+ GHJ... 
+ .LL.MM 
+
+Langkah Ke-88
+ AAB..F 
+ ..BCDF 
+K.PPCDF 
+ GHJIII 
+ GHJ... 
+ GLL.MM 
+
+Langkah Ke-89
+ AAB..F 
+ ..BCDF 
+KPP.CDF 
+ GHJIII 
+ GHJ... 
+ GLL.MM 
+
+=====================================================
+                    SOLUSI SELESAI                   
+=====================================================

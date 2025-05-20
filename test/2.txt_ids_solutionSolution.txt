@@ -1,0 +1,58 @@
+=====================================================
+         SOLUSI RUSH HOUR MENGGUNAKAN IDS            
+=====================================================
+
+Total langkah: 5
+Total node dieksplorasi: 27606
+
+Langkah Ke-0
+ ABCD.. 
+ ABCDEF 
+ PPGHEFK
+ ..GH.. 
+ ...... 
+ IIJJ.. 
+
+Langkah Ke-1
+ ABCDE. 
+ ABCDEF 
+ PPGH.FK
+ ..GH.. 
+ ...... 
+ IIJJ.. 
+
+Langkah Ke-2
+ ABCDEF 
+ ABCDEF 
+ PPGH..K
+ ..GH.. 
+ ...... 
+ IIJJ.. 
+
+Langkah Ke-3
+ ABCDEF 
+ ABCDEF 
+ PP.H..K
+ ..GH.. 
+ ..G... 
+ IIJJ.. 
+
+Langkah Ke-4
+ ABCDEF 
+ ABCDEF 
+ PP....K
+ ..GH.. 
+ ..GH.. 
+ IIJJ.. 
+
+Langkah Ke-5
+ ABCDEF 
+ ABCDEF 
+ ....PPK
+ ..GH.. 
+ ..GH.. 
+ IIJJ.. 
+
+=====================================================
+                    SOLUSI SELESAI                   
+=====================================================
