@@ -12,7 +12,6 @@ import java.util.Scanner;
 import utils.*;
 
 import obj.Board;
-import obj.Piece;  // Impor kelas Piece
 
 public class IDS {
     private Stack<IDSNode> treeStack; 
@@ -73,7 +72,7 @@ public class IDS {
                     
                     // Generate semua langkah yang mungkin
                     List<Board> nextPossibleBoards;
-                    nextPossibleBoards = utils.generateAllPossibleMoves(currentBoardState);
+                    nextPossibleBoards = utils.generateAllPossibleMoves(currentBoardState, currentBoardState.getLastMoves(), currentBoardState.getLastDist(), currentBoardState.getLastPiece());
 
                     // System.out.println("START OF PRINT ALL POSSIBLE BOARDS");
                     // for(Board b : nextPossibleBoards){

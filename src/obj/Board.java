@@ -14,6 +14,9 @@ public class Board {
     private boolean boardFinished;
     private int pieceCounter;
     private Map<Character, Piece> pieces;
+    private String lastMove;
+    private int lastDist;
+    private Piece lastPiece;
     private static final Map<Character, String> COLOR_MAP = new HashMap<Character, String>() {{
         put('A', "\u001B[31m"); // Red
         put('B', "\u001B[32m"); // Green
@@ -70,7 +73,6 @@ public class Board {
         this.boardFinished = other.boardFinished;
         this.pieceCounter = other.pieceCounter;
 
-        // Deep copy of boardState
         this.boardState = new char[boardRow + 1][boardCol + 1];
         for (int i = 1; i <= boardRow; i++) {
             for (int j = 1; j <= boardCol; j++) {
@@ -78,7 +80,6 @@ public class Board {
             }
         }
 
-        // Deep copy of pieces map
         this.pieces = new HashMap<>();
         for (Map.Entry<Character, Piece> entry : other.pieces.entrySet()) {
             this.pieces.put(entry.getKey(), new Piece(entry.getValue()));
@@ -94,50 +95,39 @@ public class Board {
         this.pieces = new HashMap<Character, Piece>();
         this.pieceCounter = 0;
 
-        // Copy boardState to this.boardState (with offset +1) and validate characters
         for(int i=0; i<this.boardRow; i++){
             for(int j=0; j<this.boardCol; j++){
                 char currentChar = boardState[i][j];
                 
-                // Validate: only allow alphabets and '.'
                 if(currentChar != '.' && !Character.isLetter(currentChar)){
                     throw new Exception("Board hanya boleh berisi karakter alfabet atau '.'");
                 }
                 
-                // Convert to uppercase if it's a letter
                 if(Character.isLetter(currentChar)){
                     currentChar = Character.toUpperCase(currentChar);
                 }
-                
                 this.boardState[i + 1][j + 1] = currentChar;
-                
-                // Update original boardState to uppercase for consistent detection
                 boardState[i][j] = currentChar;
             }
         }
 
-        // Detect pieces on the board
         for(int i=0; i<this.boardRow; i++){
             for(int j=0; j<this.boardCol; j++){
                 char currentPiece = boardState[i][j];
                 
-                // Skip empty cells and already processed pieces
                 if(currentPiece == '.' || uniquePieces.contains(currentPiece)){
                     continue;
                 }
                 
-                // Check horizontal piece
                 boolean isHorizontal = false;
                 int pieceLength = 1;
                 
                 if(i+1 < this.boardRow && boardState[i+1][j] == currentPiece && j+1 < this.boardCol && boardState[i][j+1] == currentPiece) throw new Exception("Piece hanya boleh horizontal atau vertikal");
 
-                // Check horizontal direction
                 else if(j+1 < this.boardCol && boardState[i][j+1] == currentPiece){
                     isHorizontal = true;
-                    pieceLength = 1; // Reset and count from the beginning
-                    
-                    // Count length horizontally
+                    pieceLength = 1;
+
                     while(j+pieceLength < this.boardCol && boardState[i][j+pieceLength] == currentPiece){
                         pieceLength++;
                     }
@@ -147,13 +137,11 @@ public class Board {
                     uniquePieces.add(currentPiece);
                     this.pieceCounter++;
                 }
-                // Check vertical direction
 
                 else if(i+1 < this.boardRow && boardState[i+1][j] == currentPiece){
                     isHorizontal = false;
-                    pieceLength = 1; // Reset and count from the beginning
+                    pieceLength = 1; 
                     
-                    // Count length vertically
                     while(i+pieceLength < this.boardRow && boardState[i+pieceLength][j] == currentPiece){
                         pieceLength++;
                     }
@@ -164,13 +152,11 @@ public class Board {
                     this.pieceCounter++;
                 }
                 else{
-                    // Single character piece, minimum length should be 2
                     throw new Exception("Panjang piece setidaknya 2");
                 }
             }
         }
         
-        // Check if primary piece 'P' exists
         if(!uniquePieces.contains('P')){
             throw new Exception("Papan harus memiliki piece primer 'P'");
         }
@@ -181,7 +167,6 @@ public class Board {
 
         if(!isExitValid()) throw new Exception("Posisi exit tidak valid");
         
-        // Kurangi pieceCounter untuk mengecualikan piece primer 'P'
         this.pieceCounter--;
     }
 
@@ -202,15 +187,36 @@ public class Board {
         return true;
     }
 
-    // Tambahkan getter untuk mendapatkan piece berdasarkan karakter
     public Piece getPiece(char pieceChar) {
         return pieces.get(pieceChar);
     }
 
-    
-    // Tambahkan getter untuk mendapatkan semua pieces
     public Map<Character, Piece> getAllPieces() {
         return pieces;
+    }
+
+    public String getLastMoves(){
+        return lastMove;
+    }
+
+    public void setLastMove(String lastMove){
+        this.lastMove = lastMove;
+    }
+
+    public int getLastDist(){
+        return lastDist;
+    }
+
+    public void setLastDist(int lastDist){
+        this.lastDist = lastDist;
+    }
+
+    public Piece getLastPiece(){
+        return lastPiece;
+    }
+    
+    public void setLastPiece(Piece lastPiece){
+        this.lastPiece = lastPiece;
     }
 
     public int getBoardRow(){
@@ -538,8 +544,6 @@ public class Board {
     }
 
     public boolean isFinished(){
-        // return boardFinished;
-
         if(exitCol == 0){
             if(boardState[exitRow][1] == 'P') return true;
             else return false;

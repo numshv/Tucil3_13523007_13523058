@@ -14,7 +14,6 @@ public class AStar {
     private Scanner scanner;
     private Node solution;
     private Set<Board> visitedBoards;
-    private boolean isTreeHeuristic;
     private TreeHeuristic th;
     private DistHeuristic dh;
     private int heuristicValue;
@@ -95,7 +94,7 @@ public class AStar {
                 break;
             }
            
-            List<Board> nextBoards = utils.generateAllPossibleMoves(currentBoard);
+            List<Board> nextBoards = utils.generateAllPossibleMoves(currentBoard, currentBoard.getLastMoves(), currentBoard.getLastDist(), currentBoard.getLastPiece());
             
             for(Board nextBoard : nextBoards){
                 if(!visitedBoards.contains(nextBoard)){

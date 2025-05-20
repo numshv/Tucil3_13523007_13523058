@@ -86,7 +86,7 @@ public class UCS {
                 break;
             }
            
-            List<Board> nextBoards = utils.generateAllPossibleMoves(currentBoard);
+            List<Board> nextBoards = utils.generateAllPossibleMoves(currentBoard, currentBoard.getLastMoves(), currentBoard.getLastDist(), currentBoard.getLastPiece());
             
             for(Board nextBoard : nextBoards){
                 if(!visitedBoards.contains(nextBoard)){

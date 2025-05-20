@@ -41,7 +41,7 @@ public class GBFS {
             // Generate semua kemungkinan move dari node saat ini
             // currentBoard.printBoardState();
             // scanner.nextLine();
-            List<Board> currentPossibleBoards = new ArrayList<Board>(utils.generateAllPossibleMoves(currentBoard));
+            List<Board> currentPossibleBoards = new ArrayList<Board>(utils.generateAllPossibleMoves(currentBoard, currentBoard.getLastMoves(), currentBoard.getLastDist(), currentBoard.getLastPiece()));
             
             // Cari board dengan nilai heuristik terendah
             Board bestBoard = null;
@@ -87,7 +87,7 @@ public class GBFS {
             
             // Jika solusi ditemukan, keluar dari loop
             if (currentBoard.isFinished()) {
-                System.out.println("here finish");
+                //System.out.println("here finish");
                 scanner.nextLine();
                 break;
             }

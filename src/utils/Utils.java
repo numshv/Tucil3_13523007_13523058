@@ -39,7 +39,7 @@ public class Utils {
             try {
                 System.out.print("Masukkan nama file input (dalam folder test, ex: tes1.txt): ");
                 String filename = userInput.nextLine();
-                String filePath = "test/" + filename; 
+                String filePath = "../test/" + filename; 
                 inpFileName = filePath;
                 File file = new File(filePath);
 
@@ -281,45 +281,32 @@ public class Utils {
 
 
     public List<Board> generateAllPossibleMoves(Board inpBoard) {
-        // Null check for input board
         if (inpBoard == null) {
-            return new ArrayList<>(); // Return empty list if board is null
+            return new ArrayList<>();
         }
         
         Board initBoard = new Board(inpBoard);
-        
-        // try {
-        //     initBoard.printBoardState();
-        // } catch (Exception e) {
-        //     // Handle potential exceptions during board printing
-        //     System.err.println("Error printing board state: " + e.getMessage());
-        // }
-        
         List<Board> results = new ArrayList<Board>();
         Map<Character, Piece> pieces = new HashMap<>();
-        
-        // Null check for getAllPieces result
         Map<Character, Piece> allPieces = initBoard.getAllPieces();
         if (allPieces == null) {
-            return results; // Return empty list if no pieces
+            return results;
         }
         
         for (Map.Entry<Character, Piece> entry : allPieces.entrySet()) {
-            // Null checks for key and value
             if (entry.getKey() != null && entry.getValue() != null) {
                 pieces.put(entry.getKey(), new Piece(entry.getValue()));
             }
         }
         
         for (Piece curPiece : pieces.values()) {
-            // Skip null pieces
             if (curPiece == null) continue;
             
             try {
                 //System.out.println(curPiece.getPieceType());
             } catch (Exception e) {
                 //System.err.println("Error getting piece type: " + e.getMessage());
-                continue; // Skip this piece if there's an exception
+                continue; 
             }
             
             try {
@@ -329,7 +316,7 @@ public class Utils {
                     int startRow = initBoard.getStartRowPiece(curPiece);
                     int startCol = initBoard.getStartColPiece(curPiece);
                     
-                    if (startRow <= 0 || startCol <= 0) continue; // Skip invalid positions
+                    if (startRow <= 0 || startCol <= 0) continue;
                     
                     for (int i = startCol - 1; i >= 1; i--) {
                         if (initBoard.getCharAt(startRow, i) == '.') {
@@ -345,7 +332,7 @@ public class Utils {
                     int endCol = initBoard.getEndColPiece(curPiece);
                     int endRow = initBoard.getEndRowPiece(curPiece);
                     
-                    if (endRow <= 0 || endCol <= 0 || endCol >= initBoard.getBoardCol()) continue; // Skip invalid positions
+                    if (endRow <= 0 || endCol <= 0 || endCol >= initBoard.getBoardCol()) continue;
                     
                     for (int i = endCol + 1; i <= initBoard.getBoardCol(); i++) {
                         if (initBoard.getCharAt(endRow, i) == '.') {
@@ -361,7 +348,7 @@ public class Utils {
                     int startRow = initBoard.getStartRowPiece(curPiece);
                     int startCol = initBoard.getStartColPiece(curPiece);
                     
-                    if (startRow <= 0 || startCol <= 0) continue; // Skip invalid positions
+                    if (startRow <= 0 || startCol <= 0) continue;
                     
                     for (int i = startRow - 1; i >= 1; i--) {
                         if (initBoard.getCharAt(i, startCol) == '.') {
@@ -377,7 +364,7 @@ public class Utils {
                     int endRow = initBoard.getEndRowPiece(curPiece);
                     int endCol = initBoard.getEndColPiece(curPiece);
                     
-                    if (endRow <= 0 || endCol <= 0 || endRow >= initBoard.getBoardRow()) continue; // Skip invalid positions
+                    if (endRow <= 0 || endCol <= 0 || endRow >= initBoard.getBoardRow()) continue;
                     
                     for (int i = endRow + 1; i <= initBoard.getBoardRow(); i++) {
                         if (initBoard.getCharAt(i, endCol) == '.') {
@@ -390,10 +377,186 @@ public class Utils {
                 }
             } catch (Exception e) {
                 //System.err.println("Error processing piece: " + e.getMessage());
-                // Continue with next piece if there's an exception
                 continue;
             }
         }
         return results;
+    }
+
+    public List<Board> generateAllPossibleMoves(Board inpBoard, String lastMove, int lastDist, Piece lastPiece) {
+        if (inpBoard == null) {
+            return new ArrayList<>();
+        }
+        
+        List<Board> results = new ArrayList<>();
+
+        Map<Character, Piece> allPieces = inpBoard.getAllPieces();
+        if (allPieces == null) {
+            return results;
+        }
+        
+        for (Map.Entry<Character, Piece> entry : allPieces.entrySet()) {
+            Character pieceKey = entry.getKey();
+            Piece curPiece = entry.getValue();
+
+            if (curPiece == null || pieceKey == null) continue;
+            
+            char pieceType = curPiece.getPieceType();
+            Board workingBoard = new Board(inpBoard);
+            
+            try {
+                if (curPiece.isHorizontal()) {
+                    processHorizontalMoves(workingBoard, results, pieceType, lastMove, lastDist, lastPiece);
+                } else {
+                    processVerticalMoves(workingBoard, results, pieceType, lastMove, lastDist, lastPiece);
+                }
+            } catch (Exception e) {
+                continue;
+            }
+        }
+        
+        return results;
+    }
+    
+    private void processHorizontalMoves(Board workingBoard, List<Board> results, char pieceType, 
+                                       String lastMove, int lastDist, Piece lastPiece) {
+        Piece curPiece = workingBoard.getPiece(pieceType);
+        if (curPiece == null) return;
+        int startRow = workingBoard.getStartRowPiece(curPiece);
+        int startCol = workingBoard.getStartColPiece(curPiece);
+
+        if (startRow > 0 && startCol > 0) {
+            Board leftBoard = new Board(workingBoard);
+            int leftCount = 0;
+            
+            for (int i = startCol - 1; i >= 1; i--) {
+                if (leftBoard.getCharAt(startRow, i) == '.') {
+                    leftCount++;
+                    // Check if this move would undo the last move
+                    boolean undoesLastMove = "RIGHT".equals(lastMove) && 
+                                            lastDist == leftCount && 
+                                            lastPiece != null && 
+                                            lastPiece.getPieceType() == pieceType;
+                    
+                    leftBoard.moveLeftPiece(pieceType, 1);
+                    
+                    if (!undoesLastMove) {
+                        Board newBoard = new Board(leftBoard);
+                        newBoard.setLastMove("LEFT");
+                        newBoard.setLastDist(leftCount);
+                        newBoard.setLastPiece(curPiece);
+                        results.add(newBoard);
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        Piece originalPiece = workingBoard.getPiece(pieceType);
+        if (originalPiece == null) return;
+        
+        int endRow = workingBoard.getEndRowPiece(originalPiece);
+        int endCol = workingBoard.getEndColPiece(originalPiece);
+        
+        if (endRow > 0 && endCol > 0 && endCol < workingBoard.getBoardCol()) {
+            Board rightBoard = new Board(workingBoard);
+            int rightCount = 0;
+            for (int i = endCol + 1; i <= rightBoard.getBoardCol(); i++) {
+                if (rightBoard.getCharAt(endRow, i) == '.') {
+                    rightCount++;
+                    
+                    // Check if this move would undo the last move
+                    boolean undoesLastMove = "LEFT".equals(lastMove) && 
+                                            lastDist == rightCount && 
+                                            lastPiece != null && 
+                                            lastPiece.getPieceType() == pieceType;
+
+                    rightBoard.moveRightPiece(pieceType, 1);
+                    
+                    if (!undoesLastMove) {
+                        Board newBoard = new Board(rightBoard);
+                        newBoard.setLastMove("RIGHT");
+                        newBoard.setLastDist(rightCount);
+                        newBoard.setLastPiece(originalPiece);
+                        results.add(newBoard);
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+    
+    private void processVerticalMoves(Board workingBoard, List<Board> results, char pieceType, 
+                                     String lastMove, int lastDist, Piece lastPiece) {
+        Piece curPiece = workingBoard.getPiece(pieceType);
+        if (curPiece == null) return;
+        int startRow = workingBoard.getStartRowPiece(curPiece);
+        int startCol = workingBoard.getStartColPiece(curPiece);
+        
+        if (startRow > 0 && startCol > 0) {
+            Board upBoard = new Board(workingBoard);
+            int upCount = 0;
+            
+            for (int i = startRow - 1; i >= 1; i--) {
+                if (upBoard.getCharAt(i, startCol) == '.') {
+                    upCount++;
+                    
+                    // Check if this move would undo the last move
+                    boolean undoesLastMove = "DOWN".equals(lastMove) && 
+                                            lastDist == upCount && 
+                                            lastPiece != null && 
+                                            lastPiece.getPieceType() == pieceType;
+                    
+                    upBoard.moveUpPiece(pieceType, 1);
+                    
+                    if (!undoesLastMove) {
+                        Board newBoard = new Board(upBoard);
+                        newBoard.setLastMove("UP");
+                        newBoard.setLastDist(upCount);
+                        newBoard.setLastPiece(curPiece);
+                        results.add(newBoard);
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        Piece originalPiece = workingBoard.getPiece(pieceType);
+        if (originalPiece == null) return;
+        
+        int endRow = workingBoard.getEndRowPiece(originalPiece);
+        int endCol = workingBoard.getEndColPiece(originalPiece);
+        
+        if (endRow > 0 && endCol > 0 && endRow < workingBoard.getBoardRow()) {
+            Board downBoard = new Board(workingBoard);
+            int downCount = 0;
+            
+            for (int i = endRow + 1; i <= downBoard.getBoardRow(); i++) {
+                if (downBoard.getCharAt(i, endCol) == '.') {
+                    downCount++;
+                    
+                    // Check if this move would undo the last move
+                    boolean undoesLastMove = "UP".equals(lastMove) && 
+                                            lastDist == downCount && 
+                                            lastPiece != null && 
+                                            lastPiece.getPieceType() == pieceType;
+                    
+                    downBoard.moveDownPiece(pieceType, 1);
+                    
+                    if (!undoesLastMove) {
+                        Board newBoard = new Board(downBoard);
+                        newBoard.setLastMove("DOWN");
+                        newBoard.setLastDist(downCount);
+                        newBoard.setLastPiece(originalPiece);
+                        results.add(newBoard);
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
     }
 }
