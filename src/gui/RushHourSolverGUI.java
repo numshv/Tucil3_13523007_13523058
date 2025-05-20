@@ -21,51 +21,9 @@ import java.util.concurrent.TimeUnit;
 // Asumsikan kelas-kelas solver dan Board ada di paket yang sesuai atau default
 // Jika ada di paket 'obj', Anda mungkin perlu import seperti:
 import obj.Board;
-// import obj.GBFS;
-// import obj.AStar;
-// import obj.UCS;
-// import obj.IDS;
+import solver.*;
 // import obj.Solution; // Jika AStar, UCS, IDS mengembalikan objek Solution
 
-// Placeholder untuk kelas solver jika belum ada (untuk kompilasi)
-// Anda harus menggantinya dengan implementasi solver Anda yang sebenarnya.
-class GBFS {
-    private List<Board> solutionPath = new ArrayList<>();
-    private int nodesExplored = 0;
-    public void solve(Board board, boolean isHeuristic1) { /* Implementasi solver */ this.nodesExplored = 100; /* dummy */ if (board != null) this.solutionPath.add(board); }
-    public List<Board> getSolutionPath() { return solutionPath; }
-    public int getNodesExplored() { return nodesExplored; }
-    public void writeSolution(String fileName) { /* Implementasi penulisan solusi */ }
-}
-class AStar {
-    private Solution solution;
-    private int nodesExplored = 0;
-    public AStar(Board board, boolean isHeuristic1) { /* Implementasi solver */ this.nodesExplored = 150; /* dummy */ this.solution = new Solution(); if (board != null) this.solution.getPathOfBoards().add(board); }
-    public Solution getSolution() { return solution; }
-    public int getNodesExplored() { return nodesExplored; }
-    public void writeSolution(String fileName) { /* Implementasi penulisan solusi */ }
-}
-class UCS {
-    private Solution solution;
-    private int nodesExplored = 0;
-    public UCS(Board board) { /* Implementasi solver */ this.nodesExplored = 200; /* dummy */ this.solution = new Solution(); if (board != null) this.solution.getPathOfBoards().add(board); }
-    public Solution getSolution() { return solution; }
-    public int getNodesExplored() { return nodesExplored; }
-    public void writeSolution(String fileName) { /* Implementasi penulisan solusi */ }
-}
-class IDS {
-    private Solution solution;
-    private int nodesExplored = 0;
-    public IDS(Board board) { /* Implementasi solver */ this.nodesExplored = 250; /* dummy */ this.solution = new Solution(); if (board != null) this.solution.getPathOfBoards().add(board); }
-    public Solution getSolution() { return solution; }
-    public int getNodesExplored() { return nodesExplored; }
-    public void writeSolution(String fileName) { /* Implementasi penulisan solusi */ }
-}
-class Solution { // Placeholder untuk objek Solution yang dikembalikan A*, UCS, IDS
-    private List<Board> pathOfBoards = new ArrayList<>();
-    public List<Board> getPathOfBoards() { return pathOfBoards; }
-}
-// Akhir dari placeholder kelas solver
 
 
 public class RushHourSolverGUI extends JFrame {
@@ -469,7 +427,7 @@ public class RushHourSolverGUI extends JFrame {
                     GBFS gbfsSolver = new GBFS();
                     gbfsSolver.solve(initialBoard, useHeuristic1);
                     solutionPath = gbfsSolver.getSolutionPath();
-                    nodesExplored = gbfsSolver.getNodesExplored();
+                    nodesExplored = gbfsSolver.getNodeCount();
                     gbfsSolver.writeSolution(filePath + "_gbfs_solution.txt");
                     break;
                 case "A*":
@@ -477,7 +435,7 @@ public class RushHourSolverGUI extends JFrame {
                     if (aStarSolver.getSolution() != null) {
                         solutionPath = aStarSolver.getSolution().getPathOfBoards();
                     }
-                    nodesExplored = aStarSolver.getNodesExplored();
+                    nodesExplored = aStarSolver.getExploredNodesCount();
                     aStarSolver.writeSolution(filePath + "_astar_solution.txt");
                     break;
                 case "UCS":
@@ -485,7 +443,7 @@ public class RushHourSolverGUI extends JFrame {
                     if (ucsSolver.getSolution() != null) {
                         solutionPath = ucsSolver.getSolution().getPathOfBoards();
                     }
-                    nodesExplored = ucsSolver.getNodesExplored();
+                    nodesExplored = ucsSolver.getExploredNodesCount();
                     ucsSolver.writeSolution(filePath + "_ucs_solution.txt");
                     break;
                 case "IDS":
@@ -493,7 +451,7 @@ public class RushHourSolverGUI extends JFrame {
                     if (idsSolver.getSolution() != null) {
                         solutionPath = idsSolver.getSolution().getPathOfBoards();
                     }
-                    nodesExplored = idsSolver.getNodesExplored();
+                    nodesExplored = idsSolver.getExploredNodesCount();
                     idsSolver.writeSolution(filePath + "_ids_solution.txt");
                     break;
                 default:
