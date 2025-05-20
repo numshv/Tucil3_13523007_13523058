@@ -295,7 +295,7 @@ public class RushHourSolverGUI extends JFrame {
     private final int CORNER_RADIUS = 8; 
     private final Color BORDER_COLOR = new Color(200, 200, 200); 
     private final Color COMBOBOX_BORDER_COLOR = new Color(200, 200, 200); 
-    private final int BUTTON_BORDER_THICKNESS = 2; 
+    private final int BUTTON_BORDER_THICKNESS = 1; 
     private final String FILE_INPUT_PLACEHOLDER = "Masukkan nama file..."; // Updated placeholder
 
 
@@ -313,7 +313,7 @@ public class RushHourSolverGUI extends JFrame {
     
     private void initializeComponents() {
         RoundedBorder fieldRoundedBorder = new RoundedBorder(CORNER_RADIUS, 1, BORDER_COLOR); 
-        RoundedBorder buttonRoundedBorder = new RoundedBorder(CORNER_RADIUS, BUTTON_BORDER_THICKNESS, BORDER_COLOR);
+        RoundedBorder buttonRoundedBorder = new RoundedBorder(CORNER_RADIUS, BUTTON_BORDER_THICKNESS, Color.BLACK);
 
 
         algorithmSelector = new JComboBox<>(new String[]{"Pilih Algoritma ...", "GBFS", "A*", "UCS", "IDS"});
@@ -350,7 +350,7 @@ public class RushHourSolverGUI extends JFrame {
         stepsLabel = createStatsLabel("0", "Solution Steps", GREEN_COLOR);
         
         solveButton = new RoundedButton("Solve", CORNER_RADIUS); 
-        solveButton.setBackground(new Color(255, 236, 66));
+        solveButton.setBackground(new Color(251, 255, 134));
         solveButton.setForeground(Color.BLACK);
         solveButton.setBorder(buttonRoundedBorder); 
         solveButton.setFont(new Font("Arial", Font.BOLD, 16));
@@ -812,45 +812,123 @@ class BoardAnimationPanel extends JPanel {
     private List<Board> solutionPath;
     private int currentStepIndex = 0;
     private ScheduledExecutorService animator;
-    private final int ANIMATION_DELAY_MS = 300; 
+    private final int ANIMATION_DELAY_MS = 300; // Diubah dari 500 ke 300
+    private boolean isAnimating = false;
 
     private final Map<Character, Color> pieceColors = new HashMap<>();
     private final Color PRIMARY_PIECE_COLOR = new Color(255, 0, 0); 
-    private final Color EXIT_COLOR = new Color(0, 128, 0); 
+    private final Color EXIT_COLOR = new Color(77, 155, 230); 
     private final Color GRID_COLOR = new Color(200, 200, 200);
+    private final Color BOARD_BACKGROUND = new Color(240, 240, 240);
+    
+    // Komponen kontrol langkah
+    private JButton prevButton;
+    private JButton nextButton;
+    private JButton playButton;
+    private JButton pauseButton;
+    private JButton resetButton;
+    private JLabel stepLabel;
+    private JPanel controlPanel;
 
     public BoardAnimationPanel() {
         setBackground(Color.WHITE);
         initializePieceColors();
+        initializeControls();
+        setLayout(new BorderLayout());
+        add(controlPanel, BorderLayout.SOUTH);
+        updateControlsState();
+    }
+
+    private void initializeControls() {
+        controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        
+        prevButton = new JButton("←");
+        prevButton.addActionListener(e -> {
+            if (currentStepIndex > 0) {
+                currentStepIndex--;
+                updateStepLabel();
+                repaint();
+            }
+        });
+        
+        nextButton = new JButton("→");
+        nextButton.addActionListener(e -> {
+            if (solutionPath != null && currentStepIndex < solutionPath.size() - 1) {
+                currentStepIndex++;
+                updateStepLabel();
+                repaint();
+            }
+        });
+        
+        playButton = new JButton("▶");
+        playButton.addActionListener(e -> startAnimation());
+        
+        pauseButton = new JButton("⏸");
+        pauseButton.addActionListener(e -> stopAnimation());
+        
+        resetButton = new JButton("⟲");
+        resetButton.addActionListener(e -> {
+            currentStepIndex = 0;
+            updateStepLabel();
+            repaint();
+        });
+        
+        stepLabel = new JLabel("Step: 0/0");
+        
+        controlPanel.add(resetButton);
+        controlPanel.add(prevButton);
+        controlPanel.add(playButton);
+        controlPanel.add(pauseButton);
+        controlPanel.add(nextButton);
+        controlPanel.add(stepLabel);
+    }
+    
+    private void updateStepLabel() {
+        int total = (solutionPath != null) ? solutionPath.size() : 0;
+        stepLabel.setText("Step: " + (currentStepIndex + 1) + "/" + total);
+    }
+    
+    private void updateControlsState() {
+        boolean hasSolution = solutionPath != null && !solutionPath.isEmpty();
+        
+        prevButton.setEnabled(hasSolution && currentStepIndex > 0);
+        nextButton.setEnabled(hasSolution && currentStepIndex < (solutionPath != null ? solutionPath.size() - 1 : 0));
+        playButton.setEnabled(hasSolution && !isAnimating);
+        pauseButton.setEnabled(isAnimating);
+        resetButton.setEnabled(hasSolution && currentStepIndex > 0);
+        
+        updateStepLabel();
     }
 
     private void initializePieceColors() {
-        char[] pieces = "ABCDEFGHIJKLMNOQRSTUVWXYZ".toCharArray(); 
+        char[] pieces = "ABCDEFGHIJKLMNOQRSTUVWXYZ".toCharArray();
         Color[] colors = {
-            new Color(0, 128, 255), 
-            new Color(255, 165, 0),  
-            new Color(128, 0, 128),   
-            new Color(0, 128, 0),    
-            new Color(255, 192, 203), 
-            new Color(165, 42, 42),   
-            new Color(64, 224, 208),  
-            new Color(255, 215, 0),   
-            new Color(192, 192, 192), 
-            new Color(128, 128, 128), 
-            new Color(0, 255, 127),   
-            new Color(218, 112, 214), 
-            new Color(240, 230, 140), 
-            new Color(255, 99, 71),   
-            new Color(152, 251, 152), 
-            new Color(135, 206, 235), 
-            new Color(219, 112, 147), 
-            new Color(244, 164, 96),  
-            new Color(176, 196, 222), 
-            new Color(255, 182, 193), 
-            new Color(221, 160, 221), 
-            new Color(173, 216, 230), 
-            new Color(144, 238, 144), 
-            new Color(255, 160, 122)  
+            new Color(251, 107, 29),  // #fb6b1d
+            new Color(232, 59, 59),   // #e83b3b
+            new Color(131, 28, 93),   // #831c5d
+            new Color(195, 36, 84),   // #c32454
+            new Color(240, 79, 120),  // #f04f78
+            new Color(246, 129, 129), // #f68181
+            new Color(252, 167, 144), // #fca790
+            new Color(227, 200, 150), // #e3c896
+            new Color(171, 148, 122), // #ab947a
+            new Color(150, 108, 108), // #966c6c
+            new Color(98, 85, 101),   // #625565
+            new Color(62, 53, 70),    // #3e3546
+            new Color(11, 94, 101),   // #0b5e65
+            new Color(11, 138, 143),  // #0b8a8f
+            new Color(30, 188, 115),  // #1ebc73
+            new Color(145, 219, 105), // #91db69
+            new Color(251, 255, 134), // #fbff86
+            new Color(251, 185, 84),  // #fbb954
+            new Color(205, 104, 61),  // #cd683d
+            new Color(158, 69, 57),   // #9e4539
+            new Color(122, 48, 69),   // #7a3045
+            new Color(107, 62, 117),  // #6b3e75
+            new Color(144, 94, 169),  // #905ea9
+            new Color(168, 132, 243), // #a884f3
+            new Color(234, 173, 237), // #eaaded
+            new Color(143, 211, 255)  // #8fd3ff
         };
 
         for (int i = 0; i < pieces.length; i++) {
@@ -862,29 +940,29 @@ class BoardAnimationPanel extends JPanel {
     public void setSolutionPath(List<Board> solutionPath) {
         this.solutionPath = solutionPath;
         this.currentStepIndex = 0;
-        if (solutionPath == null || solutionPath.isEmpty()) {
-            repaint(); 
-        } else {
-            repaint();
-        }
+        updateControlsState();
+        repaint();
     }
 
     public void startAnimation() {
-        stopAnimation(); 
+        stopAnimation();
         
         if (solutionPath == null || solutionPath.isEmpty()) {
-            repaint(); 
+            repaint();
             return;
         }
         
-        currentStepIndex = 0; 
-        repaint(); 
-
+        isAnimating = true;
+        updateControlsState();
+        
         animator = Executors.newSingleThreadScheduledExecutor();
         animator.scheduleAtFixedRate(() -> {
             if (currentStepIndex < solutionPath.size() - 1) {
                 currentStepIndex++;
-                SwingUtilities.invokeLater(this::repaint);
+                SwingUtilities.invokeLater(() -> {
+                    updateControlsState();
+                    repaint();
+                });
             } else {
                 stopAnimation();
             }
@@ -896,6 +974,25 @@ class BoardAnimationPanel extends JPanel {
             animator.shutdownNow();
             animator = null;
         }
+        isAnimating = false;
+        updateControlsState();
+    }
+    
+    public void showStep(int step) {
+        if (solutionPath != null && step >= 0 && step < solutionPath.size()) {
+            stopAnimation();
+            currentStepIndex = step;
+            updateControlsState();
+            repaint();
+        }
+    }
+    
+    public int getCurrentStep() {
+        return currentStepIndex;
+    }
+    
+    public int getTotalSteps() {
+        return solutionPath != null ? solutionPath.size() : 0;
     }
 
     @Override
@@ -919,20 +1016,24 @@ class BoardAnimationPanel extends JPanel {
 
     private void drawPlaceholder(Graphics2D g2d) {
         int width = getWidth();
-        int height = getHeight();
+        int height = getHeight() - controlPanel.getPreferredSize().height; // Adjusted for control panel
         
-        g2d.setColor(getBackground()); 
+        g2d.setColor(Color.WHITE);
         g2d.fillRect(0, 0, width, height); 
 
         g2d.setColor(Color.DARK_GRAY);
+        // g2d.setStroke(new BasicStroke(2.0f));
+        
+        // g2d.drawLine(width/4, height/4, 3*width/4, 3*height/4);
+        // g2d.drawLine(width/4, 3*height/4, 3*width/4, height/4);
+        
         g2d.setFont(new Font("Arial", Font.PLAIN, 16));
         String msg = "Pilih file dan algoritma, lalu tekan Solve";
         FontMetrics fm = g2d.getFontMetrics();
         int msgWidth = fm.stringWidth(msg);
-        g2d.drawString(msg, (width - msgWidth) / 2, height / 2 + fm.getAscent() / 2); 
+        g2d.drawString(msg, (width - msgWidth) / 2, height / 2 + fm.getAscent() / 2); // Centered message
 
-        g2d.setColor(Color.BLACK); 
-        g2d.setStroke(new BasicStroke(1.0f)); 
+        g2d.setColor(GRID_COLOR);
         g2d.drawRect(0, 0, width - 1, height - 1);
     }
 
@@ -943,62 +1044,133 @@ class BoardAnimationPanel extends JPanel {
         int boardCols = board.getBoardCol();
         int exitRow = board.getExitRow(); 
         int exitCol = board.getExitCol(); 
-                                        
-        
+                                          
         if (boardRows <= 0 || boardCols <= 0) { 
             drawPlaceholder(g2d);
             return;
         }
 
         int panelWidth = getWidth();
-        int panelHeight = getHeight();
+        int panelHeight = getHeight() - controlPanel.getPreferredSize().height; // Adjusted for control panel
         
-        int cellWidth = panelWidth / boardCols;
-        int cellHeight = panelHeight / boardRows;
+        // Total grid space including potential exit positions
+        int gridRows = boardRows + 2; // +2 to include potential exits at top (0) and bottom (boardRows+1)
+        int gridCols = boardCols + 2; // +2 to include potential exits at left (0) and right (boardCols+1)
         
-        g2d.setColor(Color.WHITE);
-        g2d.fillRect(0, 0, panelWidth, panelHeight);
+        int cellWidth = panelWidth / gridCols;
+        int cellHeight = panelHeight / gridRows;
 
+        // Offset to center the board leaving space for exits
+        int offsetX = cellWidth;
+        int offsetY = cellHeight;
+        
+        // Fill background
+        g2d.setColor(BOARD_BACKGROUND);
+        g2d.fillRect(0, 0, panelWidth, panelHeight);
+        
+        // Draw main board background
+        g2d.setColor(BOARD_BACKGROUND);
+        g2d.fillRect(offsetX, offsetY, cellWidth * boardCols, cellHeight * boardRows);
+        
+        // Draw grid only for the main board area (1-boardRow and 1-boardCol)
         g2d.setColor(GRID_COLOR);
         g2d.setStroke(new BasicStroke(1.0f));
         
-        for (int i = 0; i <= boardRows; i++) {
-            int y = i * cellHeight;
-            g2d.drawLine(0, y, panelWidth, y);
+        // Draw border around the main board
+        g2d.drawRect(offsetX, offsetY, cellWidth * boardCols, cellHeight * boardRows);
+        
+        // Draw internal horizontal grid lines (only within the main board)
+        for (int i = 1; i < boardRows; i++) {
+            int y = offsetY + i * cellHeight;
+            g2d.drawLine(offsetX, y, offsetX + boardCols * cellWidth, y);
         }
         
-        for (int j = 0; j <= boardCols; j++) {
-            int x = j * cellWidth;
-            g2d.drawLine(x, 0, x, panelHeight);
+        // Draw internal vertical grid lines (only within the main board)
+        for (int j = 1; j < boardCols; j++) {
+            int x = offsetX + j * cellWidth;
+            g2d.drawLine(x, offsetY, x, offsetY + boardRows * cellHeight);
         }
         
+        // Draw exit
         g2d.setColor(EXIT_COLOR);
-        if (exitCol > boardCols && exitRow >= 1 && exitRow <= boardRows) { 
-            g2d.fillRect(panelWidth - cellWidth / 4, (exitRow - 1) * cellHeight, cellWidth / 4, cellHeight);
-        } else if (exitCol == 0 && exitRow >= 1 && exitRow <= boardRows) { 
-            g2d.fillRect(0, (exitRow - 1) * cellHeight, cellWidth / 4, cellHeight);
-        } else if (exitRow > boardRows && exitCol >=1 && exitCol <= boardCols) { 
-            g2d.fillRect((exitCol - 1) * cellWidth, panelHeight - cellHeight / 4, cellWidth, cellHeight / 4);
-        } else if (exitRow == 0 && exitCol >=1 && exitCol <= boardCols) { 
-            g2d.fillRect((exitCol - 1) * cellWidth, 0, cellWidth, cellHeight / 4);
+
+        int exitCellX = 0;
+        int exitCellY = 0;
+        
+        if (exitCol > boardCols) { // Right exit
+            exitCellX = offsetX + boardCols * cellWidth;
+            exitCellY = offsetY + (exitRow - 1) * cellHeight;
+        } else if (exitCol == 0) { // Left exit
+            exitCellX = 0;
+            exitCellY = offsetY + (exitRow - 1) * cellHeight;
+        } else if (exitRow > boardRows) { // Bottom exit
+            exitCellX = offsetX + (exitCol - 1) * cellWidth;
+            exitCellY = offsetY + boardRows * cellHeight;
+        } else if (exitRow == 0) { // Top exit
+            exitCellX = offsetX + (exitCol - 1) * cellWidth;
+            exitCellY = 0;
         }
         
+        g2d.fillRect(exitCellX, exitCellY, cellWidth, cellHeight);
+        // Gambar outline-nya
+        g2d.setColor(EXIT_COLOR.darker());        // Warna outline
+        g2d.setStroke(new BasicStroke(2)); // Ketebalan garis (2 px)
+        // Exit text
+        g2d.setColor(Color.WHITE);
+        int fontSize = Math.min(cellWidth, cellHeight) / 3;
+        g2d.setFont(new Font("Arial", Font.BOLD, fontSize));
+        FontMetrics fm = g2d.getFontMetrics();
+        String exitLabel = "EXIT";
+        int textWidth = fm.stringWidth(exitLabel);
+        g2d.drawString(exitLabel, exitCellX + (cellWidth - textWidth) / 2, 
+                     exitCellY + (cellHeight - fm.getHeight()) / 2 + fm.getAscent());
+        
+        // Draw pieces
         java.util.Set<Character> drawnPieces = new java.util.HashSet<>();
 
         for (int r = 1; r <= boardRows; r++) { 
             for (int c = 1; c <= boardCols; c++) { 
                 char pieceChar = board.getCharAt(r, c); 
                 if (pieceChar != '.' && !drawnPieces.contains(pieceChar)) {
-                    drawPiece(g2d, board, pieceChar, r, c, cellWidth, cellHeight);
+                    drawPiece(g2d, board, pieceChar, r, c, cellWidth, cellHeight, offsetX, offsetY);
                     drawnPieces.add(pieceChar);
                 }
             }
         }
+        
+        // Draw step indicator
+        drawStepIndicator(g2d, panelWidth, panelHeight);
+    }
+    
+    private void drawStepIndicator(Graphics2D g2d, int panelWidth, int panelHeight) {
+        if (solutionPath == null || solutionPath.isEmpty()) return;
+        
+        g2d.setColor(new Color(98, 85, 101, 150)); // Semi-transparent black
+        g2d.setFont(new Font("Arial", Font.BOLD, 14));
+        
+        String stepText = "Langkah " + (currentStepIndex + 1) + " dari " + solutionPath.size();
+        FontMetrics fm = g2d.getFontMetrics();
+        int textWidth = fm.stringWidth(stepText);
+        
+        int padding = 10;
+        int rectWidth = textWidth + padding * 2;
+        int rectHeight = fm.getHeight() + padding;
+        
+        int rectX = panelWidth - rectWidth - 10;
+        int rectY = 10;
+        
+        // Draw background for text
+        g2d.fillRoundRect(rectX, rectY, rectWidth, rectHeight, 10, 10);
+        
+        // Draw text
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(stepText, rectX + padding, rectY + fm.getAscent() + padding/2);
     }
 
     private void drawPiece(Graphics2D g2d, Board board, char pieceChar, 
-                        int startRow, int startCol, 
-                        int cellWidth, int cellHeight) {
+                           int startRow, int startCol, 
+                           int cellWidth, int cellHeight,
+                           int offsetX, int offsetY) {
         
         int pieceActualRow = -1, pieceActualCol = -1;
         int pieceWidthInCells = 0;
@@ -1018,7 +1190,7 @@ class BoardAnimationPanel extends JPanel {
                     }
                     if (currentWidth > pieceWidthInCells) pieceWidthInCells = currentWidth;
 
-                    int currentHeight = 0;
+                     int currentHeight = 0;
                     for (int k = r; k <= board.getBoardRow(); k++) {
                         if (board.getCharAt(k,c) == pieceChar) currentHeight++;
                         else break;
@@ -1029,34 +1201,32 @@ class BoardAnimationPanel extends JPanel {
         }
         
         if (pieceWidthInCells > 1 && pieceHeightInCells > 1) {
-            boolean horizontal = false;
-            if (pieceActualCol + 1 <= board.getBoardCol() && board.getCharAt(pieceActualRow, pieceActualCol + 1) == pieceChar) {
-                horizontal = true;
-            }
+             boolean horizontal = false;
+             if (pieceActualCol + 1 <= board.getBoardCol() && board.getCharAt(pieceActualRow, pieceActualCol + 1) == pieceChar) {
+                 horizontal = true;
+             }
 
-            if (horizontal) {
-                pieceHeightInCells = 1;
-                int width = 0;
-                for(int c = pieceActualCol; c <= board.getBoardCol(); c++){
-                    if(board.getCharAt(pieceActualRow, c) == pieceChar) width++; else break;
-                }
-                pieceWidthInCells = width;
-            } else { 
-                pieceWidthInCells = 1;
-                int height = 0;
-                for(int r = pieceActualRow; r <= board.getBoardRow(); r++){
-                    if(board.getCharAt(r, pieceActualCol) == pieceChar) height++; else break;
-                }
-                pieceHeightInCells = height;
-            }
+             if (horizontal) {
+                 pieceHeightInCells = 1;
+                 int width = 0;
+                 for(int c = pieceActualCol; c <= board.getBoardCol(); c++){
+                     if(board.getCharAt(pieceActualRow, c) == pieceChar) width++; else break;
+                 }
+                 pieceWidthInCells = width;
+             } else { 
+                 pieceWidthInCells = 1;
+                 int height = 0;
+                 for(int r = pieceActualRow; r <= board.getBoardRow(); r++){
+                     if(board.getCharAt(r, pieceActualCol) == pieceChar) height++; else break;
+                 }
+                 pieceHeightInCells = height;
+             }
         }
-
 
         if (pieceActualRow == -1) return; 
 
-
-        int x = (pieceActualCol - 1) * cellWidth; 
-        int y = (pieceActualRow - 1) * cellHeight; 
+        int x = offsetX + (pieceActualCol - 1) * cellWidth; 
+        int y = offsetY + (pieceActualRow - 1) * cellHeight; 
         int width = pieceWidthInCells * cellWidth;
         int height = pieceHeightInCells * cellHeight;
         
@@ -1075,9 +1245,9 @@ class BoardAnimationPanel extends JPanel {
         int fontSize = Math.min(cellWidth, cellHeight) / 2; 
         if (pieceWidthInCells > 1) fontSize = Math.min(cellHeight / 2 , (cellWidth * pieceWidthInCells) / (String.valueOf(pieceChar).length() +1) );
         if (pieceHeightInCells > 1) fontSize = Math.min(cellWidth / 2, (cellHeight * pieceHeightInCells) / (String.valueOf(pieceChar).length() + 1));
-        fontSize = Math.max(10, fontSize); 
+        fontSize = Math.max(20, fontSize); 
 
-        g2d.setFont(new Font("Arial", Font.BOLD, fontSize));
+        g2d.setFont(new Font("Arial", Font.BOLD, 24));
         FontMetrics fm = g2d.getFontMetrics();
         String label = String.valueOf(pieceChar);
         int textWidth = fm.stringWidth(label);
