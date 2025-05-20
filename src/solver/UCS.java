@@ -10,32 +10,16 @@ public class UCS {
     private int exploredNodes;  
     private Scanner scanner;
     private Node solution;
+    private Set<Board> visitedBoards;
 
     public UCS(Board initialBoard) {
         utils = new Utils();
         exploredNodes = 0;
         scanner = new Scanner(System.in);
+        visitedBoards = new HashSet<Board>();
         solution = null;
         solve(initialBoard);
     }
-    
-    private String generateBoardKey(Board board) {
-        char[][] boardState = board.getBoardState();
-        int rows = board.getBoardRow();
-        int cols = board.getBoardCol();
-        
-        StringBuilder key = new StringBuilder();
-        for (int i = 1; i <= rows; i++) {
-            for (int j = 1; j <= cols; j++) {
-                key.append(boardState[i][j]);
-            }
-        }
-        return key.toString();
-    }
-    
-    // private boolean isVisited(Board board, Set<String> visited) {
-    //     return visited.contains(generateBoardKey(board));
-    // }
     
     public class Node implements Comparable<Node> {
         private Board state;
@@ -81,20 +65,18 @@ public class UCS {
    
     private void solve(Board initialBoard) {
         PriorityQueue<Node> pq = new PriorityQueue<>();
-        Set<String> visited = new HashSet<>();
         pq.add(new Node(initialBoard, 0, null));
        
         while(!pq.isEmpty()){
             Node current = pq.poll();
             Board currentBoard = current.getState();
-            String boardKey = generateBoardKey(currentBoard);
             
-            if(visited.contains(boardKey)){
+            if(visitedBoards.contains(currentBoard)){
                 continue;
             }
             
             exploredNodes++;
-            //visited.add(boardKey);
+            visitedBoards.add(currentBoard);
            
             if(currentBoard.isFinished()){
                 solution = current;
@@ -104,8 +86,7 @@ public class UCS {
             List<Board> nextBoards = utils.generateAllPossibleMoves(currentBoard);
             
             for(Board nextBoard : nextBoards){
-                String nextBoardKey = generateBoardKey(nextBoard);
-                if(!visited.contains(nextBoardKey)){
+                if(!visitedBoards.contains(nextBoard)){
                     Node nextNode = new Node(nextBoard, current.getCost() + 1, current);
                     pq.add(nextNode);
                 }
