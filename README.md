@@ -83,6 +83,6 @@ LLJMM.
   - File hasil akan tersimpan dalam folder `Solutions` yang berada di dalam folder `test`
 
 ## Author
-Noumisyifa Nabila Nareswari - 13523058 - K01
-Ranashahira Reztaputri - 13523007 - K01
+- Noumisyifa Nabila Nareswari - 13523058 - K01
+- Ranashahira Reztaputri - 13523007 - K01
 Teknik Informatika ITB 
