@@ -2,6 +2,9 @@ package gui;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -89,9 +92,187 @@ class RoundedButton extends JButton {
         super.paintComponent(g2);
         g2.dispose();
     }
+}
 
-    // Optional: Override paintBorder if you want the border to also be part of this component's painting logic
-    // For now, we rely on setBorder with RoundedBorder externally.
+// Custom ComboBox UI
+class ModernComboBoxUI extends BasicComboBoxUI {
+    private int cornerRadius;
+    private Color borderColor;
+    private Color arrowColor = new Color(100, 100, 100); 
+    private Color disabledArrowColor = new Color(180, 180, 180);
+    private Color comboBoxBackground = Color.WHITE;
+    private Color disabledComboBoxBackground = new Color(235, 235, 235); 
+    private Color focusedBorderColor = new Color(100, 149, 237); // Cornflower blue for focused border (subtle)
+    private Color disabledBorderColor = new Color(210, 210, 210);
+    private Color disabledTextColor = new Color(150, 150, 150);
+
+
+    public ModernComboBoxUI(int cornerRadius, Color borderColor) {
+        this.cornerRadius = cornerRadius;
+        this.borderColor = borderColor;
+    }
+
+    @Override
+    public void installUI(JComponent c) {
+        super.installUI(c);
+        JComboBox<?> comboBox = (JComboBox<?>) c;
+        comboBox.setOpaque(false);
+        comboBox.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10)); 
+    }
+
+    @Override
+    protected JButton createArrowButton() {
+        JButton button = new JButton() {
+            @Override
+            public void paint(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                int w = getWidth();
+                int h = getHeight();
+                int size = 7; 
+                int x = (w - size) / 2;
+                int y = (h - size / 2) / 2 -1; 
+
+                g2.setColor(comboBox.isEnabled() ? arrowColor : disabledArrowColor); 
+                Path2D path = new Path2D.Double();
+                path.moveTo(x, y);
+                path.lineTo(x + size, y);
+                path.lineTo(x + size / 2.0, y + size / 1.5);
+                path.closePath();
+                g2.fill(path);
+                g2.dispose();
+            }
+
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(20, 0); 
+            }
+        };
+        button.setName("ComboBox.arrowButton");
+        button.setBorder(BorderFactory.createEmptyBorder());
+        button.setOpaque(false);
+        return button;
+    }
+
+    @Override
+    public void paint(Graphics g, JComponent c) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        boolean isEnabled = c.isEnabled();
+
+        // Paint background - always white when enabled, grey when disabled
+        g2.setColor(isEnabled ? comboBoxBackground : disabledComboBoxBackground);
+        g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), cornerRadius * 2, cornerRadius * 2);
+
+        // Paint border
+        Color currentBorderColorToPaint;
+        float currentStrokeWidth;
+
+        if (!isEnabled) {
+            currentBorderColorToPaint = disabledBorderColor;
+            currentStrokeWidth = 1f;
+        } else if (comboBox.hasFocus()) {
+            currentBorderColorToPaint = focusedBorderColor; // Subtle blue border on focus
+            currentStrokeWidth = 1.5f;
+        } else {
+            currentBorderColorToPaint = borderColor;
+            currentStrokeWidth = 1f;
+        }
+        g2.setColor(currentBorderColorToPaint);
+        g2.setStroke(new BasicStroke(currentStrokeWidth));
+        g2.drawRoundRect(0, 0, c.getWidth() - 1, c.getHeight() - 1, cornerRadius * 2, cornerRadius * 2);
+        
+        Color originalForeground = c.getForeground();
+        Color foregroundToUse = isEnabled ? UIManager.getColor("ComboBox.foreground") : disabledTextColor;
+
+        if (editor != null) {
+            editor.setEnabled(isEnabled); 
+            if (editor instanceof JComponent) {
+                ((JComponent)editor).setForeground(foregroundToUse);
+                ((JComponent)editor).setOpaque(false); 
+            }
+        } else {
+            c.setForeground(foregroundToUse);
+        }
+
+        Rectangle r = rectangleForCurrentValue();
+        paintCurrentValue(g, r, comboBox.hasFocus()); 
+
+        if (editor == null) {
+            c.setForeground(originalForeground);
+        }
+        
+        g2.dispose();
+    }
+    
+    @Override
+    protected ListCellRenderer<Object> createRenderer() {
+        return new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); 
+
+                Color fgColor;
+                if (!comboBox.isEnabled()) { 
+                    fgColor = disabledTextColor;
+                } else if (index == -1 && value != null && value.toString().startsWith("Pilih")) { 
+                    fgColor = new Color(120, 120, 120); 
+                } else if (index == 0 && value != null && value.toString().startsWith("Pilih") && !isSelected){
+                     fgColor = new Color(120, 120, 120); 
+                } else if (isSelected) {
+                    fgColor = Color.BLACK; 
+                } else {
+                    fgColor = UIManager.getColor("List.foreground");
+                }
+                setForeground(fgColor);
+
+                if (isSelected && comboBox.isEnabled()) { 
+                    setBackground(new Color(220, 235, 255)); // Light blue for selected item in dropdown
+                } else {
+                    setBackground(Color.WHITE); 
+                }
+                return this;
+            }
+        };
+    }
+
+    @Override
+    protected ComboPopup createPopup() {
+        BasicComboPopup popup = new BasicComboPopup(comboBox) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), cornerRadius * 2, cornerRadius * 2);
+                
+                g2.dispose();
+            }
+        };
+
+        popup.setOpaque(false); 
+        popup.setBorder(new RoundedBorder(this.cornerRadius, 1, this.borderColor)); 
+
+        JList<?> list = popup.getList();
+        list.setBackground(Color.WHITE); 
+        list.setSelectionBackground(new Color(220, 230, 250)); 
+        list.setSelectionForeground(Color.BLACK);
+        
+        for (Component comp : popup.getComponents()) {
+            if (comp instanceof JScrollPane) {
+                JScrollPane scrollPane = (JScrollPane) comp;
+                scrollPane.setBorder(null); 
+                scrollPane.setOpaque(false); 
+                scrollPane.getViewport().setOpaque(false); 
+                break;
+            }
+        }
+        return popup;
+    }
 }
 
 
@@ -105,15 +286,17 @@ public class RushHourSolverGUI extends JFrame {
     private JLabel timeLabel;
     private JLabel stepsLabel;
     private BoardAnimationPanel animationPanel;
-    private RoundedButton solveButton; // Changed to RoundedButton
-    private final Color PINK_COLOR = new Color(255, 105, 180);
+    private RoundedButton solveButton; 
+    private final Color PINK_COLOR = new Color(240, 79, 120);
     private final Color ERROR_COLOR = Color.RED;
-    private final Color ORANGE_COLOR = new Color(255, 102, 0);
-    private final Color BLUE_COLOR = new Color(66, 135, 245);
-    private final Color GREEN_COLOR = new Color(122, 229, 82);
-    private final int CORNER_RADIUS = 5; // 5px radius for corners
-    private final Color BORDER_COLOR = Color.BLACK;
-    private final int BUTTON_BORDER_THICKNESS = 2;
+    private final Color ORANGE_COLOR = new Color(251, 107, 29);
+    private final Color BLUE_COLOR = new Color(77, 155, 230);
+    private final Color GREEN_COLOR = new Color(145, 219, 105);
+    private final int CORNER_RADIUS = 8; 
+    private final Color BORDER_COLOR = new Color(200, 200, 200); 
+    private final Color COMBOBOX_BORDER_COLOR = new Color(200, 200, 200); 
+    private final int BUTTON_BORDER_THICKNESS = 2; 
+    private final String FILE_INPUT_PLACEHOLDER = "Masukkan nama file..."; // Updated placeholder
 
 
     public RushHourSolverGUI() {
@@ -129,17 +312,26 @@ public class RushHourSolverGUI extends JFrame {
     }
     
     private void initializeComponents() {
-        RoundedBorder fieldRoundedBorder = new RoundedBorder(CORNER_RADIUS, 1, BORDER_COLOR); // 1px thickness for fields
+        RoundedBorder fieldRoundedBorder = new RoundedBorder(CORNER_RADIUS, 1, BORDER_COLOR); 
         RoundedBorder buttonRoundedBorder = new RoundedBorder(CORNER_RADIUS, BUTTON_BORDER_THICKNESS, BORDER_COLOR);
 
 
         algorithmSelector = new JComboBox<>(new String[]{"Pilih Algoritma ...", "GBFS", "A*", "UCS", "IDS"});
         heuristicSelector = new JComboBox<>(new String[]{"Pilih Heuristik ...", "Jumlah blok menghalangi", "Jarak blok primer ke pintu keluar"});
+        
+        ModernComboBoxUI modernAlgorithmUI = new ModernComboBoxUI(CORNER_RADIUS, COMBOBOX_BORDER_COLOR);
+        algorithmSelector.setUI(modernAlgorithmUI);
+        algorithmSelector.setBackground(Color.WHITE); 
+        
+        ModernComboBoxUI modernHeuristicUI = new ModernComboBoxUI(CORNER_RADIUS, COMBOBOX_BORDER_COLOR);
+        heuristicSelector.setUI(modernHeuristicUI); 
+        heuristicSelector.setBackground(Color.WHITE); 
 
-        fileInput = new JTextField("Masukkan file ..."); 
+
+        fileInput = new JTextField(FILE_INPUT_PLACEHOLDER); 
         fileInput.setForeground(Color.GRAY); 
         fileInput.setBorder(BorderFactory.createCompoundBorder(fieldRoundedBorder, 
-                                BorderFactory.createEmptyBorder(5, 8, 5, 8))); // Padding inside border
+                                BorderFactory.createEmptyBorder(5, 8, 5, 8))); 
 
         errorLabel = new JLabel("Error: Input tidak valid");
         errorLabel.setForeground(ERROR_COLOR);
@@ -157,11 +349,10 @@ public class RushHourSolverGUI extends JFrame {
         timeLabel = createStatsLabel("0", "Execution Time (ms)", BLUE_COLOR);
         stepsLabel = createStatsLabel("0", "Solution Steps", GREEN_COLOR);
         
-        solveButton = new RoundedButton("Solve", CORNER_RADIUS); // Use RoundedButton
+        solveButton = new RoundedButton("Solve", CORNER_RADIUS); 
         solveButton.setBackground(new Color(255, 236, 66));
         solveButton.setForeground(Color.BLACK);
-        solveButton.setBorder(buttonRoundedBorder); // Apply rounded border with 3px thickness
-        // solveButton.setBorderPainted(true); // Not needed if RoundedButton handles its border or if border is part of custom painting
+        solveButton.setBorder(buttonRoundedBorder); 
         solveButton.setFont(new Font("Arial", Font.BOLD, 16));
         
         solveButton.addActionListener(e -> {
@@ -175,41 +366,34 @@ public class RushHourSolverGUI extends JFrame {
         fileInput.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (fileInput.getText().equals("Masukkan file . . .")) {
+                if (fileInput.getText().equals(FILE_INPUT_PLACEHOLDER) && fileInput.getForeground().equals(Color.GRAY)) {
                     fileInput.setText("");
+                    fileInput.setForeground(Color.BLACK);
                 }
             }
             
             @Override
             public void focusLost(FocusEvent e) {
                 if (fileInput.getText().isEmpty()) {
-                    fileInput.setText("Masukkan file . . .");
+                    fileInput.setText(FILE_INPUT_PLACEHOLDER);
+                    fileInput.setForeground(Color.GRAY);
                 }
             }
         });
 
         algorithmSelector.addActionListener(e -> {
             String selectedAlgorithm = (String) algorithmSelector.getSelectedItem();
-            if (selectedAlgorithm.equals("GBFS") || selectedAlgorithm.equals("A*")) {
-                heuristicSelector.setEnabled(true);
-            } else {
-                heuristicSelector.setEnabled(false);
-                heuristicSelector.setSelectedIndex(0);
+            boolean requiresHeuristic = selectedAlgorithm.equals("GBFS") || selectedAlgorithm.equals("A*");
+            heuristicSelector.setEnabled(requiresHeuristic);
+            if (!requiresHeuristic) {
+                heuristicSelector.setSelectedIndex(0); 
             }
+            heuristicSelector.repaint(); 
         });
         heuristicSelector.setEnabled(false); 
-
-        // Style JComboBoxes with a simpler border for better L&F compatibility
-        Border flatLineBorder = BorderFactory.createLineBorder(BORDER_COLOR, 1); // 1px thickness
-        Border padding = BorderFactory.createEmptyBorder(5,8,5,8); // Inner padding
-        CompoundBorder comboBoxBorder = BorderFactory.createCompoundBorder(flatLineBorder, padding);
-
-        algorithmSelector.setBorder(comboBoxBorder);
-        heuristicSelector.setBorder(comboBoxBorder);
     }
     
     private JLabel createStatsLabel(String value, String description, Color valueColor) {
-        // Make the number (value) bold
         JLabel label = new JLabel("<html><div style='text-align: center;'>" +
                 "<span style='font-size: 48px; color: " + colorToHex(valueColor) + ";'><b>" + value + "</b></span><br>" +
                 "<span style='font-size: 20px;'>" + description + "</span></div></html>", 
@@ -226,37 +410,31 @@ public class RushHourSolverGUI extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         mainPanel.setBackground(Color.WHITE); 
         
-        // Title Panel
         JPanel titleContentPanel = new JPanel();
         titleContentPanel.setLayout(new BoxLayout(titleContentPanel, BoxLayout.Y_AXIS));
         titleContentPanel.setOpaque(false);
 
-        // First row of title
-        JPanel firstTitleRowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)); // Use FlowLayout for side-by-side
+        JPanel firstTitleRowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)); 
         firstTitleRowPanel.setOpaque(false);
 
         JLabel titleMain = new JLabel("Rush Hour Solver");
         titleMain.setFont(new Font("Arial", Font.BOLD, 28));
         titleMain.setForeground(PINK_COLOR);
-        // titleMain.setAlignmentX(Component.LEFT_ALIGNMENT); // Not needed for FlowLayout items directly
 
-        JLabel titleSubPart1 = new JLabel(" Yang Diselesainnya Also Sangat"); // Added leading space for visual separation
+        JLabel titleSubPart1 = new JLabel(" Yang Diselesainnya Also Sangat"); 
         titleSubPart1.setFont(new Font("Arial", Font.BOLD, 28)); 
-        // titleSubPart1.setAlignmentX(Component.LEFT_ALIGNMENT); // Not needed for FlowLayout items directly
         
         firstTitleRowPanel.add(titleMain);
         firstTitleRowPanel.add(titleSubPart1);
-        firstTitleRowPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // Align the whole row panel
+        firstTitleRowPanel.setAlignmentX(Component.LEFT_ALIGNMENT); 
 
-        // Second row of title
         JLabel titleSubPart2 = new JLabel("Rushed (kenapa seminggu doang astaga)");
-        titleSubPart2.setFont(new Font("Arial", Font.BOLD, 28));
+        titleSubPart2.setFont(new Font("Arial", Font.BOLD, 28)); 
         titleSubPart2.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        titleContentPanel.add(firstTitleRowPanel); // Add the first row panel
-        titleContentPanel.add(titleSubPart2);      // Add the second row label
+        titleContentPanel.add(firstTitleRowPanel); 
+        titleContentPanel.add(titleSubPart2);      
 
-        // Panel to hold titleContentPanel and align it left
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         titlePanel.setOpaque(false);
         titlePanel.add(titleContentPanel);
@@ -266,6 +444,7 @@ public class RushHourSolverGUI extends JFrame {
         controlsPanel.setOpaque(false); 
         controlsPanel.add(algorithmSelector);
         controlsPanel.add(heuristicSelector);
+        controlsPanel.add(Box.createHorizontalStrut(10)); 
         controlsPanel.add(fileInput);
         controlsPanel.add(solveButton);
         
@@ -298,8 +477,8 @@ public class RushHourSolverGUI extends JFrame {
         footerPanel.add(idLabel, BorderLayout.EAST);
         mainPanel.add(footerPanel, BorderLayout.SOUTH);
         
-        algorithmSelector.setPreferredSize(new Dimension(200, 40));
-        heuristicSelector.setPreferredSize(new Dimension(250, 40)); 
+        algorithmSelector.setPreferredSize(new Dimension(220, 40)); 
+        heuristicSelector.setPreferredSize(new Dimension(270, 40)); 
         fileInput.setPreferredSize(new Dimension(350, 40)); 
         solveButton.setPreferredSize(new Dimension(100, 40)); 
         statsPanel.setPreferredSize(new Dimension(300, 500));
@@ -320,22 +499,23 @@ public class RushHourSolverGUI extends JFrame {
             return false;
         }
         
-        String filePath = fileInput.getText();
-        if (filePath.equals("Masukkan file . . .") || filePath.isEmpty()) {
+        String fileName = fileInput.getText(); // Original file name from text field
+        if (fileName.equals(FILE_INPUT_PLACEHOLDER) || fileName.isEmpty()) { 
             errorLabel.setText("Error: Path file belum dimasukkan.");
             return false;
         }
         
-        File file = new File(filePath);
+        String fullPath = "test/" + fileName; // Prepend "test/"
+        File file = new File(fullPath);
         if (!file.exists() || !file.isFile()) {
-            errorLabel.setText("Error: File tidak ditemukan atau bukan file valid di path: " + filePath);
+            errorLabel.setText("Error: File tidak ditemukan atau bukan file valid di path: " + fullPath);
             return false;
         }
         
         return true;
     }
 
-    private Board readBoardFromFile(String filePath) throws IOException {
+    private Board readBoardFromFile(String filePath) throws IOException { // filePath here is already prepended with "test/"
         Scanner fileReader = null;
         char[][] boardGrid;
         int rowCount = 0;
@@ -346,11 +526,11 @@ public class RushHourSolverGUI extends JFrame {
         int exitColumnPosition = -1;
         boolean exitSymbolFound = false;
         int exitLineIndex = -1;
-        int exitSymbolPositionInLine = -1; // Renamed for clarity
+        int exitSymbolPositionInLine = -1; 
         boolean isExitOnSeparateLine = false;
 
         try {
-            File file = new File(filePath);
+            File file = new File(filePath); // Use the full path directly
             if (!file.exists()) {
                 throw new FileNotFoundException("File pada path '" + filePath + "' tidak ditemukan.");
             }
@@ -370,7 +550,7 @@ public class RushHourSolverGUI extends JFrame {
             if (fileReader.hasNextInt()) declaredPieces = fileReader.nextInt();
             else throw new IOException("Format file salah: deklarasi jumlah piece tidak ditemukan.");
             
-            if (fileReader.hasNextLine()) fileReader.nextLine(); // Consume the rest of the line after numbers
+            if (fileReader.hasNextLine()) fileReader.nextLine(); 
 
             List<String> fileLines = new ArrayList<>();
             while(fileReader.hasNextLine()){
@@ -435,22 +615,21 @@ public class RushHourSolverGUI extends JFrame {
                 
                 String boardRowData;
 
-                if (i == exitLineIndex) { // K is on this data line
-                    // Ensure K is at the very start or very end of the logical board content
+                if (i == exitLineIndex) { 
                     String lineWithoutK;
-                    if (exitSymbolPositionInLine == 0 && processedLineContent.length() >= 1) { // K at start
+                    if (exitSymbolPositionInLine == 0 && processedLineContent.length() >= 1) { 
                         lineWithoutK = processedLineContent.substring(1);
-                        exitRowPosition = processedRows + 1; // 1-based
-                        exitColumnPosition = 0; // 0 means left of column 1
-                    } else if (exitSymbolPositionInLine > 0 && exitSymbolPositionInLine == processedLineContent.length() - 1) { // K at end
+                        exitRowPosition = processedRows + 1; 
+                        exitColumnPosition = 0; 
+                    } else if (exitSymbolPositionInLine > 0 && exitSymbolPositionInLine == processedLineContent.length() - 1) { 
                         lineWithoutK = processedLineContent.substring(0, exitSymbolPositionInLine);
-                         exitRowPosition = processedRows + 1; // 1-based
-                        exitColumnPosition = columnCount + 1; // means right of last column
+                         exitRowPosition = processedRows + 1; 
+                        exitColumnPosition = columnCount + 1; 
                     } else {
                         throw new IOException("Posisi 'K' pada baris data ke-" + (processedRows + 1) +
                                           " (isi: '" + processedLineContent + "') tidak valid. 'K' harus di awal atau akhir baris data.");
                     }
-                    boardRowData = lineWithoutK.trim(); // Trim after removing K
+                    boardRowData = lineWithoutK.trim(); 
                 } else {
                     boardRowData = processedLineContent.trim();
                 }
@@ -472,13 +651,13 @@ public class RushHourSolverGUI extends JFrame {
                                     " baris data valid, hanya ditemukan " + processedRows + ".");
             }
 
-            if (exitRowPosition == -1) { // K was on a separate line
+            if (exitRowPosition == -1) { 
                 if (firstDataLineIndex == -1 || exitLineIndex < firstDataLineIndex) { 
-                    exitRowPosition = 0; // 0 means above row 1
+                    exitRowPosition = 0; 
                 } else { 
-                    exitRowPosition = rowCount + 1; // means below last row
+                    exitRowPosition = rowCount + 1; 
                 }
-                exitColumnPosition = exitSymbolPositionInLine + 1; // 1-based column for K
+                exitColumnPosition = exitSymbolPositionInLine + 1; 
                 
                 if (exitColumnPosition < 1 || exitColumnPosition > columnCount) {
                     throw new IOException("Posisi 'K' (kolom " + exitColumnPosition +
@@ -489,15 +668,12 @@ public class RushHourSolverGUI extends JFrame {
             
             Board board = new Board(boardGrid, exitRowPosition, exitColumnPosition);
             
-            // Asumsi obj.Board memiliki metode getPieceCounter() yang mengembalikan jumlah piece unik selain 'P' dan '.'
-            // Jika tidak, Anda perlu menyesuaikan atau menghapus validasi ini.
-            if (board.getPieceCounter() != -1 && declaredPieces != board.getPieceCounter()) { // Check if getPieceCounter is implemented
+            if (board.getPieceCounter() != -1 && declaredPieces != board.getPieceCounter()) { 
                  throw new IOException("Jumlah piece tidak sesuai deklarasi. Dideklarasikan: " +
                                      declaredPieces + ", Dihitung dari papan (unik, tanpa P): " + board.getPieceCounter());
             }
             
             System.out.println("Papan berhasil dibuat dari file: " + filePath);
-            // board.printBoardState(); // Mungkin tidak diperlukan di GUI
 
             return board;
 
@@ -505,9 +681,9 @@ public class RushHourSolverGUI extends JFrame {
             throw new IOException("File tidak ditemukan: " + filePath + ". Detail: " + e.getMessage(), e);
         } catch (NoSuchElementException | IllegalArgumentException e) { 
             throw new IOException("Format file tidak valid atau data tidak lengkap. Detail: " + e.getMessage(), e);
-        } catch (IOException e) { // Menangkap IOException yang sudah dilempar atau yang baru
-            throw e; // Melempar ulang IOException yang sudah spesifik
-        } catch (Exception e) { // Menangkap exception lain yang mungkin tidak terduga
+        } catch (IOException e) { 
+            throw e; 
+        } catch (Exception e) { 
             throw new IOException("Terjadi error saat memproses file: " + e.getMessage(), e);
         } finally {
             if (fileReader != null) fileReader.close();
@@ -518,11 +694,18 @@ public class RushHourSolverGUI extends JFrame {
         errorLabel.setVisible(false);
         String selectedAlgorithm = (String) algorithmSelector.getSelectedItem();
         String selectedHeuristicName = (String) heuristicSelector.getSelectedItem();
-        String filePath = fileInput.getText();
+        String fileName = fileInput.getText(); // Get the raw file name
+
+        if (fileName.equals(FILE_INPUT_PLACEHOLDER)) {
+            errorLabel.setText("Error: Path file belum dimasukkan.");
+            errorLabel.setVisible(true);
+            return;
+        }
+        String fullPath = "test/" + fileName; // Prepend "test/" for actual use
 
         Board initialBoard;
         try {
-            initialBoard = readBoardFromFile(filePath);
+            initialBoard = readBoardFromFile(fullPath); // Use fullPath
             if (initialBoard == null) { 
                  errorLabel.setText("Error: Gagal memuat board dari file (null).");
                  errorLabel.setVisible(true);
@@ -531,7 +714,7 @@ public class RushHourSolverGUI extends JFrame {
         } catch (IOException e) {
             errorLabel.setText("Error saat membaca file: " + e.getMessage());
             errorLabel.setVisible(true);
-            e.printStackTrace(); // Untuk debugging di console
+            e.printStackTrace(); 
             return;
         }
 
@@ -550,7 +733,7 @@ public class RushHourSolverGUI extends JFrame {
                     gbfsSolver.solve(initialBoard, useHeuristic1);
                     solutionPath = gbfsSolver.getSolutionPath();
                     nodesExplored = gbfsSolver.getNodeCount();
-                    gbfsSolver.writeSolution(filePath + "_gbfs_solution.txt");
+                    gbfsSolver.writeSolution(fullPath + "_gbfs_solution.txt"); // Use fullPath
                     break;
                 case "A*":
                     AStar aStarSolver = new AStar(initialBoard, useHeuristic1);
@@ -558,7 +741,7 @@ public class RushHourSolverGUI extends JFrame {
                         solutionPath = aStarSolver.getSolution().getPathOfBoards();
                     }
                     nodesExplored = aStarSolver.getExploredNodesCount();
-                    aStarSolver.writeSolution(filePath + "_astar_solution.txt");
+                    aStarSolver.writeSolution(fullPath + "_astar_solution.txt"); // Use fullPath
                     break;
                 case "UCS":
                     UCS ucsSolver = new UCS(initialBoard);
@@ -566,7 +749,7 @@ public class RushHourSolverGUI extends JFrame {
                         solutionPath = ucsSolver.getSolution().getPathOfBoards();
                     }
                     nodesExplored = ucsSolver.getExploredNodesCount();
-                    ucsSolver.writeSolution(filePath + "_ucs_solution.txt");
+                    ucsSolver.writeSolution(fullPath + "_ucs_solution.txt"); // Use fullPath
                     break;
                 case "IDS":
                     IDS idsSolver = new IDS(initialBoard);
@@ -574,7 +757,7 @@ public class RushHourSolverGUI extends JFrame {
                         solutionPath = idsSolver.getSolution().getPathOfBoards();
                     }
                     nodesExplored = idsSolver.getExploredNodesCount();
-                    idsSolver.writeSolution(filePath + "_ids_solution.txt");
+                    idsSolver.writeSolution(fullPath + "_ids_solution.txt"); // Use fullPath
                     break;
                 default:
                     errorLabel.setText("Error: Algoritma tidak dikenal.");
@@ -610,7 +793,7 @@ public class RushHourSolverGUI extends JFrame {
 
     private String createStatsLabelHTML(String value, String description, Color valueColor) {
         return "<html><div style='text-align: center;'>" +
-               "<span style='font-size: 48px; color: " + colorToHex(valueColor) + ";'><b>" + value + "</b></span><br>" + // Added <b> tags
+               "<span style='font-size: 48px; color: " + colorToHex(valueColor) + ";'><b>" + value + "</b></span><br>" + 
                "<span style='font-size: 20px;'>" + description + "</span></div></html>";
     }
     
@@ -738,21 +921,18 @@ class BoardAnimationPanel extends JPanel {
         int width = getWidth();
         int height = getHeight();
         
-        // Ensure placeholder background is white if panel's background is white
         g2d.setColor(getBackground()); 
         g2d.fillRect(0, 0, width, height); 
 
-        // Message instead of a cross
         g2d.setColor(Color.DARK_GRAY);
         g2d.setFont(new Font("Arial", Font.PLAIN, 16));
         String msg = "Pilih file dan algoritma, lalu tekan Solve";
         FontMetrics fm = g2d.getFontMetrics();
         int msgWidth = fm.stringWidth(msg);
-        g2d.drawString(msg, (width - msgWidth) / 2, height / 2 + fm.getAscent() / 2); // Centered message
+        g2d.drawString(msg, (width - msgWidth) / 2, height / 2 + fm.getAscent() / 2); 
 
-        // Optional: keep a border for the placeholder area
-        g2d.setColor(Color.BLACK); // Ubah ke Color.BLACK jika ingin hitam
-        g2d.setStroke(new BasicStroke(1.0f)); // Pastikan ketebalan 1px
+        g2d.setColor(Color.BLACK); 
+        g2d.setStroke(new BasicStroke(1.0f)); 
         g2d.drawRect(0, 0, width - 1, height - 1);
     }
 
@@ -763,7 +943,7 @@ class BoardAnimationPanel extends JPanel {
         int boardCols = board.getBoardCol();
         int exitRow = board.getExitRow(); 
         int exitCol = board.getExitCol(); 
-                                          
+                                        
         
         if (boardRows <= 0 || boardCols <= 0) { 
             drawPlaceholder(g2d);
@@ -776,7 +956,6 @@ class BoardAnimationPanel extends JPanel {
         int cellWidth = panelWidth / boardCols;
         int cellHeight = panelHeight / boardRows;
         
-        // Fill background of board drawing area with white
         g2d.setColor(Color.WHITE);
         g2d.fillRect(0, 0, panelWidth, panelHeight);
 
@@ -794,14 +973,14 @@ class BoardAnimationPanel extends JPanel {
         }
         
         g2d.setColor(EXIT_COLOR);
-        if (exitCol > boardCols && exitRow >= 1 && exitRow <= boardRows) { // Right exit
-             g2d.fillRect(panelWidth - cellWidth / 4, (exitRow - 1) * cellHeight, cellWidth / 4, cellHeight);
-        } else if (exitCol == 0 && exitRow >= 1 && exitRow <= boardRows) { // Left exit (exitCol 0 for left)
-             g2d.fillRect(0, (exitRow - 1) * cellHeight, cellWidth / 4, cellHeight);
-        } else if (exitRow > boardRows && exitCol >=1 && exitCol <= boardCols) { // Bottom exit
-             g2d.fillRect((exitCol - 1) * cellWidth, panelHeight - cellHeight / 4, cellWidth, cellHeight / 4);
-        } else if (exitRow == 0 && exitCol >=1 && exitCol <= boardCols) { // Top exit (exitRow 0 for top)
-             g2d.fillRect((exitCol - 1) * cellWidth, 0, cellWidth, cellHeight / 4);
+        if (exitCol > boardCols && exitRow >= 1 && exitRow <= boardRows) { 
+            g2d.fillRect(panelWidth - cellWidth / 4, (exitRow - 1) * cellHeight, cellWidth / 4, cellHeight);
+        } else if (exitCol == 0 && exitRow >= 1 && exitRow <= boardRows) { 
+            g2d.fillRect(0, (exitRow - 1) * cellHeight, cellWidth / 4, cellHeight);
+        } else if (exitRow > boardRows && exitCol >=1 && exitCol <= boardCols) { 
+            g2d.fillRect((exitCol - 1) * cellWidth, panelHeight - cellHeight / 4, cellWidth, cellHeight / 4);
+        } else if (exitRow == 0 && exitCol >=1 && exitCol <= boardCols) { 
+            g2d.fillRect((exitCol - 1) * cellWidth, 0, cellWidth, cellHeight / 4);
         }
         
         java.util.Set<Character> drawnPieces = new java.util.HashSet<>();
@@ -818,8 +997,8 @@ class BoardAnimationPanel extends JPanel {
     }
 
     private void drawPiece(Graphics2D g2d, Board board, char pieceChar, 
-                           int startRow, int startCol, 
-                           int cellWidth, int cellHeight) {
+                        int startRow, int startCol, 
+                        int cellWidth, int cellHeight) {
         
         int pieceActualRow = -1, pieceActualCol = -1;
         int pieceWidthInCells = 0;
@@ -839,7 +1018,7 @@ class BoardAnimationPanel extends JPanel {
                     }
                     if (currentWidth > pieceWidthInCells) pieceWidthInCells = currentWidth;
 
-                     int currentHeight = 0;
+                    int currentHeight = 0;
                     for (int k = r; k <= board.getBoardRow(); k++) {
                         if (board.getCharAt(k,c) == pieceChar) currentHeight++;
                         else break;
@@ -850,26 +1029,26 @@ class BoardAnimationPanel extends JPanel {
         }
         
         if (pieceWidthInCells > 1 && pieceHeightInCells > 1) {
-             boolean horizontal = false;
-             if (pieceActualCol + 1 <= board.getBoardCol() && board.getCharAt(pieceActualRow, pieceActualCol + 1) == pieceChar) {
-                 horizontal = true;
-             }
+            boolean horizontal = false;
+            if (pieceActualCol + 1 <= board.getBoardCol() && board.getCharAt(pieceActualRow, pieceActualCol + 1) == pieceChar) {
+                horizontal = true;
+            }
 
-             if (horizontal) {
-                 pieceHeightInCells = 1;
-                 int width = 0;
-                 for(int c = pieceActualCol; c <= board.getBoardCol(); c++){
-                     if(board.getCharAt(pieceActualRow, c) == pieceChar) width++; else break;
-                 }
-                 pieceWidthInCells = width;
-             } else { 
-                 pieceWidthInCells = 1;
-                 int height = 0;
-                 for(int r = pieceActualRow; r <= board.getBoardRow(); r++){
-                     if(board.getCharAt(r, pieceActualCol) == pieceChar) height++; else break;
-                 }
-                 pieceHeightInCells = height;
-             }
+            if (horizontal) {
+                pieceHeightInCells = 1;
+                int width = 0;
+                for(int c = pieceActualCol; c <= board.getBoardCol(); c++){
+                    if(board.getCharAt(pieceActualRow, c) == pieceChar) width++; else break;
+                }
+                pieceWidthInCells = width;
+            } else { 
+                pieceWidthInCells = 1;
+                int height = 0;
+                for(int r = pieceActualRow; r <= board.getBoardRow(); r++){
+                    if(board.getCharAt(r, pieceActualCol) == pieceChar) height++; else break;
+                }
+                pieceHeightInCells = height;
+            }
         }
 
 
