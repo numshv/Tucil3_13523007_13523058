@@ -81,7 +81,23 @@ GHJ...
 LLJMM.
 ```
 
-### 3. Output dan Penyimpanan Hasil
+### 3. Penggunaan GUI
+<div align="center">
+  
+![GUI sebelum pencarian](https://i.imgur.com/D05Th2z.png)
+
+</div>
+Untuk memulai pencarian, pengguna perlu memilih algoritma, heuristik, dan file test case .txt yang ingin diselesaikan. Pastikan file sudah berada di dalam folder test. Pengguna hanya perlu memasukkan nama file .txt tanpa pathnya. Lalu tekan tombol solve untuk memulai pencarian
+
+<div align="center">
+  
+![GUI setelah pencarian](https://i.imgur.com/bvjbjEP.png)
+
+</div>
+
+Ketika sudah ditemukan solusi, akan ditampilkan animasi langkah penyelesaian. Pengguna dapat berpindah frame melalui tombol-tombol di bawah. Lalu ditampilkan juga berapa node yang dieksplor, waktu eksekusi, dan jumlah step yang dihasilkan.
+
+### 4. Output dan Penyimpanan Hasil
 - Jika program menemukan solusi, solusi akan ditampilkan dalam format piece berwarna dan disimpan ke dalam file .txt secara otomatis di folder test
 
 ## Author
