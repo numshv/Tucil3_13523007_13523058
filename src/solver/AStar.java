@@ -122,12 +122,9 @@ public class AStar {
             for(int i = 0; i < path.size(); i++){
                 System.out.println("\nLangkah Ke-" + i + " (Papan ke-" + (i+1) + "):");
                 path.get(i).printBoardState();
-                System.out.print("Enter anything to continue ...");
-                scanner.nextLine();
             }
-            System.out.println("--------------------------------");
-            System.out.println("--- Kedalaman: " + (path.size() - 1) + " ---");
-            System.out.println("--- Jumlah Node: " + exploredNodes + " ---");
+            System.out.println("Kedalaman: " + (path.size() - 1) );
+            System.out.println("Jumlah Node: " + exploredNodes );
         }else{
             System.out.println("Tidak ada solusi yang ditemukan");
         }
@@ -138,7 +135,7 @@ public class AStar {
             String outputFileName = inputFileName.substring(0, inputFileName.lastIndexOf('.')) + "Solution.txt";
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName))) {
                 writer.write("=====================================================\n");
-                writer.write("         SOLUSI RUSH HOUR MENGGUNAKAN UCS            \n");
+                writer.write("          SOLUSI RUSH HOUR MENGGUNAKAN A*            \n");
                 writer.write("=====================================================\n\n");
                 writer.write("Total langkah: " + (solution.getPathOfBoards().size() - 1) + "\n");
                 writer.write("Total node dieksplorasi: " + exploredNodes + "\n\n");

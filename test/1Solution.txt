@@ -1,9 +1,9 @@
 =====================================================
-         SOLUSI RUSH HOUR MENGGUNAKAN IDS            
+          SOLUSI RUSH HOUR MENGGUNAKAN A*            
 =====================================================
 
 Total langkah: 4
-Total node dieksplorasi: 2277
+Total node dieksplorasi: 225
 
 Langkah Ke-0
  AAB..F 
