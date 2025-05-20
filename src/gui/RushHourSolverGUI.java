@@ -842,7 +842,7 @@ class BoardAnimationPanel extends JPanel {
     private void initializeControls() {
         controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         
-        prevButton = new JButton("←");
+        prevButton = new JButton("<-");
         prevButton.addActionListener(e -> {
             if (currentStepIndex > 0) {
                 currentStepIndex--;
@@ -851,7 +851,7 @@ class BoardAnimationPanel extends JPanel {
             }
         });
         
-        nextButton = new JButton("→");
+        nextButton = new JButton("->");
         nextButton.addActionListener(e -> {
             if (solutionPath != null && currentStepIndex < solutionPath.size() - 1) {
                 currentStepIndex++;
@@ -860,13 +860,13 @@ class BoardAnimationPanel extends JPanel {
             }
         });
         
-        playButton = new JButton("▶");
+        playButton = new JButton(">");
         playButton.addActionListener(e -> startAnimation());
         
-        pauseButton = new JButton("⏸");
+        pauseButton = new JButton("||");
         pauseButton.addActionListener(e -> stopAnimation());
         
-        resetButton = new JButton("⟲");
+        resetButton = new JButton("Replay");
         resetButton.addActionListener(e -> {
             currentStepIndex = 0;
             updateStepLabel();
