@@ -16,12 +16,16 @@ public class GBFS {
     private int nodeCount; // untuk menghitung jumlah node yang diperiksa
     private Set<Board> visitedBoards; // untuk menghindari siklus - langsung menyimpan objek Board
     private Scanner scanner;
+    private TreeHeuristic th;
+    private DistHeuristic dh;
     
     public GBFS(){
         solutionPath = new ArrayList<Board>();
         nodeCount = 0;
         visitedBoards = new HashSet<Board>();
         scanner = new Scanner(System.in);
+        TreeHeuristic th = new TreeHeuristic();
+        DistHeuristic dh = new DistHeuristic();
     }
 
     public void solve(Board initBoard, boolean isTreeHeuristic){
@@ -30,9 +34,6 @@ public class GBFS {
         solutionPath.add(initBoard);
         currentBoard = new Board(initBoard);
         visitedBoards.add(currentBoard); // Langsung menambahkan objek Board
-
-        TreeHeuristic th = new TreeHeuristic();
-        DistHeuristic dh = new DistHeuristic();
 
         int heuristicValue;
 
