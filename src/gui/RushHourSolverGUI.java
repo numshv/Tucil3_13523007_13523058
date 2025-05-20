@@ -797,15 +797,15 @@ public class RushHourSolverGUI extends JFrame {
                "<span style='font-size: 20px;'>" + description + "</span></div></html>";
     }
     
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    // public static void main(String[] args) {
+    //     try {
+    //         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
         
-        SwingUtilities.invokeLater(() -> new RushHourSolverGUI());
-    }
+    //     SwingUtilities.invokeLater(() -> new RushHourSolverGUI());
+    // }
 }
 
 class BoardAnimationPanel extends JPanel {
