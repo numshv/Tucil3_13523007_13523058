@@ -14,6 +14,36 @@ public class Board {
     private boolean boardFinished;
     private int pieceCounter;
     private Map<Character, Piece> pieces;
+    private static final Map<Character, String> COLOR_MAP = new HashMap<Character, String>() {{
+        put('A', "\u001B[31m"); // Red
+        put('B', "\u001B[32m"); // Green
+        put('C', "\u001B[33m"); // Yellow
+        put('D', "\u001B[34m"); // Blue
+        put('E', "\u001B[35m"); // Purple
+        put('F', "\u001B[36m"); // Cyan
+        put('G', "\u001B[91m"); // Bright Red
+        put('H', "\u001B[92m"); // Bright Green
+        put('I', "\u001B[93m"); // Bright Yellow
+        put('J', "\u001B[94m"); // Bright Blue
+        put('K', "\u001B[95m"); // Bright Purple
+        put('L', "\u001B[96m"); // Bright Cyan
+        put('M', "\u001B[37m"); // White
+        put('N', "\u001B[90m"); // Bright Black/Gray
+        put('O', "\u001B[97m"); // Bright White
+        put('P', "\u001B[44m\u001B[97m"); // Blue background, bright white text
+        put('Q', "\u001B[31m\u001B[1m"); // Bold Red
+        put('R', "\u001B[32m\u001B[1m"); // Bold Green
+        put('S', "\u001B[33m\u001B[1m"); // Bold Yellow
+        put('T', "\u001B[34m\u001B[1m"); // Bold Blue
+        put('U', "\u001B[35m\u001B[1m"); // Bold Purple
+        put('V', "\u001B[36m\u001B[1m"); // Bold Cyan
+        put('W', "\u001B[37m\u001B[1m"); // Bold White
+        put('X', "\u001B[91m\u001B[1m"); // Bold Bright Red
+        put('Y', "\u001B[92m\u001B[1m"); // Bold Bright Green
+        put('Z', "\u001B[93m\u001B[1m"); // Bold Bright Yellow
+    }};
+    private static final String RESET = "\u001B[0m";
+    private static final String EXIT_COLOR = "\u001B[42m\u001B[30m"; 
 
     // Default board state = empty board
     public Board(int boardRow, int boardCol, int exitRow, int exitCol){
@@ -206,42 +236,48 @@ public class Board {
     public void printBoardState(){
         System.out.println("============= Susunan papan saat ini =============\n");
         if(exitRow == 0){
-            for(int i = 0 ; i < boardCol+1;i++){
+            for(int i = 0; i < boardCol+1; i++){
                 if(i == exitCol){
-                    System.out.print('K');
+                    System.out.print(EXIT_COLOR + "K" + RESET);
                 }
                 else{
-                    System.out.print(' ');
+                    System.out.print(" ");
                 }
             }
-            System.err.println();
+            System.out.println();
         }
         for(int i=1; i<=boardRow; i++){
             if(i != exitRow) System.out.print(" ");
             else{
-                if(exitCol == 0) System.out.print("K");
+                if(exitCol == 0) System.out.print(EXIT_COLOR + "K" + RESET);
                 else System.out.print(" ");
             }
             for(int j=1; j<=boardCol; j++){
-                System.out.print(boardState[i][j]);
+                char currentChar = boardState[i][j];
+                if(currentChar != '.') {
+                    String color = COLOR_MAP.getOrDefault(currentChar, "\u001B[37m"); // Default to white
+                    System.out.print(color + currentChar + RESET);
+                } else {
+                    System.out.print(currentChar);
+                }
             }
             if(i != exitRow) System.out.print(" ");
             else{
-                if(exitCol == boardCol+1) System.out.print("K");
+                if(exitCol == boardCol+1) System.out.print(EXIT_COLOR + "K" + RESET);
                 else System.out.print(" ");
             }
             System.out.print("\n");
         }
         if(exitRow == boardRow+1){
-            for(int i = 0 ; i < boardCol+1;i++){
+            for(int i = 0; i < boardCol+1; i++){
                 if(i == exitCol){
-                    System.out.print('K');
+                    System.out.print(EXIT_COLOR + "K" + RESET);
                 }
                 else{
-                    System.out.print(' ');
+                    System.out.print(" ");
                 }
             }
-            System.err.println();
+            System.out.println();
         }
         System.out.println("\n\n");
     }

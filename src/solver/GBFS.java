@@ -84,9 +84,13 @@ public class GBFS {
             
             // Jika solusi ditemukan, keluar dari loop
             if (currentBoard.isFinished()) {
+                System.out.println("here finish");
+                scanner.nextLine();
                 break;
             }
         }
+        System.out.println("node: " + this.getNodeCount());
+        scanner.nextLine();
     }
     
     // Method untuk mendapatkan path solusi
