@@ -28,15 +28,16 @@ import solver.*;
 // Custom RoundedBorder class
 class RoundedBorder implements Border {
     private int radius;
+    private int thickness;
     private Color color;
     private Insets insets;
 
-    RoundedBorder(int radius, Color color) {
+    RoundedBorder(int radius, int thickness, Color color) {
         this.radius = radius;
+        this.thickness = thickness;
         this.color = color;
-        // Adjust insets to provide some padding for the rounded corners and content
-        int padding = radius / 2 + 2; // Increased padding slightly
-        this.insets = new Insets(padding, padding, padding, padding);
+        // Insets should account for the thickness of the border line
+        this.insets = new Insets(thickness + radius / 3, thickness + radius / 2, thickness + radius / 3, thickness + radius / 2);
     }
 
     public Insets getBorderInsets(Component c) {
@@ -44,18 +45,53 @@ class RoundedBorder implements Border {
     }
 
     public boolean isBorderOpaque() {
-        return true; // The border itself is opaque if it fills the rounded rectangle area
+        return false; // Border itself is not opaque, it's just lines
     }
 
     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(this.color);
-        // Draw rounded rectangle outline
-        // Adjust width and height by 1 to prevent drawing outside component bounds for some L&Fs
-        g2.draw(new RoundRectangle2D.Float(x, y, width - 1, height - 1, radius * 2, radius * 2)); // radius for arcWidth/arcHeight
+        g2.setStroke(new BasicStroke(this.thickness));
+        // Adjust coordinates and size for stroke thickness to keep border centered
+        float offset = this.thickness / 2.0f;
+        g2.draw(new RoundRectangle2D.Float(x + offset, y + offset, width - this.thickness, height - this.thickness, radius * 2, radius * 2));
         g2.dispose();
     }
+}
+
+// Custom JButton with rounded background
+class RoundedButton extends JButton {
+    private int radius;
+
+    public RoundedButton(String text, int radius) {
+        super(text);
+        this.radius = radius;
+        setContentAreaFilled(false); // We'll paint our own background
+        setFocusPainted(false);      // No focus ring
+        // Border can be set externally if an outline is desired
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        // Paint background
+        if (getModel().isArmed()) {
+            g2.setColor(getBackground().darker());
+        } else {
+            g2.setColor(getBackground());
+        }
+        g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), radius * 2, radius * 2));
+        
+        // Let superclass paint text and icon
+        super.paintComponent(g2);
+        g2.dispose();
+    }
+
+    // Optional: Override paintBorder if you want the border to also be part of this component's painting logic
+    // For now, we rely on setBorder with RoundedBorder externally.
 }
 
 
@@ -69,14 +105,15 @@ public class RushHourSolverGUI extends JFrame {
     private JLabel timeLabel;
     private JLabel stepsLabel;
     private BoardAnimationPanel animationPanel;
-    private JButton solveButton;
+    private RoundedButton solveButton; // Changed to RoundedButton
     private final Color PINK_COLOR = new Color(255, 105, 180);
     private final Color ERROR_COLOR = Color.RED;
     private final Color ORANGE_COLOR = new Color(255, 102, 0);
     private final Color BLUE_COLOR = new Color(66, 135, 245);
     private final Color GREEN_COLOR = new Color(122, 229, 82);
-    private final int BORDER_RADIUS = 10; // Adjusted for RoundRectangle2D arcWidth/arcHeight (diameter-like)
-    private final Color BORDER_COLOR = Color.GRAY;
+    private final int CORNER_RADIUS = 5; // 5px radius for corners
+    private final Color BORDER_COLOR = Color.BLACK;
+    private final int BUTTON_BORDER_THICKNESS = 2;
 
 
     public RushHourSolverGUI() {
@@ -92,23 +129,17 @@ public class RushHourSolverGUI extends JFrame {
     }
     
     private void initializeComponents() {
-        RoundedBorder roundedBorder = new RoundedBorder(BORDER_RADIUS, BORDER_COLOR);
-        // For JComboBox, a simpler border or padding might be better if RoundedBorder causes issues with the arrow.
-        // We'll try RoundedBorder first.
-        Border comboBoxPadding = BorderFactory.createEmptyBorder(2, 5, 2, 5); // Padding for JComboBox content
+        RoundedBorder fieldRoundedBorder = new RoundedBorder(CORNER_RADIUS, 1, BORDER_COLOR); // 1px thickness for fields
+        RoundedBorder buttonRoundedBorder = new RoundedBorder(CORNER_RADIUS, BUTTON_BORDER_THICKNESS, BORDER_COLOR);
+
 
         algorithmSelector = new JComboBox<>(new String[]{"Pilih Algoritma ...", "GBFS", "A*", "UCS", "IDS"});
-        // algorithmSelector.setBorder(BorderFactory.createCompoundBorder(roundedBorder, comboBoxPadding));
-        // algorithmSelector.setOpaque(false); // May be needed depending on L&F
-
         heuristicSelector = new JComboBox<>(new String[]{"Pilih Heuristik ...", "Jumlah blok menghalangi", "Jarak blok primer ke pintu keluar"});
-        // heuristicSelector.setBorder(BorderFactory.createCompoundBorder(roundedBorder, comboBoxPadding));
-        // heuristicSelector.setOpaque(false);
 
-
-        fileInput = new JTextField("test/tes1.txt"); // Default file path for easier testing
-        fileInput.setBorder(BorderFactory.createCompoundBorder(roundedBorder, 
-                                BorderFactory.createEmptyBorder(5, 5, 5, 5))); // Add padding inside border
+        fileInput = new JTextField("Masukkan file ..."); 
+        fileInput.setForeground(Color.GRAY); 
+        fileInput.setBorder(BorderFactory.createCompoundBorder(fieldRoundedBorder, 
+                                BorderFactory.createEmptyBorder(5, 8, 5, 8))); // Padding inside border
 
         errorLabel = new JLabel("Error: Input tidak valid");
         errorLabel.setForeground(ERROR_COLOR);
@@ -117,7 +148,7 @@ public class RushHourSolverGUI extends JFrame {
         boardPanel = new JPanel();
         boardPanel.setLayout(new BorderLayout());
         boardPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-        boardPanel.setBackground(Color.WHITE); // Set background for boardPanel to white
+        boardPanel.setBackground(Color.WHITE); 
         
         animationPanel = new BoardAnimationPanel();
         boardPanel.add(animationPanel, BorderLayout.CENTER);
@@ -126,21 +157,17 @@ public class RushHourSolverGUI extends JFrame {
         timeLabel = createStatsLabel("0", "Execution Time (ms)", BLUE_COLOR);
         stepsLabel = createStatsLabel("0", "Solution Steps", GREEN_COLOR);
         
-        solveButton = new JButton("Solve");
+        solveButton = new RoundedButton("Solve", CORNER_RADIUS); // Use RoundedButton
         solveButton.setBackground(new Color(255, 236, 66));
         solveButton.setForeground(Color.BLACK);
-        solveButton.setFocusPainted(false);
-        solveButton.setBorder(roundedBorder); // Apply rounded border
-        solveButton.setBorderPainted(true); // Ensure border is painted
-        solveButton.setContentAreaFilled(false); // Important for custom border painting on buttons
-        solveButton.setOpaque(true); // Ensure button background is painted
+        solveButton.setBorder(buttonRoundedBorder); // Apply rounded border with 3px thickness
+        // solveButton.setBorderPainted(true); // Not needed if RoundedButton handles its border or if border is part of custom painting
         solveButton.setFont(new Font("Arial", Font.BOLD, 16));
         
         solveButton.addActionListener(e -> {
             if (validateInputs()) {
                 solvePuzzle();
             } else {
-                // errorLabel sudah di-set oleh validateInputs()
                 errorLabel.setVisible(true);
             }
         });
@@ -170,26 +197,21 @@ public class RushHourSolverGUI extends JFrame {
                 heuristicSelector.setSelectedIndex(0);
             }
         });
-        heuristicSelector.setEnabled(false); // Awalnya nonaktif
+        heuristicSelector.setEnabled(false); 
 
-        // Attempting to style JComboBoxes. This can be tricky.
-        // If RoundedBorder doesn't look good, a flatter look might be better.
-        // For now, let's remove default borders and add a simple line or padding.
-        Border flatLineBorder = BorderFactory.createLineBorder(BORDER_COLOR);
-        Border padding = BorderFactory.createEmptyBorder(2,5,2,5); // Inner padding
+        // Style JComboBoxes with a simpler border for better L&F compatibility
+        Border flatLineBorder = BorderFactory.createLineBorder(BORDER_COLOR, 1); // 1px thickness
+        Border padding = BorderFactory.createEmptyBorder(5,8,5,8); // Inner padding
         CompoundBorder comboBoxBorder = BorderFactory.createCompoundBorder(flatLineBorder, padding);
 
         algorithmSelector.setBorder(comboBoxBorder);
         heuristicSelector.setBorder(comboBoxBorder);
-        // Setting opaque might be needed depending on the Look and Feel
-        // algorithmSelector.setOpaque(true);
-        // heuristicSelector.setOpaque(true);
-
     }
     
     private JLabel createStatsLabel(String value, String description, Color valueColor) {
+        // Make the number (value) bold
         JLabel label = new JLabel("<html><div style='text-align: center;'>" +
-                "<span style='font-size: 48px; color: " + colorToHex(valueColor) + ";'>" + value + "</span><br>" +
+                "<span style='font-size: 48px; color: " + colorToHex(valueColor) + ";'><b>" + value + "</b></span><br>" +
                 "<span style='font-size: 20px;'>" + description + "</span></div></html>", 
                 SwingConstants.CENTER);
         return label;
@@ -202,41 +224,65 @@ public class RushHourSolverGUI extends JFrame {
     private void layoutComponents() {
         JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        mainPanel.setBackground(Color.WHITE); // Set background for mainPanel to white
+        mainPanel.setBackground(Color.WHITE); 
         
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setOpaque(false); // Make transparent to show mainPanel's background
-        JLabel titleStart = new JLabel("Rush Hour Solver", SwingConstants.LEFT);
-        titleStart.setFont(new Font("Arial", Font.BOLD, 28));
-        titleStart.setForeground(PINK_COLOR);
+        // Title Panel
+        JPanel titleContentPanel = new JPanel();
+        titleContentPanel.setLayout(new BoxLayout(titleContentPanel, BoxLayout.Y_AXIS));
+        titleContentPanel.setOpaque(false);
+
+        // First row of title
+        JPanel firstTitleRowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)); // Use FlowLayout for side-by-side
+        firstTitleRowPanel.setOpaque(false);
+
+        JLabel titleMain = new JLabel("Rush Hour Solver");
+        titleMain.setFont(new Font("Arial", Font.BOLD, 28));
+        titleMain.setForeground(PINK_COLOR);
+        // titleMain.setAlignmentX(Component.LEFT_ALIGNMENT); // Not needed for FlowLayout items directly
+
+        JLabel titleSubPart1 = new JLabel(" Yang Diselesainnya Also Sangat"); // Added leading space for visual separation
+        titleSubPart1.setFont(new Font("Arial", Font.BOLD, 28)); 
+        // titleSubPart1.setAlignmentX(Component.LEFT_ALIGNMENT); // Not needed for FlowLayout items directly
         
-        JLabel titleEnd = new JLabel("Yang Diselesainnya Also Sangat Rushed (kenapa seminggu doang astaga)");
-        titleEnd.setFont(new Font("Arial", Font.BOLD, 28));
+        firstTitleRowPanel.add(titleMain);
+        firstTitleRowPanel.add(titleSubPart1);
+        firstTitleRowPanel.setAlignmentX(Component.LEFT_ALIGNMENT); // Align the whole row panel
+
+        // Second row of title
+        JLabel titleSubPart2 = new JLabel("Rushed (kenapa seminggu doang astaga)");
+        titleSubPart2.setFont(new Font("Arial", Font.BOLD, 28));
+        titleSubPart2.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        titlePanel.add(titleStart, BorderLayout.WEST);
-        titlePanel.add(titleEnd, BorderLayout.CENTER);
+        titleContentPanel.add(firstTitleRowPanel); // Add the first row panel
+        titleContentPanel.add(titleSubPart2);      // Add the second row label
+
+        // Panel to hold titleContentPanel and align it left
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        titlePanel.setOpaque(false);
+        titlePanel.add(titleContentPanel);
+
         
         JPanel controlsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        controlsPanel.setOpaque(false); // Make transparent
+        controlsPanel.setOpaque(false); 
         controlsPanel.add(algorithmSelector);
         controlsPanel.add(heuristicSelector);
         controlsPanel.add(fileInput);
         controlsPanel.add(solveButton);
         
         JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.setOpaque(false); // Make transparent
+        centerPanel.setOpaque(false); 
         centerPanel.add(errorLabel, BorderLayout.NORTH);
-        centerPanel.add(boardPanel, BorderLayout.CENTER); // boardPanel is already set to white
+        centerPanel.add(boardPanel, BorderLayout.CENTER); 
         
         JPanel statsPanel = new JPanel(new GridLayout(3, 1, 0, 20));
-        statsPanel.setOpaque(false); // Make transparent
+        statsPanel.setOpaque(false); 
         statsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         statsPanel.add(nodesLabel);
         statsPanel.add(timeLabel);
         statsPanel.add(stepsLabel);
         
         JPanel contentPanel = new JPanel(new BorderLayout(20, 10));
-        contentPanel.setOpaque(false); // Make transparent
+        contentPanel.setOpaque(false); 
         contentPanel.add(controlsPanel, BorderLayout.NORTH);
         contentPanel.add(centerPanel, BorderLayout.CENTER);
         contentPanel.add(statsPanel, BorderLayout.EAST);
@@ -245,7 +291,7 @@ public class RushHourSolverGUI extends JFrame {
         mainPanel.add(contentPanel, BorderLayout.CENTER);
         
         JPanel footerPanel = new JPanel(new BorderLayout());
-        footerPanel.setOpaque(false); // Make transparent
+        footerPanel.setOpaque(false); 
         JLabel authorLabel = new JLabel("Proudly made by Queen Rana and her Slave Noumi", SwingConstants.LEFT);
         JLabel idLabel = new JLabel("13523007 | 13523058 | IF'23", SwingConstants.RIGHT);
         footerPanel.add(authorLabel, BorderLayout.WEST);
@@ -255,7 +301,7 @@ public class RushHourSolverGUI extends JFrame {
         algorithmSelector.setPreferredSize(new Dimension(200, 40));
         heuristicSelector.setPreferredSize(new Dimension(250, 40)); 
         fileInput.setPreferredSize(new Dimension(350, 40)); 
-        solveButton.setPreferredSize(new Dimension(100, 40)); // Slightly wider to accommodate border
+        solveButton.setPreferredSize(new Dimension(100, 40)); 
         statsPanel.setPreferredSize(new Dimension(300, 500));
         
         setContentPane(mainPanel);
@@ -564,7 +610,7 @@ public class RushHourSolverGUI extends JFrame {
 
     private String createStatsLabelHTML(String value, String description, Color valueColor) {
         return "<html><div style='text-align: center;'>" +
-               "<span style='font-size: 48px; color: " + colorToHex(valueColor) + ";'>" + value + "</span><br>" +
+               "<span style='font-size: 48px; color: " + colorToHex(valueColor) + ";'><b>" + value + "</b></span><br>" + // Added <b> tags
                "<span style='font-size: 20px;'>" + description + "</span></div></html>";
     }
     
@@ -705,7 +751,8 @@ class BoardAnimationPanel extends JPanel {
         g2d.drawString(msg, (width - msgWidth) / 2, height / 2 + fm.getAscent() / 2); // Centered message
 
         // Optional: keep a border for the placeholder area
-        g2d.setColor(GRID_COLOR);
+        g2d.setColor(Color.BLACK); // Ubah ke Color.BLACK jika ingin hitam
+        g2d.setStroke(new BasicStroke(1.0f)); // Pastikan ketebalan 1px
         g2d.drawRect(0, 0, width - 1, height - 1);
     }
 
