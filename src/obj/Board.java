@@ -161,6 +161,8 @@ public class Board {
             throw new Exception("Papan harus memiliki piece primer 'P'");
         }
 
+        if(isNotSolvable()) throw new Exception("Papan tidak ada solvable, ada piece yang menghalangi P dan searah exit");
+
         this.exitRow = exitRow;
         this.exitCol = exitCol;
         this.boardFinished = false;
@@ -185,6 +187,41 @@ public class Board {
         }
         if(other.exitCol != exitCol || other.exitRow != exitRow) return false;
         return true;
+    }
+
+    public boolean isNotSolvable() {
+        if (getPiece('P').isHorizontal() && exitCol == 0) {
+            int row = getStartRowPiece('P');  
+            for (int i = 1; i < getStartColPiece('P'); i++) {
+                if (boardState[row][i] != '.' && getPiece(boardState[row][i]).isHorizontal()) 
+                    return true;
+            }
+            return false;
+        }
+        else if (getPiece('P').isHorizontal() && exitCol == boardCol + 1) {
+            int row = getStartRowPiece('P');  
+            for (int i = boardCol; i > getEndColPiece('P'); i--) {
+                if (boardState[row][i] != '.' && getPiece(boardState[row][i]).isHorizontal()) 
+                    return true;
+            }
+            return false;
+        }
+        else if (!getPiece('P').isHorizontal() && exitRow == 0) {
+            int col = getStartColPiece('P');  
+            for (int i = 1; i < getStartRowPiece('P'); i++) {
+                if (boardState[i][col] != '.' && !getPiece(boardState[i][col]).isHorizontal()) 
+                    return true;
+            }
+            return false;
+        } 
+        else {  
+            int col = getStartColPiece('P');  
+            for (int i = boardRow; i > getEndRowPiece('P'); i--) {
+                if (boardState[i][col] != '.' && !getPiece(boardState[i][col]).isHorizontal()) 
+                    return true;
+            }
+            return false;
+        }
     }
 
     public Piece getPiece(char pieceChar) {
@@ -393,8 +430,18 @@ public class Board {
         if(p.isHorizontal()) return (getStartColPiece(p) + p.getLen() - 1);
         return getStartColPiece(p);
     }
+    public int getEndColPiece(char type){
+        Piece p = getPiece(type);
+        if(p.isHorizontal()) return (getStartColPiece(p) + p.getLen() - 1);
+        return getStartColPiece(p);
+    }
 
     public int getEndRowPiece(Piece p){
+        if(!p.isHorizontal()) return (getStartRowPiece(p) + p.getLen() - 1);
+        return getStartRowPiece(p);
+    }
+    public int getEndRowPiece(char type){
+        Piece p = getPiece(type);
         if(!p.isHorizontal()) return (getStartRowPiece(p) + p.getLen() - 1);
         return getStartRowPiece(p);
     }
