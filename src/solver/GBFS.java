@@ -1,4 +1,7 @@
 package solver;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -134,6 +137,97 @@ public class GBFS {
             System.out.println("Jumlah Node dieksplor: " + nodeCount );
         } else {
             System.out.println("Tidak ada solusi yang ditemukan " );
+        }
+    }
+
+    public void writeSolution(String inputFileName) {
+        if (currentBoard.isFinished()) {
+            String outputFileName = inputFileName.substring(0, inputFileName.lastIndexOf('.')) + "Solution.txt";
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName))) {
+                writer.write("=====================================================\n");
+                writer.write("         SOLUSI RUSH HOUR MENGGUNAKAN GBFS           \n");
+                writer.write("=====================================================\n\n");
+                writer.write("Total langkah: " + (solutionPath.size() - 1) + "\n");
+                writer.write("Total node dieksplorasi: " + nodeCount + "\n\n");
+                
+                for (int i = 0; i < solutionPath.size(); i++) {
+                    writer.write("Langkah Ke-" + i + "\n");
+                    Board board = solutionPath.get(i);
+                    
+                    // Menulis board state ke file
+                    char[][] boardState = board.getBoardState();
+                    int boardRow = board.getBoardRow();
+                    int boardCol = board.getBoardCol();
+                    int exitRow = board.getExitRow();
+                    int exitCol = board.getExitCol();
+                    
+                    // Menulis exit bagian atas jika ada
+                    if (exitRow == 0) {
+                        writer.write(" ");
+                        for (int j = 0; j < boardCol + 1; j++) {
+                            if (j == exitCol) {
+                                writer.write("K");
+                            } else {
+                                writer.write(" ");
+                            }
+                        }
+                        writer.write("\n");
+                    }
+                    
+                    // Menulis board
+                    for (int r = 1; r <= boardRow; r++) {
+                        if (r != exitRow) {
+                            writer.write(" ");
+                        } else {
+                            if (exitCol == 0) {
+                                writer.write("K");
+                            } else {
+                                writer.write(" ");
+                            }
+                        }
+                        
+                        for (int c = 1; c <= boardCol; c++) {
+                            writer.write(boardState[r][c]);
+                        }
+                        
+                        if (r != exitRow) {
+                            writer.write(" ");
+                        } else {
+                            if (exitCol == boardCol + 1) {
+                                writer.write("K");
+                            } else {
+                                writer.write(" ");
+                            }
+                        }
+                        writer.write("\n");
+                    }
+                    
+                    // Menulis exit bagian bawah jika ada
+                    if (exitRow == boardRow + 1) {
+                        writer.write(" ");
+                        for (int j = 0; j < boardCol + 1; j++) {
+                            if (j == exitCol) {
+                                writer.write("K");
+                            } else {
+                                writer.write(" ");
+                            }
+                        }
+                        writer.write("\n");
+                    }
+                    
+                    writer.write("\n");
+                }
+                
+                writer.write("=====================================================\n");
+                writer.write("                    SOLUSI SELESAI                   \n");
+                writer.write("=====================================================\n");
+                
+                System.out.println("Solusi berhasil disimpan ke file: " + outputFileName);
+            } catch (IOException e) {
+                System.out.println("Error saat menyimpan solusi ke file: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Tidak ada solusi yang disimpan ke dalam file");
         }
     }
 }

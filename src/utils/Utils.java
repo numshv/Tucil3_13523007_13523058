@@ -16,6 +16,8 @@ import solver.*;
 
 public class Utils {
 
+    String inpFileName;
+
     public Board inputFileHandler() {
         System.out.println("\n\nWelcome to Rush Hour Game Solver!\n\n");
         Scanner userInput = new Scanner(System.in);
@@ -38,6 +40,7 @@ public class Utils {
                 System.out.print("Masukkan nama file input (dalam folder test, ex: tes1.txt): ");
                 String filename = userInput.nextLine();
                 String filePath = "test/" + filename; 
+                inpFileName = filePath;
                 File file = new File(filePath);
 
                 if (!file.exists()) {
@@ -245,6 +248,7 @@ public class Utils {
             if(pickedHeuristic.equals("1")) gbfsResult.solve(board, true);
             else gbfsResult.solve(board, false);
             gbfsResult.printSolutionPath();
+            gbfsResult.writeSolution(inpFileName);
         }
         else if(pickedAlgo.equals("2")){
             if(pickedHeuristic.equals("1")){}//TODO: TAMBAHIN RUN ALGONYA
@@ -256,6 +260,7 @@ public class Utils {
         else{
             IDS idsResult = new IDS(board);
             idsResult.printSolutionPath();
+            idsResult.writeSolution(inpFileName);
         }
 
         long endTime = System.nanoTime();

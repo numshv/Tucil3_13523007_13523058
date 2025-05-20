@@ -1,5 +1,9 @@
 package solver;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map; // Diperlukan untuk Map<Character, Piece>
 import java.util.Stack;
@@ -16,11 +20,13 @@ public class IDS {
     private IDSNode solution;      
     private int exploredNodes;    
     private Scanner scanner;
+    private boolean isFinished;
 
     public IDS(Board initBoard){
         this.solution = null;         // Menyimpan node solusi jika ditemukan
         this.exploredNodes = 0;       // Menghitung node yang dieksplorasi/digenerate
         this.curMaxDepth = 0;         // Batas kedalaman dimulai dari 0 untuk Iterative Deepening
+        this.isFinished = false;
         scanner = new Scanner(System.in);
 
         Utils utils = new Utils();
@@ -47,6 +53,7 @@ public class IDS {
                 // 1. Cek apakah state saat ini adalah SOLUSI
                 if (currentBoardState.isFinished()) {
                     this.solution = currentNode; 
+                    this.isFinished = true;
                     // System.out.println("SOLUSI DITEMUKAN pada kedalaman: " + currentNode.getDepth() +
                                     // " (batas pencarian saat ini: " + this.curMaxDepth + ")");
                     break; 
@@ -121,14 +128,103 @@ public class IDS {
             for (int i = 0; i < path.size(); i++) {
                 System.out.println("\nLangkah Ke-" + i + " (Papan ke-" + (i+1) + "):");
                 path.get(i).printBoardState();
-                System.out.print("Enter anything to continue ...");
-                scanner.nextLine();
             }
-            System.out.println("--------------------------------");
-            System.out.println("--- Kedalaman: " + this.solution.getDepth() + " ---");
-            System.out.println("--- Jumlah Node: " + exploredNodes + ") ---");
+            System.out.println("Kedalaman: " + this.solution.getDepth() );
+            System.out.println("Jumlah Node: " + exploredNodes);
         } else {
             System.out.println("Tidak ada solusi yang ditemukan hingga kedalaman maksimum yang dijelajahi: " + this.curMaxDepth);
+        }
+    }
+
+    public void writeSolution(String inputFileName) {
+        if (isFinished) {
+            List<Board> solutionPath = new ArrayList<>(solution.getPathOfBoards());
+            String outputFileName = inputFileName.substring(0, inputFileName.lastIndexOf('.')) + "Solution.txt";
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName))) {
+                writer.write("=====================================================\n");
+                writer.write("         SOLUSI RUSH HOUR MENGGUNAKAN IDS            \n");
+                writer.write("=====================================================\n\n");
+                writer.write("Total langkah: " + (solutionPath.size() - 1) + "\n");
+                writer.write("Total node dieksplorasi: " + exploredNodes + "\n\n");
+                
+                for (int i = 0; i < solutionPath.size(); i++) {
+                    writer.write("Langkah Ke-" + i + "\n");
+                    Board board = solutionPath.get(i);
+                    
+                    // Menulis board state ke file
+                    char[][] boardState = board.getBoardState();
+                    int boardRow = board.getBoardRow();
+                    int boardCol = board.getBoardCol();
+                    int exitRow = board.getExitRow();
+                    int exitCol = board.getExitCol();
+                    
+                    // Menulis exit bagian atas jika ada
+                    if (exitRow == 0) {
+                        writer.write(" ");
+                        for (int j = 0; j < boardCol + 1; j++) {
+                            if (j == exitCol) {
+                                writer.write("K");
+                            } else {
+                                writer.write(" ");
+                            }
+                        }
+                        writer.write("\n");
+                    }
+                    
+                    // Menulis board
+                    for (int r = 1; r <= boardRow; r++) {
+                        if (r != exitRow) {
+                            writer.write(" ");
+                        } else {
+                            if (exitCol == 0) {
+                                writer.write("K");
+                            } else {
+                                writer.write(" ");
+                            }
+                        }
+                        
+                        for (int c = 1; c <= boardCol; c++) {
+                            writer.write(boardState[r][c]);
+                        }
+                        
+                        if (r != exitRow) {
+                            writer.write(" ");
+                        } else {
+                            if (exitCol == boardCol + 1) {
+                                writer.write("K");
+                            } else {
+                                writer.write(" ");
+                            }
+                        }
+                        writer.write("\n");
+                    }
+                    
+                    // Menulis exit bagian bawah jika ada
+                    if (exitRow == boardRow + 1) {
+                        writer.write(" ");
+                        for (int j = 0; j < boardCol + 1; j++) {
+                            if (j == exitCol) {
+                                writer.write("K");
+                            } else {
+                                writer.write(" ");
+                            }
+                        }
+                        writer.write("\n");
+                    }
+                    
+                    writer.write("\n");
+                }
+                
+                writer.write("=====================================================\n");
+                writer.write("                    SOLUSI SELESAI                   \n");
+                writer.write("=====================================================\n");
+                
+                System.out.println("Solusi berhasil disimpan ke file: " + outputFileName);
+            } catch (IOException e) {
+                System.out.println("Error saat menyimpan solusi ke file: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Tidak ada solusi yang disimpan ke dalam file");
         }
     }
 }
