@@ -13,8 +13,8 @@ import obj.*;
 public class GBFS {
     private List<Board> solutionPath;
     private Board currentBoard;
-    private int nodeCount; // untuk menghitung jumlah node yang diperiksa
-    private Set<Board> visitedBoards; // untuk menghindari siklus - langsung menyimpan objek Board
+    private int nodeCount; 
+    private Set<Board> visitedBoards; 
     private Scanner scanner;
     private TreeHeuristic th;
     private DistHeuristic dh;
@@ -30,65 +30,48 @@ public class GBFS {
 
     public void solve(Board initBoard, boolean isTreeHeuristic){
         Utils utils = new Utils();
-        // Tambahkan board awal ke path solusi
         solutionPath.add(initBoard);
         currentBoard = new Board(initBoard);
-        visitedBoards.add(currentBoard); // Langsung menambahkan objek Board
+        visitedBoards.add(currentBoard); 
 
         int heuristicValue;
 
-        // Loop sampai menemukan solusi atau tidak ada langkah valid yang tersisa
         while (!currentBoard.isFinished()) {
-            // Generate semua kemungkinan move dari node saat ini
-            // currentBoard.printBoardState();
-            // scanner.nextLine();
             List<Board> currentPossibleBoards = new ArrayList<Board>(utils.generateAllPossibleMoves(currentBoard, currentBoard.getLastMoves(), currentBoard.getLastDist(), currentBoard.getLastPiece()));
             
-            // Cari board dengan nilai heuristik terendah
             Board bestBoard = null;
             int minHeuristicValue = Integer.MAX_VALUE;
             
             for (Board nextBoard : currentPossibleBoards) {
                 nodeCount++;
                 
-                // Jika menemukan solusi, langsung pilih board ini
                 if (nextBoard.isFinished()) {
                     bestBoard = nextBoard;
                     break;
                 }
                 
-                // Periksa apakah board sudah pernah dikunjungi untuk menghindari siklus
                 if (isContain(nextBoard)) {
-                    // System.out.println("CONTAINED");
-                    // scanner.nextLine();
-                    continue; // Lewati board yang sudah pernah dikunjungi
+                    continue; 
                 }
                 
-                // Evaluasi board menggunakan heuristik
                 if(isTreeHeuristic) heuristicValue = th.evaluate(nextBoard);
                 else heuristicValue = dh.evaluate(nextBoard);
                 
-                // Update board terbaik jika nilai heuristik lebih kecil
                 if (heuristicValue < minHeuristicValue) {
                     minHeuristicValue = heuristicValue;
                     bestBoard = nextBoard;
                 }
             }
             
-            // Jika tidak ada board yang valid untuk dipilih
             if (bestBoard == null) {
-                // Tidak ada solusi yang dapat ditemukan
                 break;
             }
             
-            // Pindah ke board terbaik berdasarkan heuristik
             currentBoard = bestBoard;
             visitedBoards.add(currentBoard);
             solutionPath.add(currentBoard);
             
-            // Jika solusi ditemukan, keluar dari loop
             if (currentBoard.isFinished()) {
-                //System.out.println("here finish");
                 scanner.nextLine();
                 break;
             }
@@ -97,22 +80,18 @@ public class GBFS {
         scanner.nextLine();
     }
     
-    // Method untuk mendapatkan path solusi
     public List<Board> getSolutionPath() {
         return solutionPath;
     }
     
-    // Method untuk mengecek apakah solusi ditemukan
     public boolean isSolutionFound() {
         return currentBoard.isFinished();
     }
     
-    // Method untuk mendapatkan jumlah langkah dalam solusi
     public int getSolutionSteps() {
-        return solutionPath.size() - 1; // Kurangi 1 karena board awal tidak dihitung sebagai langkah
+        return solutionPath.size() - 1; 
     }
     
-    // Method untuk mendapatkan jumlah node yang diperiksa
     public int getNodeCount() {
         return nodeCount;
     }
@@ -132,8 +111,6 @@ public class GBFS {
             for (int i = 0; i < solutionPath.size(); i++) {
                 System.out.println("\nLangkah Ke-" + i );
                 solutionPath.get(i).printBoardState();
-                // System.out.print("Enter anything to continue ...");
-                // scanner.nextLine();
             }
             System.out.println("Jumlah Node dieksplor: " + nodeCount );
         } else {
@@ -162,7 +139,6 @@ public class GBFS {
                     int exitRow = board.getExitRow();
                     int exitCol = board.getExitCol();
                     
-                    // Menulis exit bagian atas jika ada
                     if (exitRow == 0) {
                         writer.write(" ");
                         for (int j = 0; j < boardCol + 1; j++) {
@@ -175,7 +151,6 @@ public class GBFS {
                         writer.write("\n");
                     }
                     
-                    // Menulis board
                     for (int r = 1; r <= boardRow; r++) {
                         if (r != exitRow) {
                             writer.write(" ");
@@ -203,7 +178,6 @@ public class GBFS {
                         writer.write("\n");
                     }
                     
-                    // Menulis exit bagian bawah jika ada
                     if (exitRow == boardRow + 1) {
                         writer.write(" ");
                         for (int j = 0; j < boardCol + 1; j++) {

@@ -303,9 +303,7 @@ public class Utils {
             if (curPiece == null) continue;
             
             try {
-                //System.out.println(curPiece.getPieceType());
             } catch (Exception e) {
-                //System.err.println("Error getting piece type: " + e.getMessage());
                 continue; 
             }
             
@@ -376,7 +374,6 @@ public class Utils {
                     if (emptyBottom != 0) initBoard.moveUpPiece(curPiece.getPieceType(), emptyBottom);
                 }
             } catch (Exception e) {
-                //System.err.println("Error processing piece: " + e.getMessage());
                 continue;
             }
         }
@@ -432,7 +429,6 @@ public class Utils {
             for (int i = startCol - 1; i >= 1; i--) {
                 if (leftBoard.getCharAt(startRow, i) == '.') {
                     leftCount++;
-                    // Check if this move would undo the last move
                     boolean undoesLastMove = "RIGHT".equals(lastMove) && 
                                             lastDist == leftCount && 
                                             lastPiece != null && 
@@ -466,7 +462,6 @@ public class Utils {
                 if (rightBoard.getCharAt(endRow, i) == '.') {
                     rightCount++;
                     
-                    // Check if this move would undo the last move
                     boolean undoesLastMove = "LEFT".equals(lastMove) && 
                                             lastDist == rightCount && 
                                             lastPiece != null && 
@@ -503,7 +498,6 @@ public class Utils {
                 if (upBoard.getCharAt(i, startCol) == '.') {
                     upCount++;
                     
-                    // Check if this move would undo the last move
                     boolean undoesLastMove = "DOWN".equals(lastMove) && 
                                             lastDist == upCount && 
                                             lastPiece != null && 
@@ -538,7 +532,6 @@ public class Utils {
                 if (downBoard.getCharAt(i, endCol) == '.') {
                     downCount++;
                     
-                    // Check if this move would undo the last move
                     boolean undoesLastMove = "UP".equals(lastMove) && 
                                             lastDist == downCount && 
                                             lastPiece != null && 

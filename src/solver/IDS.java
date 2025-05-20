@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map; // Diperlukan untuk Map<Character, Piece>
 import java.util.Stack;
 import java.util.Scanner;
 
@@ -18,7 +17,6 @@ public class IDS {
     private int curMaxDepth;         
     private IDSNode solution;      
     private int exploredNodes;    
-    private Scanner scanner;
     private boolean isFinished;
 
     public IDS(Board initBoard){
@@ -26,67 +24,40 @@ public class IDS {
         this.exploredNodes = 0;       // Menghitung node yang dieksplorasi/digenerate
         this.curMaxDepth = 0;         // Batas kedalaman dimulai dari 0 untuk Iterative Deepening
         this.isFinished = false;
-        scanner = new Scanner(System.in);
 
         Utils utils = new Utils();
 
         IDSNode rootNode = new IDSNode(initBoard); // Membuat node awal (kedalaman 0  
         
-        // scanner.nextLine();
 
-        // Loop utama Iterative Deepening Search
-        while (this.solution == null) { // Berlanjut sampai solusi ditemukan (atau kondisi berhenti lain)
-            this.treeStack = new Stack<IDSNode>(); // Membuat STACK BARU untuk setiap iterasi Depth-Limited Search (DLS)
-            this.treeStack.push(rootNode); // Selalu push root node di awal setiap iterasi
+        while (this.solution == null) {
+            this.treeStack = new Stack<IDSNode>(); 
+            this.treeStack.push(rootNode); 
             
-            // System.out.println("IDS: Melakukan Depth-Limited Search dengan batas kedalaman = " + this.curMaxDepth);
-
-            // Loop DLS (Depth-Limited Search) untuk batas kedalaman saat ini
             while (!this.treeStack.isEmpty()) {
-                IDSNode currentNode = this.treeStack.pop(); // Ambil node dari stack
+                IDSNode currentNode = this.treeStack.pop(); 
                 Board currentBoardState = currentNode.getCurrentBoard();
-                // System.out.println("current node board:");
-                // currentBoardState.printBoardState();
-                // scanner.nextLine();
 
-                // 1. Cek apakah state saat ini adalah SOLUSI
                 if (currentBoardState.isFinished()) {
                     this.solution = currentNode; 
                     this.isFinished = true;
-                    // System.out.println("SOLUSI DITEMUKAN pada kedalaman: " + currentNode.getDepth() +
-                                    // " (batas pencarian saat ini: " + this.curMaxDepth + ")");
                     break; 
                 }
 
-                // 2. Ekspansi node jika kedalamannya MASIH DI BAWAH batas kedalaman saat ini
                 if (currentNode.getDepth() < this.curMaxDepth) {
-                    // Dapatkan parent board untuk mencegah gerakan mundur
-                    // Board parentBoard = null;
                     if (currentNode.getDepth() > 0) {
                         List<Board> path = currentNode.getPathOfBoards();
-                        // Pastikan kita mengambil parent board yang benar
-                        // if (path.size() >= 2) {
-                        //     parentBoard = path.get(path.size() - 2);
-                        // }
                     }
                     
-                    // Generate semua langkah yang mungkin
                     List<Board> nextPossibleBoards;
                     nextPossibleBoards = utils.generateAllPossibleMoves(currentBoardState, currentBoardState.getLastMoves(), currentBoardState.getLastDist(), currentBoardState.getLastPiece());
 
-                    // System.out.println("START OF PRINT ALL POSSIBLE BOARDS");
-                    // for(Board b : nextPossibleBoards){
-                    //     b.printBoardState();
-                    //     scanner.nextLine();
-                    // }
-                    // System.out.println("END OF PRINT ALL POSSIBLE BOARDS");
 
-                    // Push anak-anak node ke stack dalam urutan terbalik agar pencarian DFS berjalan dengan benar
                     for (int i = nextPossibleBoards.size() - 1; i >= 0; i--) {
                         Board nextBoard = nextPossibleBoards.get(i);
                         IDSNode childNode = new IDSNode(nextBoard, currentNode); 
                         this.treeStack.push(childNode);
-                        this.exploredNodes++; // Hitung setiap anak yang digenerate dan dimasukkan stack
+                        this.exploredNodes++; 
                     }
                 }
             } 
@@ -95,20 +66,16 @@ public class IDS {
                 break;
             }
 
-            // Naikkan batas kedalaman untuk iterasi IDS berikutnya
             this.curMaxDepth++;
 
-            // Tambahkan kondisi berhenti praktis jika tidak ada solusi atau pencarian terlalu dalam
-            if (this.curMaxDepth > 30) { // Batas kedalaman ini bisa Anda sesuaikan
+            if (this.curMaxDepth > 30) { 
                 System.out.println("IDS mencapai batas kedalaman praktis (" + this.curMaxDepth + ") tanpa menemukan solusi.");
                 break;
             }
         }
 
-        // System.out.println("Pencarian IDS selesai. Total node (perkiraan) digenerate/dimasukkan stack: " + this.exploredNodes);
     }
 
-    // Getter untuk mengambil hasil (jika diperlukan dari luar setelah objek IDS dibuat)
     public IDSNode getSolution() {
         return this.solution;
     }
@@ -150,14 +117,12 @@ public class IDS {
                     writer.write("Langkah Ke-" + i + "\n");
                     Board board = solutionPath.get(i);
                     
-                    // Menulis board state ke file
                     char[][] boardState = board.getBoardState();
                     int boardRow = board.getBoardRow();
                     int boardCol = board.getBoardCol();
                     int exitRow = board.getExitRow();
                     int exitCol = board.getExitCol();
                     
-                    // Menulis exit bagian atas jika ada
                     if (exitRow == 0) {
                         writer.write(" ");
                         for (int j = 0; j < boardCol + 1; j++) {
@@ -170,7 +135,6 @@ public class IDS {
                         writer.write("\n");
                     }
                     
-                    // Menulis board
                     for (int r = 1; r <= boardRow; r++) {
                         if (r != exitRow) {
                             writer.write(" ");
@@ -198,7 +162,6 @@ public class IDS {
                         writer.write("\n");
                     }
                     
-                    // Menulis exit bagian bawah jika ada
                     if (exitRow == boardRow + 1) {
                         writer.write(" ");
                         for (int j = 0; j < boardCol + 1; j++) {
