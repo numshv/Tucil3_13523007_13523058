@@ -117,7 +117,7 @@ public class GBFS {
     }
 
     public void printSolutionPath(){
-        if (this.solutionPath != null) {
+        if (currentBoard.isFinished()) {
             System.out.println("Solusi ditemukan!");
             System.out.print("Tekan enter untuk lanjut ...");
             scanner.nextLine();
