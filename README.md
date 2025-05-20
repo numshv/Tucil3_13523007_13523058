@@ -11,7 +11,13 @@
 
 
 ## About
-IQ Puzzler Pro adalah permainan puzzle di mana pemain harus mengisi papan dengan balok-balok beragam bentuk hingga tidak ada ruang kosong tersisa. Dalam permainan nyata, pemain mendapatkan satu set balok dengan bentuk unik dan harus menyusunnya di papan sesuai aturan. Beberapa versi permainan juga memungkinkan rotasi dan pencerminan balok untuk menemukan solusi yang tepat.
+Rush Hour adalah sebuah permainan puzzle logika berbasis grid yang menantang pemain untuk
+menggeser kendaraan di dalam sebuah kotak (biasanya berukuran 6x6) agar mobil utama
+(biasanya berwarna merah) dapat keluar dari kemacetan melalui pintu keluar di sisi papan.
+Setiap kendaraan hanya bisa bergerak lurus ke depan atau ke belakang sesuai dengan
+orientasinya (horizontal atau vertikal), dan tidak dapat berputar. Tujuan utama dari permainan
+ini adalah memindahkan mobil merah ke pintu keluar dengan jumlah langkah seminimal
+mungkin.
 
 <div align="center">
   
@@ -38,7 +44,7 @@ Program akan memberikan beberapa seleksi algoritma path-finding menemukan satu s
 - Arahkan ke direktori utama folder project
 - Jalankan file JAR dengan perintah:
   ```bash
-  java -jar app.jar
+  java -jar rushHourSolver.jar
   ```
 
 ### 2. Input File
@@ -76,13 +82,10 @@ LLJMM.
 ```
 
 ### 3. Output dan Penyimpanan Hasil
-- Jika program menemukan solusi, akan ditanyakan apakah hasil ingin disimpan ke file `.txt`
-- Jika memilih untuk menyimpan:
-  - Program akan meminta input nama file
-  - Tidak perlu menambahkan ekstensi `.txt` pada nama file
-  - File hasil akan tersimpan dalam folder `Solutions` yang berada di dalam folder `test`
+- Jika program menemukan solusi, solusi akan ditampilkan dalam format piece berwarna dan disimpan ke dalam file .txt
 
 ## Author
-- Noumisyifa Nabila Nareswari - 13523058 - K01
-- Ranashahira Reztaputri - 13523007 - K01
-Teknik Informatika ITB 
+| NIM      | Nama  | Kelas |
+| :---:    | :---: | :---: |
+| 13523007| Ranashahira Reztaputri|01|
+| 13523058| Noumisyifa Nabila Nareswari|01|
