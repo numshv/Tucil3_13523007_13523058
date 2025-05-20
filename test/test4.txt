@@ -1,0 +1,13 @@
+10 10
+22
+   K
+Q.AAA..CC.
+Q.MMB..II.
+DD..B...R.
+..EEE..SR.
+..G..NNS..
+O.G.FF.S..
+O.GHH.JJJ.
+.VVPLLUUU.
+WW.P.XX.ZZ
+...P......
