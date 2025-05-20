@@ -23,7 +23,7 @@ public class GBFS {
         solutionPath = new ArrayList<Board>();
         nodeCount = 0;
         visitedBoards = new HashSet<Board>();
-        scanner = new Scanner(System.in);
+        //scanner = new Scanner(System.in);
         th = new TreeHeuristic();
         dh = new DistHeuristic();
     }
@@ -72,12 +72,12 @@ public class GBFS {
             solutionPath.add(currentBoard);
             
             if (currentBoard.isFinished()) {
-                scanner.nextLine();
+                //scanner.nextLine();
                 break;
             }
         }
         System.out.println("node: " + this.getNodeCount());
-        scanner.nextLine();
+        //scanner.nextLine();
     }
     
     public List<Board> getSolutionPath() {
@@ -106,8 +106,8 @@ public class GBFS {
     public void printSolutionPath(){
         if (currentBoard.isFinished()) {
             System.out.println("Solusi ditemukan!");
-            System.out.print("Tekan enter untuk lanjut ...");
-            scanner.nextLine();
+            //System.out.print("Tekan enter untuk lanjut ...");
+            //scanner.nextLine();
             for (int i = 0; i < solutionPath.size(); i++) {
                 System.out.println("\nLangkah Ke-" + i );
                 solutionPath.get(i).printBoardState();
