@@ -24,8 +24,8 @@ public class GBFS {
         nodeCount = 0;
         visitedBoards = new HashSet<Board>();
         scanner = new Scanner(System.in);
-        TreeHeuristic th = new TreeHeuristic();
-        DistHeuristic dh = new DistHeuristic();
+        th = new TreeHeuristic();
+        dh = new DistHeuristic();
     }
 
     public void solve(Board initBoard, boolean isTreeHeuristic){
