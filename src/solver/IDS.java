@@ -92,7 +92,7 @@ public class IDS {
             System.out.println("Kedalaman: " + this.solution.getDepth() );
             System.out.println("Jumlah Node: " + exploredNodes);
         } else {
-            System.out.println("Tidak ada solusi yang ditemukan hingga kedalaman maksimum yang dijelajahi: " + this.curMaxDepth);
+            System.out.println("Tidak ada solusi yang ditemFukan hingga kedalaman maksimum yang dijelajahi: " + this.curMaxDepth);
         }
     }
 

@@ -5,14 +5,68 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.FileNotFoundException; // Ditambahkan
+import java.io.IOException;
 import java.util.List;
 import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException; // Ditambahkan
+import java.util.Scanner; // Ditambahkan
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+// Asumsikan kelas-kelas solver dan Board ada di paket yang sesuai atau default
+// Jika ada di paket 'obj', Anda mungkin perlu import seperti:
+import obj.Board;
+// import obj.GBFS;
+// import obj.AStar;
+// import obj.UCS;
+// import obj.IDS;
+// import obj.Solution; // Jika AStar, UCS, IDS mengembalikan objek Solution
+
+// Placeholder untuk kelas solver jika belum ada (untuk kompilasi)
+// Anda harus menggantinya dengan implementasi solver Anda yang sebenarnya.
+class GBFS {
+    private List<Board> solutionPath = new ArrayList<>();
+    private int nodesExplored = 0;
+    public void solve(Board board, boolean isHeuristic1) { /* Implementasi solver */ this.nodesExplored = 100; /* dummy */ if (board != null) this.solutionPath.add(board); }
+    public List<Board> getSolutionPath() { return solutionPath; }
+    public int getNodesExplored() { return nodesExplored; }
+    public void writeSolution(String fileName) { /* Implementasi penulisan solusi */ }
+}
+class AStar {
+    private Solution solution;
+    private int nodesExplored = 0;
+    public AStar(Board board, boolean isHeuristic1) { /* Implementasi solver */ this.nodesExplored = 150; /* dummy */ this.solution = new Solution(); if (board != null) this.solution.getPathOfBoards().add(board); }
+    public Solution getSolution() { return solution; }
+    public int getNodesExplored() { return nodesExplored; }
+    public void writeSolution(String fileName) { /* Implementasi penulisan solusi */ }
+}
+class UCS {
+    private Solution solution;
+    private int nodesExplored = 0;
+    public UCS(Board board) { /* Implementasi solver */ this.nodesExplored = 200; /* dummy */ this.solution = new Solution(); if (board != null) this.solution.getPathOfBoards().add(board); }
+    public Solution getSolution() { return solution; }
+    public int getNodesExplored() { return nodesExplored; }
+    public void writeSolution(String fileName) { /* Implementasi penulisan solusi */ }
+}
+class IDS {
+    private Solution solution;
+    private int nodesExplored = 0;
+    public IDS(Board board) { /* Implementasi solver */ this.nodesExplored = 250; /* dummy */ this.solution = new Solution(); if (board != null) this.solution.getPathOfBoards().add(board); }
+    public Solution getSolution() { return solution; }
+    public int getNodesExplored() { return nodesExplored; }
+    public void writeSolution(String fileName) { /* Implementasi penulisan solusi */ }
+}
+class Solution { // Placeholder untuk objek Solution yang dikembalikan A*, UCS, IDS
+    private List<Board> pathOfBoards = new ArrayList<>();
+    public List<Board> getPathOfBoards() { return pathOfBoards; }
+}
+// Akhir dari placeholder kelas solver
+
 
 public class RushHourSolverGUI extends JFrame {
     private JComboBox<String> algorithmSelector;
@@ -44,10 +98,9 @@ public class RushHourSolverGUI extends JFrame {
     }
     
     private void initializeComponents() {
-        // Create components
         algorithmSelector = new JComboBox<>(new String[]{"Pilih Algoritma ...", "GBFS", "A*", "UCS", "IDS"});
         heuristicSelector = new JComboBox<>(new String[]{"Pilih Heuristik ...", "Jumlah blok menghalangi", "Jarak blok primer ke pintu keluar"});
-        fileInput = new JTextField("Masukkan file . . .");
+        fileInput = new JTextField("test/tes1.txt"); // Default file path for easier testing
         errorLabel = new JLabel("Error: Input tidak valid");
         errorLabel.setForeground(ERROR_COLOR);
         errorLabel.setVisible(false);
@@ -59,10 +112,9 @@ public class RushHourSolverGUI extends JFrame {
         animationPanel = new BoardAnimationPanel();
         boardPanel.add(animationPanel, BorderLayout.CENTER);
         
-        // Stats panel
-        nodesLabel = createStatsLabel("1100", "Explored Nodes", ORANGE_COLOR);
-        timeLabel = createStatsLabel("2200", "Execution Time", BLUE_COLOR);
-        stepsLabel = createStatsLabel("1100", "Solution Steps", GREEN_COLOR);
+        nodesLabel = createStatsLabel("0", "Explored Nodes", ORANGE_COLOR);
+        timeLabel = createStatsLabel("0", "Execution Time (ms)", BLUE_COLOR);
+        stepsLabel = createStatsLabel("0", "Solution Steps", GREEN_COLOR);
         
         solveButton = new JButton("Solve");
         solveButton.setBackground(new Color(255, 236, 66));
@@ -71,16 +123,15 @@ public class RushHourSolverGUI extends JFrame {
         solveButton.setBorderPainted(false);
         solveButton.setFont(new Font("Arial", Font.BOLD, 16));
         
-        // Add action listener to the solve button
         solveButton.addActionListener(e -> {
             if (validateInputs()) {
                 solvePuzzle();
             } else {
+                // errorLabel sudah di-set oleh validateInputs()
                 errorLabel.setVisible(true);
             }
         });
         
-        // Action listener for file input field to clear default text
         fileInput.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -96,6 +147,17 @@ public class RushHourSolverGUI extends JFrame {
                 }
             }
         });
+
+        algorithmSelector.addActionListener(e -> {
+            String selectedAlgorithm = (String) algorithmSelector.getSelectedItem();
+            if (selectedAlgorithm.equals("GBFS") || selectedAlgorithm.equals("A*")) {
+                heuristicSelector.setEnabled(true);
+            } else {
+                heuristicSelector.setEnabled(false);
+                heuristicSelector.setSelectedIndex(0);
+            }
+        });
+        heuristicSelector.setEnabled(false); // Awalnya nonaktif
     }
     
     private JLabel createStatsLabel(String value, String description, Color valueColor) {
@@ -114,7 +176,6 @@ public class RushHourSolverGUI extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // Title panel
         JPanel titlePanel = new JPanel(new BorderLayout());
         JLabel titleStart = new JLabel("Rush Hour Solver", SwingConstants.LEFT);
         titleStart.setFont(new Font("Arial", Font.BOLD, 28));
@@ -126,19 +187,16 @@ public class RushHourSolverGUI extends JFrame {
         titlePanel.add(titleStart, BorderLayout.WEST);
         titlePanel.add(titleEnd, BorderLayout.CENTER);
         
-        // Controls panel
         JPanel controlsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         controlsPanel.add(algorithmSelector);
         controlsPanel.add(heuristicSelector);
         controlsPanel.add(fileInput);
         controlsPanel.add(solveButton);
         
-        // Central panel for board and error message
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(errorLabel, BorderLayout.NORTH);
         centerPanel.add(boardPanel, BorderLayout.CENTER);
         
-        // Stats panel
         JPanel statsPanel = new JPanel(new GridLayout(3, 1, 0, 20));
         statsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         statsPanel.add(nodesLabel);
@@ -150,11 +208,9 @@ public class RushHourSolverGUI extends JFrame {
         contentPanel.add(centerPanel, BorderLayout.CENTER);
         contentPanel.add(statsPanel, BorderLayout.EAST);
         
-        // Add to main panel
         mainPanel.add(titlePanel, BorderLayout.NORTH);
         mainPanel.add(contentPanel, BorderLayout.CENTER);
         
-        // Footer
         JPanel footerPanel = new JPanel(new BorderLayout());
         JLabel authorLabel = new JLabel("Proudly made by Queen Rana and her Slave Noumi", SwingConstants.LEFT);
         JLabel idLabel = new JLabel("13523007 | 13523058 | IF'23", SwingConstants.RIGHT);
@@ -162,109 +218,320 @@ public class RushHourSolverGUI extends JFrame {
         footerPanel.add(idLabel, BorderLayout.EAST);
         mainPanel.add(footerPanel, BorderLayout.SOUTH);
         
-        // Set component preferred sizes
         algorithmSelector.setPreferredSize(new Dimension(200, 40));
-        heuristicSelector.setPreferredSize(new Dimension(200, 40));
-        fileInput.setPreferredSize(new Dimension(400, 40));
+        heuristicSelector.setPreferredSize(new Dimension(250, 40)); 
+        fileInput.setPreferredSize(new Dimension(350, 40)); 
         solveButton.setPreferredSize(new Dimension(80, 40));
         statsPanel.setPreferredSize(new Dimension(300, 500));
         
-        // Set the content pane
         setContentPane(mainPanel);
     }
     
     private boolean validateInputs() {
-        // Validate algorithm selection
         if (algorithmSelector.getSelectedIndex() == 0) {
+            errorLabel.setText("Error: Algoritma belum dipilih.");
             return false;
         }
         
-        // Validate heuristic selection if applicable
         String selectedAlgorithm = (String) algorithmSelector.getSelectedItem();
         if ((selectedAlgorithm.equals("GBFS") || selectedAlgorithm.equals("A*")) 
                 && heuristicSelector.getSelectedIndex() == 0) {
+            errorLabel.setText("Error: Heuristik belum dipilih untuk algoritma " + selectedAlgorithm + ".");
             return false;
         }
         
-        // Validate file input
         String filePath = fileInput.getText();
         if (filePath.equals("Masukkan file . . .") || filePath.isEmpty()) {
+            errorLabel.setText("Error: Path file belum dimasukkan.");
             return false;
         }
         
         File file = new File(filePath);
         if (!file.exists() || !file.isFile()) {
+            errorLabel.setText("Error: File tidak ditemukan atau bukan file valid di path: " + filePath);
             return false;
         }
         
         return true;
     }
-    
-    private void solvePuzzle() {
-        // Hide error label if visible
-        errorLabel.setVisible(false);
+
+    private Board readBoardFromFile(String filePath) throws IOException {
+        Scanner fileReader = null;
+        char[][] boardGrid;
+        int rowCount = 0;
+        int columnCount = 0;
+        int declaredPieces = 0;
         
-        // This is where you would call your solver logic
-        // For demonstration, we'll create a dummy list of boards
-        List<obj.Board> solutionPath = createDummySolution();
-        
-        // Update stats
-        nodesLabel.setText("<html><div style='text-align: center;'>" +
-                "<span style='font-size: 48px; color: " + colorToHex(ORANGE_COLOR) + ";'>1100</span><br>" +
-                "<span style='font-size: 20px;'>Explored Nodes</span></div></html>");
-                
-        timeLabel.setText("<html><div style='text-align: center;'>" +
-                "<span style='font-size: 48px; color: " + colorToHex(BLUE_COLOR) + ";'>2200</span><br>" +
-                "<span style='font-size: 20px;'>Execution Time</span></div></html>");
-                
-        stepsLabel.setText("<html><div style='text-align: center;'>" +
-                "<span style='font-size: 48px; color: " + colorToHex(GREEN_COLOR) + ";" + solutionPath.size() + "</span><br>" +
-                "<span style='font-size: 20px;'>Solution Steps</span></div></html>");
-        
-        // Start animation
-        animationPanel.setSolutionPath(solutionPath);
-        animationPanel.startAnimation();
-    }
-    
-    private List<obj.Board> createDummySolution() {
-        // This is a placeholder - your actual code would call the solver and return the real solution path
-        List<obj.Board> dummySolution = new ArrayList<>();
-        
-        // For demo purposes only - would be replaced with actual board states
+        int exitRowPosition = -1;
+        int exitColumnPosition = -1;
+        boolean exitSymbolFound = false;
+        int exitLineIndex = -1;
+        int exitSymbolPositionInLine = -1; // Renamed for clarity
+        boolean isExitOnSeparateLine = false;
+
         try {
-            // Create a simple 6x6 board with exit at position (3, 6)
-            char[][] boardState = new char[6][6];
-            for (int i = 0; i < 6; i++) {
-                for (int j = 0; j < 6; j++) {
-                    boardState[i][j] = '.';
+            File file = new File(filePath);
+            if (!file.exists()) {
+                throw new FileNotFoundException("File pada path '" + filePath + "' tidak ditemukan.");
+            }
+            
+            fileReader = new Scanner(file);
+            
+            if (fileReader.hasNextInt()) rowCount = fileReader.nextInt();
+            else throw new IOException("Format file salah: nilai baris (row) tidak ditemukan.");
+            
+            if (fileReader.hasNextInt()) columnCount = fileReader.nextInt();
+            else throw new IOException("Format file salah: nilai kolom (col) tidak ditemukan.");
+            
+            if (rowCount < 1 || columnCount < 1) {
+                throw new IOException("Dimensi papan (row/col) harus bernilai >= 1.");
+            }
+            
+            if (fileReader.hasNextInt()) declaredPieces = fileReader.nextInt();
+            else throw new IOException("Format file salah: deklarasi jumlah piece tidak ditemukan.");
+            
+            if (fileReader.hasNextLine()) fileReader.nextLine(); // Consume the rest of the line after numbers
+
+            List<String> fileLines = new ArrayList<>();
+            while(fileReader.hasNextLine()){
+                fileLines.add(fileReader.nextLine());
+            }
+
+            for (int i = 0; i < fileLines.size(); i++) {
+                String currentLine = fileLines.get(i);
+                String trimmedLine = currentLine.replaceAll("\\s+$", ""); 
+
+                int kPos = trimmedLine.indexOf('K');
+                if (kPos == -1) kPos = trimmedLine.indexOf('k');
+
+                if (kPos != -1) {
+                    if (exitSymbolFound) throw new IOException("Simbol 'K' ditemukan lebih dari satu kali.");
+                    exitSymbolFound = true;
+                    exitLineIndex = i;
+                    exitSymbolPositionInLine = kPos;
+
+                    isExitOnSeparateLine = true;
+                    for (int charPos = 0; charPos < trimmedLine.length(); charPos++) {
+                        if (charPos == exitSymbolPositionInLine) continue; 
+                        if (!Character.isWhitespace(trimmedLine.charAt(charPos))) {
+                            isExitOnSeparateLine = false; 
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!exitSymbolFound) throw new IOException("Simbol 'K' (pintu keluar) tidak ditemukan.");
+
+            boardGrid = new char[rowCount][columnCount];
+            int processedRows = 0;
+            int firstDataLineIndex = -1; 
+
+            for (int i = 0; i < fileLines.size(); i++) {
+                String currentLine = fileLines.get(i);
+                
+                if (i == exitLineIndex && isExitOnSeparateLine) {
+                    if (firstDataLineIndex == -1) firstDataLineIndex = i + 1; 
+                    continue; 
+                }
+
+                String processedLineContent = currentLine.replaceAll("\\s+$", "");
+
+                if (processedLineContent.trim().isEmpty()) {
+                    if (firstDataLineIndex == -1 && exitLineIndex != -1 && exitLineIndex < i && isExitOnSeparateLine) {
+                         firstDataLineIndex = i + 1;
+                    }
+                    continue; 
+                }
+                
+                if (processedRows >= rowCount) {
+                    if (!(i == exitLineIndex && isExitOnSeparateLine)) { 
+                         throw new IOException("Ditemukan lebih dari " + rowCount + " baris data papan yang tidak kosong. Baris bermasalah: '" + processedLineContent + "'");
+                    }
+                    continue;
+                }
+
+                if (firstDataLineIndex == -1) firstDataLineIndex = i;
+                
+                String boardRowData;
+
+                if (i == exitLineIndex) { // K is on this data line
+                    // Ensure K is at the very start or very end of the logical board content
+                    String lineWithoutK;
+                    if (exitSymbolPositionInLine == 0 && processedLineContent.length() >= 1) { // K at start
+                        lineWithoutK = processedLineContent.substring(1);
+                        exitRowPosition = processedRows + 1; // 1-based
+                        exitColumnPosition = 0; // 0 means left of column 1
+                    } else if (exitSymbolPositionInLine > 0 && exitSymbolPositionInLine == processedLineContent.length() - 1) { // K at end
+                        lineWithoutK = processedLineContent.substring(0, exitSymbolPositionInLine);
+                         exitRowPosition = processedRows + 1; // 1-based
+                        exitColumnPosition = columnCount + 1; // means right of last column
+                    } else {
+                        throw new IOException("Posisi 'K' pada baris data ke-" + (processedRows + 1) +
+                                          " (isi: '" + processedLineContent + "') tidak valid. 'K' harus di awal atau akhir baris data.");
+                    }
+                    boardRowData = lineWithoutK.trim(); // Trim after removing K
+                } else {
+                    boardRowData = processedLineContent.trim();
+                }
+
+                if (boardRowData.length() != columnCount) {
+                    throw new IOException("Baris data ke-" + (processedRows + 1) +
+                                        " (setelah diproses menjadi: '" + boardRowData + "') memiliki panjang " + boardRowData.length() +
+                                        ". Diharapkan " + columnCount + " karakter.");
+                }
+
+                for (int j = 0; j < columnCount; j++) {
+                    boardGrid[processedRows][j] = boardRowData.charAt(j);
+                }
+                processedRows++;
+            }
+
+            if (processedRows < rowCount) {
+                throw new IOException("Data papan tidak cukup. Diharapkan " + rowCount +
+                                    " baris data valid, hanya ditemukan " + processedRows + ".");
+            }
+
+            if (exitRowPosition == -1) { // K was on a separate line
+                if (firstDataLineIndex == -1 || exitLineIndex < firstDataLineIndex) { 
+                    exitRowPosition = 0; // 0 means above row 1
+                } else { 
+                    exitRowPosition = rowCount + 1; // means below last row
+                }
+                exitColumnPosition = exitSymbolPositionInLine + 1; // 1-based column for K
+                
+                if (exitColumnPosition < 1 || exitColumnPosition > columnCount) {
+                    throw new IOException("Posisi 'K' (kolom " + exitColumnPosition +
+                                        ") untuk pintu keluar atas/bawah di luar rentang kolom papan [1-" + columnCount + "]. Isi baris K: '" + 
+                                        fileLines.get(exitLineIndex).replaceAll("\\s+$", "") + "'");
                 }
             }
             
-            // Add a horizontal primary piece 'P' at position (3, 1) with length 2
-            boardState[2][0] = 'P';
-            boardState[2][1] = 'P';
+            Board board = new Board(boardGrid, exitRowPosition, exitColumnPosition);
             
-            // Add a vertical blocking piece 'A' at position (2, 3) with length 3
-            boardState[1][2] = 'A';
-            boardState[2][2] = 'A';
-            boardState[3][2] = 'A';
+            // Asumsi obj.Board memiliki metode getPieceCounter() yang mengembalikan jumlah piece unik selain 'P' dan '.'
+            // Jika tidak, Anda perlu menyesuaikan atau menghapus validasi ini.
+            if (board.getPieceCounter() != -1 && declaredPieces != board.getPieceCounter()) { // Check if getPieceCounter is implemented
+                 throw new IOException("Jumlah piece tidak sesuai deklarasi. Dideklarasikan: " +
+                                     declaredPieces + ", Dihitung dari papan (unik, tanpa P): " + board.getPieceCounter());
+            }
             
-            // Add a horizontal blocking piece 'B' at position (5, 4) with length 2
-            boardState[4][3] = 'B';
-            boardState[4][4] = 'B';
-            
-            // Create initial board state
-            obj.Board initialBoard = new obj.Board(boardState, 3, 6);
-            dummySolution.add(initialBoard);
-            
-            // In a real implementation, you would add more board states to show the solution
-            // This would come from your solver algorithms
-            
-        } catch (Exception e) {
-            System.err.println("Error creating dummy solution: " + e.getMessage());
+            System.out.println("Papan berhasil dibuat dari file: " + filePath);
+            // board.printBoardState(); // Mungkin tidak diperlukan di GUI
+
+            return board;
+
+        } catch (FileNotFoundException e) {
+            throw new IOException("File tidak ditemukan: " + filePath + ". Detail: " + e.getMessage(), e);
+        } catch (NoSuchElementException | IllegalArgumentException e) { 
+            throw new IOException("Format file tidak valid atau data tidak lengkap. Detail: " + e.getMessage(), e);
+        } catch (IOException e) { // Menangkap IOException yang sudah dilempar atau yang baru
+            throw e; // Melempar ulang IOException yang sudah spesifik
+        } catch (Exception e) { // Menangkap exception lain yang mungkin tidak terduga
+            throw new IOException("Terjadi error saat memproses file: " + e.getMessage(), e);
+        } finally {
+            if (fileReader != null) fileReader.close();
+        }
+    }
+    
+    private void solvePuzzle() {
+        errorLabel.setVisible(false);
+        String selectedAlgorithm = (String) algorithmSelector.getSelectedItem();
+        String selectedHeuristicName = (String) heuristicSelector.getSelectedItem();
+        String filePath = fileInput.getText();
+
+        Board initialBoard;
+        try {
+            initialBoard = readBoardFromFile(filePath);
+            if (initialBoard == null) { 
+                 errorLabel.setText("Error: Gagal memuat board dari file (null).");
+                 errorLabel.setVisible(true);
+                 return;
+            }
+        } catch (IOException e) {
+            errorLabel.setText("Error saat membaca file: " + e.getMessage());
+            errorLabel.setVisible(true);
+            e.printStackTrace(); // Untuk debugging di console
+            return;
+        }
+
+        List<Board> solutionPath = new ArrayList<>();
+        long startTime = 0, endTime = 0;
+        int nodesExplored = 0;
+
+        boolean useHeuristic1 = selectedHeuristicName.equals("Jumlah blok menghalangi");
+
+        startTime = System.nanoTime();
+
+        try {
+            switch (selectedAlgorithm) {
+                case "GBFS":
+                    GBFS gbfsSolver = new GBFS();
+                    gbfsSolver.solve(initialBoard, useHeuristic1);
+                    solutionPath = gbfsSolver.getSolutionPath();
+                    nodesExplored = gbfsSolver.getNodesExplored();
+                    gbfsSolver.writeSolution(filePath + "_gbfs_solution.txt");
+                    break;
+                case "A*":
+                    AStar aStarSolver = new AStar(initialBoard, useHeuristic1);
+                    if (aStarSolver.getSolution() != null) {
+                        solutionPath = aStarSolver.getSolution().getPathOfBoards();
+                    }
+                    nodesExplored = aStarSolver.getNodesExplored();
+                    aStarSolver.writeSolution(filePath + "_astar_solution.txt");
+                    break;
+                case "UCS":
+                    UCS ucsSolver = new UCS(initialBoard);
+                    if (ucsSolver.getSolution() != null) {
+                        solutionPath = ucsSolver.getSolution().getPathOfBoards();
+                    }
+                    nodesExplored = ucsSolver.getNodesExplored();
+                    ucsSolver.writeSolution(filePath + "_ucs_solution.txt");
+                    break;
+                case "IDS":
+                    IDS idsSolver = new IDS(initialBoard);
+                    if (idsSolver.getSolution() != null) {
+                        solutionPath = idsSolver.getSolution().getPathOfBoards();
+                    }
+                    nodesExplored = idsSolver.getNodesExplored();
+                    idsSolver.writeSolution(filePath + "_ids_solution.txt");
+                    break;
+                default:
+                    errorLabel.setText("Error: Algoritma tidak dikenal.");
+                    errorLabel.setVisible(true);
+                    return;
+            }
+        } catch (Exception ex) {
+            errorLabel.setText("Error selama proses solving: " + ex.getMessage());
+            errorLabel.setVisible(true);
+            ex.printStackTrace(); 
+            return;
+        }
+
+
+        endTime = System.nanoTime();
+        long durationInMillis = (endTime - startTime) / 1_000_000;
+
+        if (solutionPath == null || solutionPath.isEmpty()) {
+             errorLabel.setText("Solusi tidak ditemukan oleh algoritma " + selectedAlgorithm + ".");
+             errorLabel.setVisible(true);
+             nodesLabel.setText(createStatsLabelHTML(String.valueOf(nodesExplored), "Explored Nodes", ORANGE_COLOR));
+             timeLabel.setText(createStatsLabelHTML(String.valueOf(durationInMillis), "Execution Time (ms)", BLUE_COLOR));
+             stepsLabel.setText(createStatsLabelHTML("0", "Solution Steps", GREEN_COLOR));
+        } else {
+            nodesLabel.setText(createStatsLabelHTML(String.valueOf(nodesExplored), "Explored Nodes", ORANGE_COLOR));
+            timeLabel.setText(createStatsLabelHTML(String.valueOf(durationInMillis), "Execution Time (ms)", BLUE_COLOR));
+            stepsLabel.setText(createStatsLabelHTML(String.valueOf(solutionPath.size()), "Solution Steps", GREEN_COLOR));
         }
         
-        return dummySolution;
+        animationPanel.setSolutionPath(solutionPath); 
+        animationPanel.startAnimation(); 
+    }
+
+    private String createStatsLabelHTML(String value, String description, Color valueColor) {
+        return "<html><div style='text-align: center;'>" +
+               "<span style='font-size: 48px; color: " + colorToHex(valueColor) + ";'>" + value + "</span><br>" +
+               "<span style='font-size: 20px;'>" + description + "</span></div></html>";
     }
     
     public static void main(String[] args) {
@@ -278,17 +545,15 @@ public class RushHourSolverGUI extends JFrame {
     }
 }
 
-// Custom panel for displaying and animating the board
 class BoardAnimationPanel extends JPanel {
-    private List<obj.Board> solutionPath;
+    private List<Board> solutionPath;
     private int currentStepIndex = 0;
     private ScheduledExecutorService animator;
-    private final int ANIMATION_DELAY_MS = 500; // Animation speed
+    private final int ANIMATION_DELAY_MS = 300; // Diubah dari 500 ke 300
 
-    // Colors for different pieces
     private final Map<Character, Color> pieceColors = new HashMap<>();
-    private final Color PRIMARY_PIECE_COLOR = new Color(255, 0, 0); // Red for piece 'P'
-    private final Color EXIT_COLOR = new Color(0, 128, 0); // Green for exit
+    private final Color PRIMARY_PIECE_COLOR = new Color(255, 0, 0); 
+    private final Color EXIT_COLOR = new Color(0, 128, 0); 
     private final Color GRID_COLOR = new Color(200, 200, 200);
 
     public BoardAnimationPanel() {
@@ -297,57 +562,61 @@ class BoardAnimationPanel extends JPanel {
     }
 
     private void initializePieceColors() {
-        // Initialize with colors for pieces A-Z
-        char[] pieces = "ABCDEFGHIJKLMNOUQRSTUVWXYZ".toCharArray();
+        char[] pieces = "ABCDEFGHIJKLMNOQRSTUVWXYZ".toCharArray(); 
         Color[] colors = {
-            new Color(0, 128, 255),    // Blue
-            new Color(255, 165, 0),    // Orange
-            new Color(128, 0, 128),    // Purple
-            new Color(0, 128, 0),      // Green
-            new Color(255, 192, 203),  // Pink
-            new Color(165, 42, 42),    // Brown  
-            new Color(64, 224, 208),   // Turquoise
-            new Color(255, 215, 0),    // Gold
-            new Color(192, 192, 192),  // Silver
-            new Color(128, 128, 128),  // Gray
-            new Color(0, 255, 127),    // Spring Green
-            new Color(218, 112, 214),  // Orchid
-            new Color(240, 230, 140),  // Khaki
-            new Color(255, 99, 71),    // Tomato
-            new Color(152, 251, 152),  // Pale Green
-            new Color(135, 206, 235),  // Sky Blue
-            new Color(219, 112, 147),  // Pale Violet Red
-            new Color(244, 164, 96),   // Sandy Brown
-            new Color(176, 196, 222),  // Light Steel Blue
-            new Color(255, 182, 193),  // Light Pink
-            new Color(221, 160, 221),  // Plum
-            new Color(173, 216, 230),  // Light Blue
-            new Color(144, 238, 144),  // Light Green
-            new Color(255, 160, 122)   // Light Salmon
+            new Color(0, 128, 255), 
+            new Color(255, 165, 0),  
+            new Color(128, 0, 128),   
+            new Color(0, 128, 0),    
+            new Color(255, 192, 203), 
+            new Color(165, 42, 42),   
+            new Color(64, 224, 208),  
+            new Color(255, 215, 0),   
+            new Color(192, 192, 192), 
+            new Color(128, 128, 128), 
+            new Color(0, 255, 127),   
+            new Color(218, 112, 214), 
+            new Color(240, 230, 140), 
+            new Color(255, 99, 71),   
+            new Color(152, 251, 152), 
+            new Color(135, 206, 235), 
+            new Color(219, 112, 147), 
+            new Color(244, 164, 96),  
+            new Color(176, 196, 222), 
+            new Color(255, 182, 193), 
+            new Color(221, 160, 221), 
+            new Color(173, 216, 230), 
+            new Color(144, 238, 144), 
+            new Color(255, 160, 122)  
         };
 
         for (int i = 0; i < pieces.length; i++) {
             pieceColors.put(pieces[i], colors[i % colors.length]);
         }
-
-        // Always set color for primary piece 'P'
-        pieceColors.put('P', PRIMARY_PIECE_COLOR);
+        pieceColors.put('P', PRIMARY_PIECE_COLOR); 
     }
 
-    public void setSolutionPath(List<obj.Board> solutionPath) {
+    public void setSolutionPath(List<Board> solutionPath) {
         this.solutionPath = solutionPath;
         this.currentStepIndex = 0;
-        repaint();
+        if (solutionPath == null || solutionPath.isEmpty()) {
+            repaint(); 
+        } else {
+            repaint();
+        }
     }
 
     public void startAnimation() {
-        // Stop any existing animation
-        stopAnimation();
+        stopAnimation(); 
         
         if (solutionPath == null || solutionPath.isEmpty()) {
+            repaint(); 
             return;
         }
         
+        currentStepIndex = 0; 
+        repaint(); 
+
         animator = Executors.newSingleThreadScheduledExecutor();
         animator.scheduleAtFixedRate(() -> {
             if (currentStepIndex < solutionPath.size() - 1) {
@@ -377,7 +646,11 @@ class BoardAnimationPanel extends JPanel {
             return;
         }
         
-        obj.Board currentBoard = solutionPath.get(currentStepIndex);
+        Board currentBoard = solutionPath.get(currentStepIndex);
+        if (currentBoard == null) { 
+            drawPlaceholder(g2d);
+            return;
+        }
         drawBoard(g2d, currentBoard);
     }
 
@@ -386,102 +659,145 @@ class BoardAnimationPanel extends JPanel {
         int height = getHeight();
         
         g2d.setColor(Color.LIGHT_GRAY);
+        g2d.fillRect(0, 0, width, height); 
+
+        g2d.setColor(Color.DARK_GRAY);
         g2d.setStroke(new BasicStroke(2.0f));
         
-        // Draw an X
-        g2d.drawLine(0, 0, width, height);
-        g2d.drawLine(0, height, width, 0);
+        g2d.drawLine(width/4, height/4, 3*width/4, 3*height/4);
+        g2d.drawLine(width/4, 3*height/4, 3*width/4, height/4);
         
-        // Draw border
+        g2d.setFont(new Font("Arial", Font.PLAIN, 16));
+        String msg = "Pilih file dan algoritma, lalu tekan Solve";
+        FontMetrics fm = g2d.getFontMetrics();
+        int msgWidth = fm.stringWidth(msg);
+        g2d.drawString(msg, (width - msgWidth) / 2, height / 2 + fm.getAscent() + 30);
+
+        g2d.setColor(GRID_COLOR);
         g2d.drawRect(0, 0, width - 1, height - 1);
     }
 
-    private void drawBoard(Graphics2D g2d, obj.Board board) {
+    private void drawBoard(Graphics2D g2d, Board board) {
         if (board == null) return;
         
         int boardRows = board.getBoardRow();
         int boardCols = board.getBoardCol();
-        int exitRow = board.getExitRow();
-        int exitCol = board.getExitCol();
+        int exitRow = board.getExitRow(); 
+        int exitCol = board.getExitCol(); 
+                                          
         
-        int width = getWidth();
-        int height = getHeight();
+        if (boardRows <= 0 || boardCols <= 0) { 
+            drawPlaceholder(g2d);
+            return;
+        }
+
+        int panelWidth = getWidth();
+        int panelHeight = getHeight();
         
-        int cellWidth = width / boardCols;
-        int cellHeight = height / boardRows;
+        int cellWidth = panelWidth / boardCols;
+        int cellHeight = panelHeight / boardRows;
         
-        // Draw grid
         g2d.setColor(GRID_COLOR);
         g2d.setStroke(new BasicStroke(1.0f));
         
-        // Draw horizontal lines
         for (int i = 0; i <= boardRows; i++) {
             int y = i * cellHeight;
-            g2d.drawLine(0, y, width, y);
+            g2d.drawLine(0, y, panelWidth, y);
         }
         
-        // Draw vertical lines
         for (int j = 0; j <= boardCols; j++) {
             int x = j * cellWidth;
-            g2d.drawLine(x, 0, x, height);
+            g2d.drawLine(x, 0, x, panelHeight);
         }
         
-        // Draw exit point
         g2d.setColor(EXIT_COLOR);
-        if (exitRow == 0) { // Top exit
-            g2d.fillRect((exitCol - 1) * cellWidth, 0, cellWidth, cellHeight / 4);
-        } else if (exitRow > boardRows) { // Bottom exit
-            g2d.fillRect((exitCol - 1) * cellWidth, height - cellHeight / 4, cellWidth, cellHeight / 4);
-        } else if (exitCol == 0) { // Left exit
-            g2d.fillRect(0, (exitRow - 1) * cellHeight, cellWidth / 4, cellHeight);
-        } else if (exitCol > boardCols) { // Right exit
-            g2d.fillRect(width - cellWidth / 4, (exitRow - 1) * cellHeight, cellWidth / 4, cellHeight);
+        if (exitCol > boardCols && exitRow >= 1 && exitRow <= boardRows) { // Right exit
+             g2d.fillRect(panelWidth - cellWidth / 4, (exitRow - 1) * cellHeight, cellWidth / 4, cellHeight);
+        } else if (exitCol == 0 && exitRow >= 1 && exitRow <= boardRows) { // Left exit (exitCol 0 for left)
+             g2d.fillRect(0, (exitRow - 1) * cellHeight, cellWidth / 4, cellHeight);
+        } else if (exitRow > boardRows && exitCol >=1 && exitCol <= boardCols) { // Bottom exit
+             g2d.fillRect((exitCol - 1) * cellWidth, panelHeight - cellHeight / 4, cellWidth, cellHeight / 4);
+        } else if (exitRow == 0 && exitCol >=1 && exitCol <= boardCols) { // Top exit (exitRow 0 for top)
+             g2d.fillRect((exitCol - 1) * cellWidth, 0, cellWidth, cellHeight / 4);
         }
         
-        // Draw pieces
-        for (int i = 1; i <= boardRows; i++) {
-            for (int j = 1; j <= boardCols; j++) {
-                char piece = board.getCharAt(i, j);
-                if (piece != '.') {
-                    // Check if this is the top-left corner of the piece
-                    boolean isTopLeft = (i == 1 || board.getCharAt(i-1, j) != piece) && 
-                                       (j == 1 || board.getCharAt(i, j-1) != piece);
-                    
-                    if (isTopLeft) {
-                        drawPiece(g2d, board, piece, i, j, cellWidth, cellHeight);
-                    }
+        java.util.Set<Character> drawnPieces = new java.util.HashSet<>();
+
+        for (int r = 1; r <= boardRows; r++) { 
+            for (int c = 1; c <= boardCols; c++) { 
+                char pieceChar = board.getCharAt(r, c); 
+                if (pieceChar != '.' && !drawnPieces.contains(pieceChar)) {
+                    drawPiece(g2d, board, pieceChar, r, c, cellWidth, cellHeight);
+                    drawnPieces.add(pieceChar);
                 }
             }
         }
     }
 
-    private void drawPiece(Graphics2D g2d, obj.Board board, char pieceChar, int startRow, int startCol, 
-                          int cellWidth, int cellHeight) {
-        // Determine piece dimensions
-        int pieceWidth = 0;
-        int pieceHeight = 0;
+    private void drawPiece(Graphics2D g2d, Board board, char pieceChar, 
+                           int startRow, int startCol, 
+                           int cellWidth, int cellHeight) {
         
-        // Check horizontally
-        int col = startCol;
-        while (col <= board.getBoardCol() && board.getCharAt(startRow, col) == pieceChar) {
-            pieceWidth++;
-            col++;
+        int pieceActualRow = -1, pieceActualCol = -1;
+        int pieceWidthInCells = 0;
+        int pieceHeightInCells = 0;
+
+        for(int r = 1; r <= board.getBoardRow(); r++) {
+            for(int c = 1; c <= board.getBoardCol(); c++) {
+                if (board.getCharAt(r,c) == pieceChar) {
+                    if (pieceActualRow == -1) { 
+                        pieceActualRow = r;
+                        pieceActualCol = c;
+                    }
+                    int currentWidth = 0;
+                    for (int k = c; k <= board.getBoardCol(); k++) {
+                        if (board.getCharAt(r,k) == pieceChar) currentWidth++;
+                        else break;
+                    }
+                    if (currentWidth > pieceWidthInCells) pieceWidthInCells = currentWidth;
+
+                     int currentHeight = 0;
+                    for (int k = r; k <= board.getBoardRow(); k++) {
+                        if (board.getCharAt(k,c) == pieceChar) currentHeight++;
+                        else break;
+                    }
+                    if (currentHeight > pieceHeightInCells) pieceHeightInCells = currentHeight;
+                }
+            }
         }
         
-        // Check vertically
-        int row = startRow;
-        while (row <= board.getBoardRow() && board.getCharAt(row, startCol) == pieceChar) {
-            pieceHeight++;
-            row++;
+        if (pieceWidthInCells > 1 && pieceHeightInCells > 1) {
+             boolean horizontal = false;
+             if (pieceActualCol + 1 <= board.getBoardCol() && board.getCharAt(pieceActualRow, pieceActualCol + 1) == pieceChar) {
+                 horizontal = true;
+             }
+
+             if (horizontal) {
+                 pieceHeightInCells = 1;
+                 int width = 0;
+                 for(int c = pieceActualCol; c <= board.getBoardCol(); c++){
+                     if(board.getCharAt(pieceActualRow, c) == pieceChar) width++; else break;
+                 }
+                 pieceWidthInCells = width;
+             } else { 
+                 pieceWidthInCells = 1;
+                 int height = 0;
+                 for(int r = pieceActualRow; r <= board.getBoardRow(); r++){
+                     if(board.getCharAt(r, pieceActualCol) == pieceChar) height++; else break;
+                 }
+                 pieceHeightInCells = height;
+             }
         }
+
+
+        if (pieceActualRow == -1) return; 
+
+
+        int x = (pieceActualCol - 1) * cellWidth; 
+        int y = (pieceActualRow - 1) * cellHeight; 
+        int width = pieceWidthInCells * cellWidth;
+        int height = pieceHeightInCells * cellHeight;
         
-        // Calculate pixel coordinates and dimensions
-        int x = (startCol - 1) * cellWidth;
-        int y = (startRow - 1) * cellHeight;
-        int width = pieceWidth * cellWidth;
-        int height = pieceHeight * cellHeight;
-        
-        // Draw the piece with rounded corners
         Color pieceColor = pieceColors.getOrDefault(pieceChar, Color.GRAY);
         g2d.setColor(pieceColor);
         
@@ -489,18 +805,21 @@ class BoardAnimationPanel extends JPanel {
             x + 2, y + 2, width - 4, height - 4, 15, 15);
         g2d.fill(roundedRect);
         
-        // Draw piece outline
         g2d.setColor(pieceColor.darker());
         g2d.setStroke(new BasicStroke(2.0f));
         g2d.draw(roundedRect);
         
-        // Draw piece label
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Arial", Font.BOLD, Math.min(width, height) / 3));
+        int fontSize = Math.min(cellWidth, cellHeight) / 2; 
+        if (pieceWidthInCells > 1) fontSize = Math.min(cellHeight / 2 , (cellWidth * pieceWidthInCells) / (String.valueOf(pieceChar).length() +1) );
+        if (pieceHeightInCells > 1) fontSize = Math.min(cellWidth / 2, (cellHeight * pieceHeightInCells) / (String.valueOf(pieceChar).length() + 1));
+        fontSize = Math.max(10, fontSize); 
+
+        g2d.setFont(new Font("Arial", Font.BOLD, fontSize));
         FontMetrics fm = g2d.getFontMetrics();
         String label = String.valueOf(pieceChar);
         int textWidth = fm.stringWidth(label);
-        int textHeight = fm.getHeight();
-        g2d.drawString(label, x + (width - textWidth) / 2, y + height / 2 + textHeight / 3);
+        
+        g2d.drawString(label, x + (width - textWidth) / 2, y + (height - fm.getHeight()) / 2 + fm.getAscent());
     }
 }
