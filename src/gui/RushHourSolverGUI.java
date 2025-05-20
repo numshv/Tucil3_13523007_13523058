@@ -102,7 +102,7 @@ class ModernComboBoxUI extends BasicComboBoxUI {
     private Color disabledArrowColor = new Color(180, 180, 180);
     private Color comboBoxBackground = Color.WHITE;
     private Color disabledComboBoxBackground = new Color(235, 235, 235); 
-    private Color focusedBorderColor = new Color(100, 149, 237); // Cornflower blue for focused border (subtle)
+    private Color focusedBorderColor = new Color(100, 149, 237); 
     private Color disabledBorderColor = new Color(210, 210, 210);
     private Color disabledTextColor = new Color(150, 150, 150);
 
@@ -162,11 +162,9 @@ class ModernComboBoxUI extends BasicComboBoxUI {
 
         boolean isEnabled = c.isEnabled();
 
-        // Paint background - always white when enabled, grey when disabled
         g2.setColor(isEnabled ? comboBoxBackground : disabledComboBoxBackground);
         g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), cornerRadius * 2, cornerRadius * 2);
 
-        // Paint border
         Color currentBorderColorToPaint;
         float currentStrokeWidth;
 
@@ -174,7 +172,7 @@ class ModernComboBoxUI extends BasicComboBoxUI {
             currentBorderColorToPaint = disabledBorderColor;
             currentStrokeWidth = 1f;
         } else if (comboBox.hasFocus()) {
-            currentBorderColorToPaint = focusedBorderColor; // Subtle blue border on focus
+            currentBorderColorToPaint = focusedBorderColor; 
             currentStrokeWidth = 1.5f;
         } else {
             currentBorderColorToPaint = borderColor;
@@ -230,7 +228,7 @@ class ModernComboBoxUI extends BasicComboBoxUI {
                 setForeground(fgColor);
 
                 if (isSelected && comboBox.isEnabled()) { 
-                    setBackground(new Color(220, 235, 255)); // Light blue for selected item in dropdown
+                    setBackground(new Color(220, 235, 255)); 
                 } else {
                     setBackground(Color.WHITE); 
                 }
@@ -296,7 +294,7 @@ public class RushHourSolverGUI extends JFrame {
     private final Color BORDER_COLOR = new Color(200, 200, 200); 
     private final Color COMBOBOX_BORDER_COLOR = new Color(200, 200, 200); 
     private final int BUTTON_BORDER_THICKNESS = 1; 
-    private final String FILE_INPUT_PLACEHOLDER = "Masukkan nama file..."; // Updated placeholder
+    private final String FILE_INPUT_PLACEHOLDER = "Masukkan nama file..."; 
 
 
     public RushHourSolverGUI() {
@@ -499,13 +497,13 @@ public class RushHourSolverGUI extends JFrame {
             return false;
         }
         
-        String fileName = fileInput.getText(); // Original file name from text field
+        String fileName = fileInput.getText(); 
         if (fileName.equals(FILE_INPUT_PLACEHOLDER) || fileName.isEmpty()) { 
             errorLabel.setText("Error: Path file belum dimasukkan.");
             return false;
         }
         
-        String fullPath = "test/" + fileName; // Prepend "test/"
+        String fullPath = "test/" + fileName; 
         File file = new File(fullPath);
         if (!file.exists() || !file.isFile()) {
             errorLabel.setText("Error: File tidak ditemukan atau bukan file valid di path: " + fullPath);
@@ -515,7 +513,7 @@ public class RushHourSolverGUI extends JFrame {
         return true;
     }
 
-    private Board readBoardFromFile(String filePath) throws IOException { // filePath here is already prepended with "test/"
+    private Board readBoardFromFile(String filePath) throws IOException { 
         Scanner fileReader = null;
         char[][] boardGrid;
         int rowCount = 0;
@@ -530,7 +528,7 @@ public class RushHourSolverGUI extends JFrame {
         boolean isExitOnSeparateLine = false;
 
         try {
-            File file = new File(filePath); // Use the full path directly
+            File file = new File(filePath); 
             if (!file.exists()) {
                 throw new FileNotFoundException("File pada path '" + filePath + "' tidak ditemukan.");
             }
@@ -692,20 +690,21 @@ public class RushHourSolverGUI extends JFrame {
     
     private void solvePuzzle() {
         errorLabel.setVisible(false);
+        animationPanel.setCustomPlaceholderMessage(null); // Clear previous custom messages
         String selectedAlgorithm = (String) algorithmSelector.getSelectedItem();
         String selectedHeuristicName = (String) heuristicSelector.getSelectedItem();
-        String fileName = fileInput.getText(); // Get the raw file name
+        String fileName = fileInput.getText(); 
 
         if (fileName.equals(FILE_INPUT_PLACEHOLDER)) {
             errorLabel.setText("Error: Path file belum dimasukkan.");
             errorLabel.setVisible(true);
             return;
         }
-        String fullPath = "test/" + fileName; // Prepend "test/" for actual use
+        String fullPath = "test/" + fileName; 
 
         Board initialBoard;
         try {
-            initialBoard = readBoardFromFile(fullPath); // Use fullPath
+            initialBoard = readBoardFromFile(fullPath); 
             if (initialBoard == null) { 
                  errorLabel.setText("Error: Gagal memuat board dari file (null).");
                  errorLabel.setVisible(true);
@@ -733,7 +732,7 @@ public class RushHourSolverGUI extends JFrame {
                     gbfsSolver.solve(initialBoard, useHeuristic1);
                     solutionPath = gbfsSolver.getSolutionPath();
                     nodesExplored = gbfsSolver.getNodeCount();
-                    gbfsSolver.writeSolution(fullPath + "_gbfs_solution.txt"); // Use fullPath
+                    gbfsSolver.writeSolution(fullPath + "_gbfs_solution.txt"); 
                     break;
                 case "A*":
                     AStar aStarSolver = new AStar(initialBoard, useHeuristic1);
@@ -741,7 +740,7 @@ public class RushHourSolverGUI extends JFrame {
                         solutionPath = aStarSolver.getSolution().getPathOfBoards();
                     }
                     nodesExplored = aStarSolver.getExploredNodesCount();
-                    aStarSolver.writeSolution(fullPath + "_astar_solution.txt"); // Use fullPath
+                    aStarSolver.writeSolution(fullPath + "_astar_solution.txt"); 
                     break;
                 case "UCS":
                     UCS ucsSolver = new UCS(initialBoard);
@@ -749,7 +748,7 @@ public class RushHourSolverGUI extends JFrame {
                         solutionPath = ucsSolver.getSolution().getPathOfBoards();
                     }
                     nodesExplored = ucsSolver.getExploredNodesCount();
-                    ucsSolver.writeSolution(fullPath + "_ucs_solution.txt"); // Use fullPath
+                    ucsSolver.writeSolution(fullPath + "_ucs_solution.txt"); 
                     break;
                 case "IDS":
                     IDS idsSolver = new IDS(initialBoard);
@@ -757,7 +756,7 @@ public class RushHourSolverGUI extends JFrame {
                         solutionPath = idsSolver.getSolution().getPathOfBoards();
                     }
                     nodesExplored = idsSolver.getExploredNodesCount();
-                    idsSolver.writeSolution(fullPath + "_ids_solution.txt"); // Use fullPath
+                    idsSolver.writeSolution(fullPath + "_ids_solution.txt"); 
                     break;
                 default:
                     errorLabel.setText("Error: Algoritma tidak dikenal.");
@@ -775,20 +774,41 @@ public class RushHourSolverGUI extends JFrame {
         endTime = System.nanoTime();
         long durationInMillis = (endTime - startTime) / 1_000_000;
 
-        if (solutionPath == null || solutionPath.isEmpty()) {
-             errorLabel.setText("Solusi tidak ditemukan oleh algoritma " + selectedAlgorithm + ".");
-             errorLabel.setVisible(true);
-             nodesLabel.setText(createStatsLabelHTML(String.valueOf(nodesExplored), "Explored Nodes", ORANGE_COLOR));
-             timeLabel.setText(createStatsLabelHTML(String.valueOf(durationInMillis), "Execution Time (ms)", BLUE_COLOR));
-             stepsLabel.setText(createStatsLabelHTML("0", "Solution Steps", GREEN_COLOR));
-        } else {
+        boolean actualSolutionFoundAndFinished = false;
+        if (solutionPath != null && !solutionPath.isEmpty()) {
+            Board lastBoard = solutionPath.get(solutionPath.size() - 1);
+            if (lastBoard.isFinished()) { // Assuming Board.isFinished() exists and is correct
+                actualSolutionFoundAndFinished = true;
+            }
+        }
+
+        if (actualSolutionFoundAndFinished) {
+            animationPanel.setCustomPlaceholderMessage(null); 
             nodesLabel.setText(createStatsLabelHTML(String.valueOf(nodesExplored), "Explored Nodes", ORANGE_COLOR));
             timeLabel.setText(createStatsLabelHTML(String.valueOf(durationInMillis), "Execution Time (ms)", BLUE_COLOR));
             stepsLabel.setText(createStatsLabelHTML(String.valueOf(solutionPath.size()), "Solution Steps", GREEN_COLOR));
+            animationPanel.setSolutionPath(solutionPath);
+            animationPanel.startAnimation();
+        } else {
+            animationPanel.setSolutionPath(null); 
+            animationPanel.setCustomPlaceholderMessage("Solusi tidak ditemukan"); 
+
+            nodesLabel.setText(createStatsLabelHTML(String.valueOf(nodesExplored), "Explored Nodes", ORANGE_COLOR));
+            timeLabel.setText(createStatsLabelHTML(String.valueOf(durationInMillis), "Execution Time (ms)", BLUE_COLOR));
+            stepsLabel.setText(createStatsLabelHTML("0", "Solution Steps", GREEN_COLOR));
+            
+            if (solutionPath != null && !solutionPath.isEmpty()) { 
+                // Path found but not finished
+                // errorLabel.setText("Algoritma menemukan jalur, namun tidak mencapai solusi akhir.");
+                // errorLabel.setVisible(true); 
+                // The custom placeholder message is now handling this.
+            } else { 
+                // No path found by solver
+                // errorLabel.setText("Solusi tidak ditemukan oleh algoritma " + selectedAlgorithm + ".");
+                // errorLabel.setVisible(true);
+                 // The custom placeholder message is now handling this.
+            }
         }
-        
-        animationPanel.setSolutionPath(solutionPath); 
-        animationPanel.startAnimation(); 
     }
 
     private String createStatsLabelHTML(String value, String description, Color valueColor) {
@@ -797,23 +817,25 @@ public class RushHourSolverGUI extends JFrame {
                "<span style='font-size: 20px;'>" + description + "</span></div></html>";
     }
     
-    // public static void main(String[] args) {
-    //     try {
-    //         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
+    public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         
-    //     SwingUtilities.invokeLater(() -> new RushHourSolverGUI());
-    // }
+        SwingUtilities.invokeLater(() -> new RushHourSolverGUI());
+    }
 }
 
 class BoardAnimationPanel extends JPanel {
     private List<Board> solutionPath;
     private int currentStepIndex = 0;
     private ScheduledExecutorService animator;
-    private final int ANIMATION_DELAY_MS = 300; // Diubah dari 500 ke 300
+    private final int ANIMATION_DELAY_MS = 300; 
     private boolean isAnimating = false;
+    private String customPlaceholderMessage = null; // Added for custom messages
+
 
     private final Map<Character, Color> pieceColors = new HashMap<>();
     private final Color PRIMARY_PIECE_COLOR = new Color(255, 0, 0); 
@@ -821,7 +843,6 @@ class BoardAnimationPanel extends JPanel {
     private final Color GRID_COLOR = new Color(200, 200, 200);
     private final Color BOARD_BACKGROUND = new Color(240, 240, 240);
     
-    // Komponen kontrol langkah
     private JButton prevButton;
     private JButton nextButton;
     private JButton playButton;
@@ -838,6 +859,16 @@ class BoardAnimationPanel extends JPanel {
         add(controlPanel, BorderLayout.SOUTH);
         updateControlsState();
     }
+    
+    public void setCustomPlaceholderMessage(String message) {
+        this.customPlaceholderMessage = message;
+        if (message != null) { // If setting a custom message, ensure no animation is running
+            stopAnimation();
+            this.solutionPath = null; // Clear solution path to ensure placeholder is shown
+        }
+        repaint();
+    }
+
 
     private void initializeControls() {
         controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -871,6 +902,7 @@ class BoardAnimationPanel extends JPanel {
             currentStepIndex = 0;
             updateStepLabel();
             repaint();
+            if(solutionPath != null && !solutionPath.isEmpty()) startAnimation(); // Optionally restart animation
         });
         
         stepLabel = new JLabel("Step: 0/0");
@@ -884,8 +916,9 @@ class BoardAnimationPanel extends JPanel {
     }
     
     private void updateStepLabel() {
-        int total = (solutionPath != null) ? solutionPath.size() : 0;
-        stepLabel.setText("Step: " + (currentStepIndex + 1) + "/" + total);
+        int total = (solutionPath != null && !solutionPath.isEmpty()) ? solutionPath.size() : 0;
+        int currentDisplayStep = (total == 0) ? 0 : currentStepIndex + 1;
+        stepLabel.setText("Step: " + currentDisplayStep + "/" + total);
     }
     
     private void updateControlsState() {
@@ -893,9 +926,9 @@ class BoardAnimationPanel extends JPanel {
         
         prevButton.setEnabled(hasSolution && currentStepIndex > 0);
         nextButton.setEnabled(hasSolution && currentStepIndex < (solutionPath != null ? solutionPath.size() - 1 : 0));
-        playButton.setEnabled(hasSolution && !isAnimating);
+        playButton.setEnabled(hasSolution && !isAnimating && (solutionPath != null && currentStepIndex < solutionPath.size() -1));
         pauseButton.setEnabled(isAnimating);
-        resetButton.setEnabled(hasSolution && currentStepIndex > 0);
+        resetButton.setEnabled(hasSolution); // Reset always enabled if there's a path
         
         updateStepLabel();
     }
@@ -903,32 +936,32 @@ class BoardAnimationPanel extends JPanel {
     private void initializePieceColors() {
         char[] pieces = "ABCDEFGHIJKLMNOQRSTUVWXYZ".toCharArray();
         Color[] colors = {
-            new Color(251, 107, 29),  // #fb6b1d
-            new Color(232, 59, 59),   // #e83b3b
-            new Color(131, 28, 93),   // #831c5d
-            new Color(195, 36, 84),   // #c32454
-            new Color(240, 79, 120),  // #f04f78
-            new Color(246, 129, 129), // #f68181
-            new Color(252, 167, 144), // #fca790
-            new Color(227, 200, 150), // #e3c896
-            new Color(171, 148, 122), // #ab947a
-            new Color(150, 108, 108), // #966c6c
-            new Color(98, 85, 101),   // #625565
-            new Color(62, 53, 70),    // #3e3546
-            new Color(11, 94, 101),   // #0b5e65
-            new Color(11, 138, 143),  // #0b8a8f
-            new Color(30, 188, 115),  // #1ebc73
-            new Color(145, 219, 105), // #91db69
-            new Color(251, 255, 134), // #fbff86
-            new Color(251, 185, 84),  // #fbb954
-            new Color(205, 104, 61),  // #cd683d
-            new Color(158, 69, 57),   // #9e4539
-            new Color(122, 48, 69),   // #7a3045
-            new Color(107, 62, 117),  // #6b3e75
-            new Color(144, 94, 169),  // #905ea9
-            new Color(168, 132, 243), // #a884f3
-            new Color(234, 173, 237), // #eaaded
-            new Color(143, 211, 255)  // #8fd3ff
+            new Color(251, 107, 29),  
+            new Color(232, 59, 59),   
+            new Color(131, 28, 93),   
+            new Color(195, 36, 84),   
+            new Color(240, 79, 120),  
+            new Color(246, 129, 129), 
+            new Color(252, 167, 144), 
+            new Color(227, 200, 150), 
+            new Color(171, 148, 122), 
+            new Color(150, 108, 108), 
+            new Color(98, 85, 101),   
+            new Color(62, 53, 70),    
+            new Color(11, 94, 101),   
+            new Color(11, 138, 143),  
+            new Color(30, 188, 115),  
+            new Color(145, 219, 105), 
+            new Color(251, 255, 134), 
+            new Color(251, 185, 84),  
+            new Color(205, 104, 61),  
+            new Color(158, 69, 57),   
+            new Color(122, 48, 69),   
+            new Color(107, 62, 117),  
+            new Color(144, 94, 169),  
+            new Color(168, 132, 243), 
+            new Color(234, 173, 237), 
+            new Color(143, 211, 255)  
         };
 
         for (int i = 0; i < pieces.length; i++) {
@@ -940,6 +973,9 @@ class BoardAnimationPanel extends JPanel {
     public void setSolutionPath(List<Board> solutionPath) {
         this.solutionPath = solutionPath;
         this.currentStepIndex = 0;
+        if (this.solutionPath != null && !this.solutionPath.isEmpty()) {
+             this.customPlaceholderMessage = null; // Clear custom message if a valid path is set
+        }
         updateControlsState();
         repaint();
     }
@@ -947,8 +983,10 @@ class BoardAnimationPanel extends JPanel {
     public void startAnimation() {
         stopAnimation();
         
-        if (solutionPath == null || solutionPath.isEmpty()) {
-            repaint();
+        if (solutionPath == null || solutionPath.isEmpty() || currentStepIndex >= solutionPath.size() -1) {
+             isAnimating = false; // Ensure isAnimating is false if animation cannot start/continue
+             updateControlsState();
+             repaint(); 
             return;
         }
         
@@ -1001,7 +1039,7 @@ class BoardAnimationPanel extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-        if (solutionPath == null || solutionPath.isEmpty() || currentStepIndex >= solutionPath.size()) {
+        if (customPlaceholderMessage != null || solutionPath == null || solutionPath.isEmpty() || currentStepIndex >= solutionPath.size()) {
             drawPlaceholder(g2d);
             return;
         }
@@ -1016,24 +1054,22 @@ class BoardAnimationPanel extends JPanel {
 
     private void drawPlaceholder(Graphics2D g2d) {
         int width = getWidth();
-        int height = getHeight() - controlPanel.getPreferredSize().height; // Adjusted for control panel
+        int height = getHeight() - controlPanel.getPreferredSize().height; 
         
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(Color.WHITE); // Explicitly set background to white
         g2d.fillRect(0, 0, width, height); 
 
         g2d.setColor(Color.DARK_GRAY);
-        // g2d.setStroke(new BasicStroke(2.0f));
-        
-        // g2d.drawLine(width/4, height/4, 3*width/4, 3*height/4);
-        // g2d.drawLine(width/4, 3*height/4, 3*width/4, height/4);
-        
         g2d.setFont(new Font("Arial", Font.PLAIN, 16));
-        String msg = "Pilih file dan algoritma, lalu tekan Solve";
+        
+        String msg = (customPlaceholderMessage != null) ? customPlaceholderMessage : "Pilih file dan algoritma, lalu tekan Solve";
+        
         FontMetrics fm = g2d.getFontMetrics();
         int msgWidth = fm.stringWidth(msg);
-        g2d.drawString(msg, (width - msgWidth) / 2, height / 2 + fm.getAscent() / 2); // Centered message
+        g2d.drawString(msg, (width - msgWidth) / 2, height / 2 + fm.getAscent() / 2); 
 
-        g2d.setColor(GRID_COLOR);
+        g2d.setColor(Color.BLACK); 
+        g2d.setStroke(new BasicStroke(1.0f)); 
         g2d.drawRect(0, 0, width - 1, height - 1);
     }
 
@@ -1045,77 +1081,67 @@ class BoardAnimationPanel extends JPanel {
         int exitRow = board.getExitRow(); 
         int exitCol = board.getExitCol(); 
                                           
+        
         if (boardRows <= 0 || boardCols <= 0) { 
             drawPlaceholder(g2d);
             return;
         }
 
         int panelWidth = getWidth();
-        int panelHeight = getHeight() - controlPanel.getPreferredSize().height; // Adjusted for control panel
+        int panelHeight = getHeight() - controlPanel.getPreferredSize().height; 
         
-        // Total grid space including potential exit positions
-        int gridRows = boardRows + 2; // +2 to include potential exits at top (0) and bottom (boardRows+1)
-        int gridCols = boardCols + 2; // +2 to include potential exits at left (0) and right (boardCols+1)
+        int gridRows = boardRows + 2; 
+        int gridCols = boardCols + 2; 
         
         int cellWidth = panelWidth / gridCols;
         int cellHeight = panelHeight / gridRows;
 
-        // Offset to center the board leaving space for exits
         int offsetX = cellWidth;
         int offsetY = cellHeight;
         
-        // Fill background
         g2d.setColor(BOARD_BACKGROUND);
         g2d.fillRect(0, 0, panelWidth, panelHeight);
         
-        // Draw main board background
         g2d.setColor(BOARD_BACKGROUND);
         g2d.fillRect(offsetX, offsetY, cellWidth * boardCols, cellHeight * boardRows);
         
-        // Draw grid only for the main board area (1-boardRow and 1-boardCol)
         g2d.setColor(GRID_COLOR);
         g2d.setStroke(new BasicStroke(1.0f));
         
-        // Draw border around the main board
         g2d.drawRect(offsetX, offsetY, cellWidth * boardCols, cellHeight * boardRows);
         
-        // Draw internal horizontal grid lines (only within the main board)
         for (int i = 1; i < boardRows; i++) {
             int y = offsetY + i * cellHeight;
             g2d.drawLine(offsetX, y, offsetX + boardCols * cellWidth, y);
         }
         
-        // Draw internal vertical grid lines (only within the main board)
         for (int j = 1; j < boardCols; j++) {
             int x = offsetX + j * cellWidth;
             g2d.drawLine(x, offsetY, x, offsetY + boardRows * cellHeight);
         }
         
-        // Draw exit
         g2d.setColor(EXIT_COLOR);
 
         int exitCellX = 0;
         int exitCellY = 0;
         
-        if (exitCol > boardCols) { // Right exit
+        if (exitCol > boardCols) { 
             exitCellX = offsetX + boardCols * cellWidth;
             exitCellY = offsetY + (exitRow - 1) * cellHeight;
-        } else if (exitCol == 0) { // Left exit
+        } else if (exitCol == 0) { 
             exitCellX = 0;
             exitCellY = offsetY + (exitRow - 1) * cellHeight;
-        } else if (exitRow > boardRows) { // Bottom exit
+        } else if (exitRow > boardRows) { 
             exitCellX = offsetX + (exitCol - 1) * cellWidth;
             exitCellY = offsetY + boardRows * cellHeight;
-        } else if (exitRow == 0) { // Top exit
+        } else if (exitRow == 0) { 
             exitCellX = offsetX + (exitCol - 1) * cellWidth;
             exitCellY = 0;
         }
         
         g2d.fillRect(exitCellX, exitCellY, cellWidth, cellHeight);
-        // Gambar outline-nya
-        g2d.setColor(EXIT_COLOR.darker());        // Warna outline
-        g2d.setStroke(new BasicStroke(2)); // Ketebalan garis (2 px)
-        // Exit text
+        g2d.setColor(EXIT_COLOR.darker());
+        g2d.setStroke(new BasicStroke(2)); 
         g2d.setColor(Color.WHITE);
         int fontSize = Math.min(cellWidth, cellHeight) / 3;
         g2d.setFont(new Font("Arial", Font.BOLD, fontSize));
@@ -1123,9 +1149,8 @@ class BoardAnimationPanel extends JPanel {
         String exitLabel = "EXIT";
         int textWidth = fm.stringWidth(exitLabel);
         g2d.drawString(exitLabel, exitCellX + (cellWidth - textWidth) / 2, 
-                     exitCellY + (cellHeight - fm.getHeight()) / 2 + fm.getAscent());
+                       exitCellY + (cellHeight - fm.getHeight()) / 2 + fm.getAscent());
         
-        // Draw pieces
         java.util.Set<Character> drawnPieces = new java.util.HashSet<>();
 
         for (int r = 1; r <= boardRows; r++) { 
@@ -1138,14 +1163,13 @@ class BoardAnimationPanel extends JPanel {
             }
         }
         
-        // Draw step indicator
         drawStepIndicator(g2d, panelWidth, panelHeight);
     }
     
     private void drawStepIndicator(Graphics2D g2d, int panelWidth, int panelHeight) {
         if (solutionPath == null || solutionPath.isEmpty()) return;
         
-        g2d.setColor(new Color(98, 85, 101, 150)); // Semi-transparent black
+        g2d.setColor(new Color(98, 85, 101, 150)); 
         g2d.setFont(new Font("Arial", Font.BOLD, 14));
         
         String stepText = "Langkah " + (currentStepIndex + 1) + " dari " + solutionPath.size();
@@ -1159,18 +1183,16 @@ class BoardAnimationPanel extends JPanel {
         int rectX = panelWidth - rectWidth - 10;
         int rectY = 10;
         
-        // Draw background for text
         g2d.fillRoundRect(rectX, rectY, rectWidth, rectHeight, 10, 10);
         
-        // Draw text
         g2d.setColor(Color.WHITE);
         g2d.drawString(stepText, rectX + padding, rectY + fm.getAscent() + padding/2);
     }
 
     private void drawPiece(Graphics2D g2d, Board board, char pieceChar, 
-                           int startRow, int startCol, 
-                           int cellWidth, int cellHeight,
-                           int offsetX, int offsetY) {
+                        int startRow, int startCol, 
+                        int cellWidth, int cellHeight,
+                        int offsetX, int offsetY) {
         
         int pieceActualRow = -1, pieceActualCol = -1;
         int pieceWidthInCells = 0;
@@ -1190,7 +1212,7 @@ class BoardAnimationPanel extends JPanel {
                     }
                     if (currentWidth > pieceWidthInCells) pieceWidthInCells = currentWidth;
 
-                     int currentHeight = 0;
+                    int currentHeight = 0;
                     for (int k = r; k <= board.getBoardRow(); k++) {
                         if (board.getCharAt(k,c) == pieceChar) currentHeight++;
                         else break;
@@ -1201,29 +1223,31 @@ class BoardAnimationPanel extends JPanel {
         }
         
         if (pieceWidthInCells > 1 && pieceHeightInCells > 1) {
-             boolean horizontal = false;
-             if (pieceActualCol + 1 <= board.getBoardCol() && board.getCharAt(pieceActualRow, pieceActualCol + 1) == pieceChar) {
-                 horizontal = true;
-             }
+            boolean horizontal = false;
+            if (pieceActualCol + 1 <= board.getBoardCol() && board.getCharAt(pieceActualRow, pieceActualCol + 1) == pieceChar) {
+                horizontal = true;
+            }
 
-             if (horizontal) {
-                 pieceHeightInCells = 1;
-                 int width = 0;
-                 for(int c = pieceActualCol; c <= board.getBoardCol(); c++){
-                     if(board.getCharAt(pieceActualRow, c) == pieceChar) width++; else break;
-                 }
-                 pieceWidthInCells = width;
-             } else { 
-                 pieceWidthInCells = 1;
-                 int height = 0;
-                 for(int r = pieceActualRow; r <= board.getBoardRow(); r++){
-                     if(board.getCharAt(r, pieceActualCol) == pieceChar) height++; else break;
-                 }
-                 pieceHeightInCells = height;
-             }
+            if (horizontal) {
+                pieceHeightInCells = 1;
+                int width = 0;
+                for(int c = pieceActualCol; c <= board.getBoardCol(); c++){
+                    if(board.getCharAt(pieceActualRow, c) == pieceChar) width++; else break;
+                }
+                pieceWidthInCells = width;
+            } else { 
+                pieceWidthInCells = 1;
+                int height = 0;
+                for(int r = pieceActualRow; r <= board.getBoardRow(); r++){
+                    if(board.getCharAt(r, pieceActualCol) == pieceChar) height++; else break;
+                }
+                pieceHeightInCells = height;
+            }
         }
 
+
         if (pieceActualRow == -1) return; 
+
 
         int x = offsetX + (pieceActualCol - 1) * cellWidth; 
         int y = offsetY + (pieceActualRow - 1) * cellHeight; 
