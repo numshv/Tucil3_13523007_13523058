@@ -10,8 +10,8 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 import obj.Board;
 import obj.Piece;
+import solver.*;
 
-import obj.Piece;
 
 
 public class Utils {
@@ -199,18 +199,21 @@ public class Utils {
         }
     }
 
-    public void runMainApp(){
+    public void runMainApp(Board board){
         Scanner userInput = new Scanner(System.in);
         String pickedAlgo, pickedHeuristic;
         while(true){
             try{
-                System.out.print("Pilih algoritma (Masukkan angka pilihanmu): ");
+                System.out.println("Pilih algoritma! ");
                 System.out.println("1. GBFS");
                 System.out.println("2. A*");
-                System.out.println("3. IDS");
+                System.out.println("3. UCS");
+                System.out.println("4. IDS\n");
+                System.out.print("Masukkan angka pilihan: ");
                 pickedAlgo = userInput.nextLine();
+                System.out.println();
                 pickedAlgo.toLowerCase();
-                if(!(pickedAlgo.equals("1") || pickedAlgo.equals("2") ||pickedAlgo.equals("3"))) throw new Exception("Pilihan algoritma tidak valid, ulangi\n");
+                if(!(pickedAlgo.equals("1") || pickedAlgo.equals("2") ||pickedAlgo.equals("3") ||pickedAlgo.equals("4"))) throw new Exception("Pilihan algoritma tidak valid, ulangi\n");
                 break;
             }
             catch(Exception e){
@@ -219,12 +222,17 @@ public class Utils {
         }
         while(true){
             try{
-                System.out.print("Pilih heuristic (Masukkan angka pilihanmu): ");
-                System.out.print("1. Jumlah blok menghalangi");
-                System.out.print("2. Jarak blok primer ke pintu keluar");
-                pickedHeuristic = userInput.nextLine();
-                pickedHeuristic.toLowerCase();
-                if(!(pickedHeuristic.equals("1") || pickedHeuristic.equals("2") )) throw new Exception("Pilihan heuristik tidak valid, ulangi\n");
+                if(pickedAlgo.equals("1") || pickedAlgo.equals("2")){
+                    System.out.println("Pilih heuristic (Masukkan angka pilihanmu): ");
+                    System.out.println("1. Jumlah blok menghalangi");
+                    System.out.println("2. Jarak blok primer ke pintu keluar\n");
+                    System.out.print("Masukkan angka pilihan: ");
+                    pickedHeuristic = userInput.nextLine();
+                    System.out.println();
+                    pickedHeuristic.toLowerCase();
+                    if(!(pickedHeuristic.equals("1") || pickedHeuristic.equals("2") )) throw new Exception("Pilihan heuristik tidak valid, ulangi\n");
+                }
+                pickedHeuristic = "NaN";
                 break;
             }
             catch(Exception e){
@@ -233,23 +241,27 @@ public class Utils {
         }
         long startTime = System.nanoTime();
         if(pickedAlgo.equals("1")){
-            if(pickedHeuristic.equals("1")){}//TODO: TAMBAHIN RUN ALGONYA
-            else{}//TODO: TAMBAHIN RUN ALGONYA
+            GBFS gbfsResult = new GBFS();
+            if(pickedHeuristic.equals("1")) gbfsResult.solve(board, true);
+            else gbfsResult.solve(board, false);
+            gbfsResult.printSolutionPath();
         }
         else if(pickedAlgo.equals("2")){
             if(pickedHeuristic.equals("1")){}//TODO: TAMBAHIN RUN ALGONYA
             else{}//TODO: TAMBAHIN RUN ALGONYA
         }
+        else if(pickedAlgo.equals("3")){
+            //TODO: TAMBAHIN RUN ALGONYA
+        }
         else{
-            if(pickedHeuristic.equals("1")){}//TODO: TAMBAHIN RUN ALGONYA
-            else{}//TODO: TAMBAHIN RUN ALGONYA
+            IDS idsResult = new IDS(board);
+            idsResult.printSolutionPath();
         }
 
         long endTime = System.nanoTime();
         long durationInMillis = (endTime - startTime) / 1_000_000;
 
         System.out.println("Time taken: " + durationInMillis + " ms");
-        // TODO tambahin print jumlah node dikunjungi
     }
 
     // public List<Board> generateAllPossibleMoves(Board inpBoard, Board prevTwoBoardState){

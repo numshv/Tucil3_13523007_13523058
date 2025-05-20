@@ -34,7 +34,6 @@ public class GBFS {
         int heuristicValue;
 
         // Loop sampai menemukan solusi atau tidak ada langkah valid yang tersisa
-        System.out.println("STARTS OF GBFS TREE");
         while (!currentBoard.isFinished()) {
             // Generate semua kemungkinan move dari node saat ini
             // currentBoard.printBoardState();
@@ -118,16 +117,17 @@ public class GBFS {
     }
 
     public void printSolutionPath(){
-        System.out.println("isfinished? " + isSolutionFound());
         if (this.solutionPath != null) {
+            System.out.println("Solusi ditemukan!");
+            System.out.print("Tekan enter untuk lanjut ...");
+            scanner.nextLine();
             for (int i = 0; i < solutionPath.size(); i++) {
-                System.out.println("\nLangkah Ke-" + i + " (Papan ke-" + (i+1) + "):");
+                System.out.println("\nLangkah Ke-" + i );
                 solutionPath.get(i).printBoardState();
                 // System.out.print("Enter anything to continue ...");
                 // scanner.nextLine();
             }
-            System.out.println("--------------------------------");
-            System.out.println("--- Jumlah Node: " + nodeCount + ") ---");
+            System.out.println("Jumlah Node dieksplor: " + nodeCount );
         } else {
             System.out.println("Tidak ada solusi yang ditemukan " );
         }

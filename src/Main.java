@@ -15,6 +15,10 @@ public class Main {
     public static void main(String[] args) {
         Utils utils = new Utils();
         Board board = utils.inputFileHandler();
+        utils.runMainApp(board);
+
+
+        // ========= DEBUGGING AND TESTING ===========
         //System.out.println(board.getPiece('I').getLen());
         // System.out.println(board.getPiece('I').getLen());
         // Scanner scanner = new Scanner(System.in);
@@ -40,9 +44,9 @@ public class Main {
 
         // IDS idsResult = new IDS(board);
         // idsResult.printSolutionPath();
-        GBFS gbfsResult = new GBFS();
-        gbfsResult.solve(board, true);
-        gbfsResult.printSolutionPath();
+        // GBFS gbfsResult = new GBFS();
+        // gbfsResult.solve(board, true);
+        // gbfsResult.printSolutionPath();
         
     }
 }
