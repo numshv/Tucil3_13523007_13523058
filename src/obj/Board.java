@@ -18,32 +18,32 @@ public class Board {
     private int lastDist;
     private Piece lastPiece;
     private static final Map<Character, String> COLOR_MAP = new HashMap<Character, String>() {{
-        put('A', "\u001B[31m"); // Red
-        put('B', "\u001B[32m"); // Green
-        put('C', "\u001B[33m"); // Yellow
-        put('D', "\u001B[34m"); // Blue
-        put('E', "\u001B[35m"); // Purple
-        put('F', "\u001B[36m"); // Cyan
-        put('G', "\u001B[91m"); // Bright Red
-        put('H', "\u001B[92m"); // Bright Green
-        put('I', "\u001B[93m"); // Bright Yellow
-        put('J', "\u001B[94m"); // Bright Blue
-        put('K', "\u001B[95m"); // Bright Purple
-        put('L', "\u001B[96m"); // Bright Cyan
-        put('M', "\u001B[37m"); // White
-        put('N', "\u001B[90m"); // Bright Black/Gray
-        put('O', "\u001B[97m"); // Bright White
-        put('P', "\u001B[44m\u001B[97m"); // Blue background, bright white text
-        put('Q', "\u001B[31m\u001B[1m"); // Bold Red
-        put('R', "\u001B[32m\u001B[1m"); // Bold Green
-        put('S', "\u001B[33m\u001B[1m"); // Bold Yellow
-        put('T', "\u001B[34m\u001B[1m"); // Bold Blue
-        put('U', "\u001B[35m\u001B[1m"); // Bold Purple
-        put('V', "\u001B[36m\u001B[1m"); // Bold Cyan
-        put('W', "\u001B[37m\u001B[1m"); // Bold White
-        put('X', "\u001B[91m\u001B[1m"); // Bold Bright Red
-        put('Y', "\u001B[92m\u001B[1m"); // Bold Bright Green
-        put('Z', "\u001B[93m\u001B[1m"); // Bold Bright Yellow
+        put('A', "\u001B[31m"); 
+        put('B', "\u001B[32m"); 
+        put('C', "\u001B[33m"); 
+        put('D', "\u001B[34m"); 
+        put('E', "\u001B[35m"); 
+        put('F', "\u001B[36m"); 
+        put('G', "\u001B[91m"); 
+        put('H', "\u001B[92m"); 
+        put('I', "\u001B[93m"); 
+        put('J', "\u001B[94m"); 
+        put('K', "\u001B[95m"); 
+        put('L', "\u001B[96m"); 
+        put('M', "\u001B[37m"); 
+        put('N', "\u001B[90m"); 
+        put('O', "\u001B[97m"); 
+        put('P', "\u001B[44m\u001B[97m"); 
+        put('Q', "\u001B[31m\u001B[1m"); 
+        put('R', "\u001B[32m\u001B[1m"); 
+        put('S', "\u001B[33m\u001B[1m"); 
+        put('T', "\u001B[34m\u001B[1m"); 
+        put('U', "\u001B[35m\u001B[1m"); 
+        put('V', "\u001B[36m\u001B[1m");
+        put('W', "\u001B[37m\u001B[1m"); 
+        put('X', "\u001B[91m\u001B[1m"); 
+        put('Y', "\u001B[92m\u001B[1m"); 
+        put('Z', "\u001B[93m\u001B[1m"); 
     }};
     private static final String RESET = "\u001B[0m";
     private static final String EXIT_COLOR = "\u001B[42m\u001B[30m"; 
@@ -113,19 +113,16 @@ public class Board {
             }
         }
 
-        // Map untuk melacak koordinat awal setiap piece
         Map<Character, String> pieceStartPositions = new HashMap<>();
 
         for(int i=0; i<this.boardRow; i++){
             for(int j=0; j<this.boardCol; j++){
                 char currentPiece = boardState[i][j];
                 
-                // Skip jika kosong atau sudah diperiksa koordinat ini
                 if(currentPiece == '.' || checkedPositions.contains(i + "," + j)){
                     continue;
                 }
                 
-                // Periksa apakah piece ini sudah pernah ditemukan sebelumnya
                 if(uniquePieces.contains(currentPiece)){
                     throw new Exception("Terdapat piece duplikat dengan karakter '" + currentPiece + "' di posisi berbeda");
                 }
@@ -140,7 +137,6 @@ public class Board {
                     isHorizontal = true;
                     pieceLength = 1;
 
-                    // Tandai semua posisi piece ini sebagai sudah diperiksa
                     checkedPositions.add(i + "," + j);
                     
                     while(j+pieceLength < this.boardCol && boardState[i][j+pieceLength] == currentPiece){
@@ -153,14 +149,12 @@ public class Board {
                     uniquePieces.add(currentPiece);
                     this.pieceCounter++;
                     
-                    // Simpan posisi awal piece
                     pieceStartPositions.put(currentPiece, (i+1) + "," + (j+1));
                 }
                 else if(i+1 < this.boardRow && boardState[i+1][j] == currentPiece){
                     isHorizontal = false;
                     pieceLength = 1; 
                     
-                    // Tandai semua posisi piece ini sebagai sudah diperiksa
                     checkedPositions.add(i + "," + j);
                     
                     while(i+pieceLength < this.boardRow && boardState[i+pieceLength][j] == currentPiece){
@@ -173,7 +167,6 @@ public class Board {
                     uniquePieces.add(currentPiece);
                     this.pieceCounter++;
                     
-                    // Simpan posisi awal piece
                     pieceStartPositions.put(currentPiece, (i+1) + "," + (j+1));
                 }
                 else{
@@ -182,13 +175,11 @@ public class Board {
             }
         }
         
-        // Scan sekali lagi untuk memastikan tidak ada piece dengan karakter sama yang terpisah
         for(int i=0; i<this.boardRow; i++){
             for(int j=0; j<this.boardCol; j++){
                 char currentPiece = boardState[i][j];
                 
                 if(currentPiece != '.' && !checkedPositions.contains(i + "," + j)){
-                    // Jika menemukan piece dengan karakter yang sudah ada tetapi posisinya belum diperiksa
                     throw new Exception("Terdapat piece duplikat dengan karakter '" + currentPiece + "' di posisi berbeda");
                 }
             }
