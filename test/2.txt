@@ -1,6 +1,8 @@
-4 4
-3
- DAAB
-KDPPB
- ....
- ....
+6 6
+10
+ABCD..
+ABCDEF
+PPGHEFK
+..GH..
+......
+IIJJ..
