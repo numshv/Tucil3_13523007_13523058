@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import java.util.Scanner;
 
 import utils.*;
 
@@ -45,12 +44,11 @@ public class IDS {
                 }
 
                 if (currentNode.getDepth() < this.curMaxDepth) {
-                    if (currentNode.getDepth() > 0) {
-                        List<Board> path = currentNode.getPathOfBoards();
-                    }
                     
                     List<Board> nextPossibleBoards;
-                    nextPossibleBoards = utils.generateAllPossibleMoves(currentBoardState, currentBoardState.getLastMoves(), currentBoardState.getLastDist(), currentBoardState.getLastPiece());
+                    nextPossibleBoards = utils.generateAllPossibleMoves(currentBoardState, 
+                    currentBoardState.getLastMoves(), 
+                    currentBoardState.getLastDist(), currentBoardState.getLastPiece());
 
 
                     for (int i = nextPossibleBoards.size() - 1; i >= 0; i--) {
@@ -68,10 +66,6 @@ public class IDS {
 
             this.curMaxDepth++;
 
-            if (this.curMaxDepth > 30) { 
-                System.out.println("IDS mencapai batas kedalaman praktis (" + this.curMaxDepth + ") tanpa menemukan solusi.");
-                break;
-            }
         }
 
     }
