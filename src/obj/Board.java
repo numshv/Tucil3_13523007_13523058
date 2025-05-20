@@ -92,6 +92,8 @@ public class Board {
         this.boardCol = boardState[0].length;
         this.boardState = new char[this.boardRow+1][this.boardCol+1];
         Set<Character> uniquePieces = new HashSet<>();
+        // Tambahkan Set untuk melacak posisi piece yang sudah diperiksa
+        Set<String> checkedPositions = new HashSet<>();
         this.pieces = new HashMap<Character, Piece>();
         this.pieceCounter = 0;
 
@@ -111,24 +113,38 @@ public class Board {
             }
         }
 
+        // Map untuk melacak koordinat awal setiap piece
+        Map<Character, String> pieceStartPositions = new HashMap<>();
+
         for(int i=0; i<this.boardRow; i++){
             for(int j=0; j<this.boardCol; j++){
                 char currentPiece = boardState[i][j];
                 
-                if(currentPiece == '.' || uniquePieces.contains(currentPiece)){
+                // Skip jika kosong atau sudah diperiksa koordinat ini
+                if(currentPiece == '.' || checkedPositions.contains(i + "," + j)){
                     continue;
+                }
+                
+                // Periksa apakah piece ini sudah pernah ditemukan sebelumnya
+                if(uniquePieces.contains(currentPiece)){
+                    throw new Exception("Terdapat piece duplikat dengan karakter '" + currentPiece + "' di posisi berbeda");
                 }
                 
                 boolean isHorizontal = false;
                 int pieceLength = 1;
                 
-                if(i+1 < this.boardRow && boardState[i+1][j] == currentPiece && j+1 < this.boardCol && boardState[i][j+1] == currentPiece) throw new Exception("Piece hanya boleh horizontal atau vertikal");
-
+                if(i+1 < this.boardRow && boardState[i+1][j] == currentPiece && j+1 < this.boardCol && boardState[i][j+1] == currentPiece) {
+                    throw new Exception("Piece hanya boleh horizontal atau vertikal");
+                }
                 else if(j+1 < this.boardCol && boardState[i][j+1] == currentPiece){
                     isHorizontal = true;
                     pieceLength = 1;
 
+                    // Tandai semua posisi piece ini sebagai sudah diperiksa
+                    checkedPositions.add(i + "," + j);
+                    
                     while(j+pieceLength < this.boardCol && boardState[i][j+pieceLength] == currentPiece){
+                        checkedPositions.add(i + "," + (j+pieceLength));
                         pieceLength++;
                     }
                     
@@ -136,13 +152,19 @@ public class Board {
                     pieces.put(currentPiece, newPiece);
                     uniquePieces.add(currentPiece);
                     this.pieceCounter++;
+                    
+                    // Simpan posisi awal piece
+                    pieceStartPositions.put(currentPiece, (i+1) + "," + (j+1));
                 }
-
                 else if(i+1 < this.boardRow && boardState[i+1][j] == currentPiece){
                     isHorizontal = false;
                     pieceLength = 1; 
                     
+                    // Tandai semua posisi piece ini sebagai sudah diperiksa
+                    checkedPositions.add(i + "," + j);
+                    
                     while(i+pieceLength < this.boardRow && boardState[i+pieceLength][j] == currentPiece){
+                        checkedPositions.add((i+pieceLength) + "," + j);
                         pieceLength++;
                     }
                     
@@ -150,9 +172,24 @@ public class Board {
                     pieces.put(currentPiece, newPiece);
                     uniquePieces.add(currentPiece);
                     this.pieceCounter++;
+                    
+                    // Simpan posisi awal piece
+                    pieceStartPositions.put(currentPiece, (i+1) + "," + (j+1));
                 }
                 else{
                     throw new Exception("Panjang piece setidaknya 2");
+                }
+            }
+        }
+        
+        // Scan sekali lagi untuk memastikan tidak ada piece dengan karakter sama yang terpisah
+        for(int i=0; i<this.boardRow; i++){
+            for(int j=0; j<this.boardCol; j++){
+                char currentPiece = boardState[i][j];
+                
+                if(currentPiece != '.' && !checkedPositions.contains(i + "," + j)){
+                    // Jika menemukan piece dengan karakter yang sudah ada tetapi posisinya belum diperiksa
+                    throw new Exception("Terdapat piece duplikat dengan karakter '" + currentPiece + "' di posisi berbeda");
                 }
             }
         }
