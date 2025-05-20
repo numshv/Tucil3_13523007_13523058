@@ -39,7 +39,7 @@ public class Utils {
             try {
                 System.out.print("Masukkan nama file input (dalam folder test, ex: tes1.txt): ");
                 String filename = userInput.nextLine();
-                String filePath = "test/" + filename; 
+                String filePath = "../test/" + filename; 
                 inpFileName = filePath;
                 File file = new File(filePath);
 
@@ -243,37 +243,41 @@ public class Utils {
             }
         }
         long startTime = System.nanoTime();
+        long endTime;
         if(pickedAlgo.equals("1")){
             GBFS gbfsResult = new GBFS();
             if(pickedHeuristic.equals("1")) gbfsResult.solve(board, true);
             else gbfsResult.solve(board, false);
+            endTime = System.nanoTime();
             gbfsResult.printSolutionPath();
             gbfsResult.writeSolution(inpFileName);
         }
         else if(pickedAlgo.equals("2")){
             if(pickedHeuristic.equals("1")){
                 AStar aStarResult = new AStar(board, true);
+                endTime = System.nanoTime();
                 aStarResult.printSolutionPath();
                 aStarResult.writeSolution(inpFileName);
             }
             else{
                 AStar aStarResult = new AStar(board, true);
+                endTime = System.nanoTime();
                 aStarResult.printSolutionPath();
                 aStarResult.writeSolution(inpFileName);
             }
         }
         else if(pickedAlgo.equals("3")){
             UCS ucsResult = new UCS(board);
+            endTime = System.nanoTime();
             ucsResult.printSolutionPath();
             ucsResult.writeSolution(inpFileName);
         }
         else{
             IDS idsResult = new IDS(board);
+            endTime = System.nanoTime();
             idsResult.printSolutionPath();
             idsResult.writeSolution(inpFileName);
         }
-
-        long endTime = System.nanoTime();
         long durationInMillis = (endTime - startTime) / 1_000_000;
 
         System.out.println("Time taken: " + durationInMillis + " ms");
